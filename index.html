@@ -24,7 +24,7 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูล Google สแตนด์บาย</div>
+        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูลพร้อมใช้งาน</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -33,7 +33,7 @@
     </div>
 
     <script>
-        // ดึงค่า URL ของฐานข้อมูลพี่โดยตรง ยิงผ่าน REST API ความเร็วสูง
+        // ลิงก์ตรงเข้าฐานข้อมูล Firebase ของพี่ ยิงผ่านช่องทาง REST API ตัวตรง
         const FIREBASE_URL = "https://tvet-mining-default-rtdb.asia-southeast1.firebasedatabase.app";
 
         let tgUser = { id: "12345678" }; 
@@ -52,11 +52,11 @@
             }
         }
 
-        // ฟังก์ชันดึงยอดขุดล่าสุดจาก Firebase
+        // โหลดข้อมูลเก่าจากคลาวด์ Firebase
         async function loadUserData() {
             try {
-                const response = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
-                const data = await response.json();
+                const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
+                const data = await res.json();
                 if (data) {
                     balance = parseFloat(data.balance) || 0;
                     walletAddr = data.wallet_address || "not_connected";
@@ -69,7 +69,7 @@
                     }
                 }
             } catch (err) {
-                console.log("ไม่มีข้อมูลเดิม ระบบจะสร้างใหม่เมื่อขุดเสร็จ");
+                console.log("เริ่มขุดเก็บแต้มใหม่");
             }
         }
         loadUserData();
@@ -103,7 +103,7 @@
             }
         }
 
-        // ฟังก์ชันยิงแต้มขุดบันทึกเข้าคลาวด์ Firebase ตรงๆ ไม่ง้อ CORS ล็อก
+        // ระบบบันทึกข้อมูลแบบล้างคำสะกดผิดออกถอนรากถอนโคน
         async function saveDataToFirebase() {
             try {
                 const payload = {
@@ -113,5 +113,38 @@
                     last_updated: new Date().toISOString()
                 };
 
-                const response = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`, {
+                const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`, {
                     method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
+                    document.getElementById('miningStatus').style.color = "#34d399";
+                } else {
+                    document.getElementById('miningStatus').innerText = "⚠️ เซฟข้อมูลขัดข้อง กรุณาลองอีกครั้ง";
+                    document.getElementById('miningStatus').style.color = "#f87171";
+                }
+            } catch (e) {
+                document.getElementById('miningStatus').innerText = "⚠️ ไม่สามารถติดต่อฐานข้อมูลกูเกิลได้";
+                document.getElementById('miningStatus').style.color = "#f87171";
+            }
+        }
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    walletAddr = accounts[0];
+                    document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
+                    document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ"; 
+                    document.getElementById('walletBtn').style.background = "#10b981"; 
+                    document.getElementById('walletBtn').style.color = "#ffffff";
+                    saveDataToFirebase();
+                } catch (error) { alert("ปฏิเสธการเชื่อมต่อ"); }
+            } else { alert("กรุณาเปิดลิงก์นี้ในแอป MetaMask บนมือถือครับ"); }
+        }
+    </script>
+</body>
+</html>
