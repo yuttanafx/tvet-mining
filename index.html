@@ -24,7 +24,7 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูลพร้อมใช้งาน</div>
+        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูลกูเกิลพร้อมรัน</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -33,7 +33,6 @@
     </div>
 
     <script>
-        // ลิงก์ตรงเข้าฐานข้อมูล Firebase ของพี่ ยิงผ่านช่องทาง REST API ตัวตรง
         const FIREBASE_URL = "https://tvet-mining-default-rtdb.asia-southeast1.firebasedatabase.app";
 
         let tgUser = { id: "12345678" }; 
@@ -52,7 +51,7 @@
             }
         }
 
-        // โหลดข้อมูลเก่าจากคลาวด์ Firebase
+        // ดึงข้อมูลยอดเดิมมาโชว์หน้าจอ
         async function loadUserData() {
             try {
                 const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
@@ -69,7 +68,7 @@
                     }
                 }
             } catch (err) {
-                console.log("เริ่มขุดเก็บแต้มใหม่");
+                console.log("ไม่มีข้อมูลเก่า");
             }
         }
         loadUserData();
@@ -103,31 +102,32 @@
             }
         }
 
-        // ระบบบันทึกข้อมูลแบบล้างคำสะกดผิดออกถอนรากถอนโคน
+        // ปรับปรุงโครงสร้างข้อมูลม้วนเดียวให้แตกกิ่งก้านชัดเจนบนหน้าจอ Firebase
         async function saveDataToFirebase() {
             try {
-                const payload = {
-                    tg_id: tgUser.id.toString(),
-                    balance: balance,
-                    wallet_address: walletAddr,
-                    last_updated: new Date().toISOString()
-                };
-
-                const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`, {
+                // บังคับแปลงค่าตัวเลขให้เป็น String ชัดๆ ป้องกันคลาวด์เอ๋อ
+                const uId = tgUser.id.toString();
+                
+                // ยิงอัปเดตตรงเข้าโฟลเดอร์ผู้ใช้งาน
+                await fetch(`${FIREBASE_URL}/users/${uId}/balance.json`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(balance)
+                });
+                
+                await fetch(`${FIREBASE_URL}/users/${uId}/tg_id.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(uId)
                 });
 
-                if (res.ok) {
-                    document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
-                    document.getElementById('miningStatus').style.color = "#34d399";
-                } else {
-                    document.getElementById('miningStatus').innerText = "⚠️ เซฟข้อมูลขัดข้อง กรุณาลองอีกครั้ง";
-                    document.getElementById('miningStatus').style.color = "#f87171";
-                }
+                await fetch(`${FIREBASE_URL}/users/${uId}/wallet_address.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(walletAddr)
+                });
+
+                document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
+                document.getElementById('miningStatus').style.color = "#34d399";
             } catch (e) {
-                document.getElementById('miningStatus').innerText = "⚠️ ไม่สามารถติดต่อฐานข้อมูลกูเกิลได้";
+                document.getElementById('miningStatus').innerText = "⚠️ ระบบติดต่อฐานข้อมูลขัดข้อง";
                 document.getElementById('miningStatus').style.color = "#f87171";
             }
         }
