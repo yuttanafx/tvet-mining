@@ -24,7 +24,7 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูลกูเกิลพร้อมรัน</div>
+        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูล Google สแตนด์บาย</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -51,12 +51,13 @@
             }
         }
 
-        // ดึงข้อมูลยอดเดิมมาโชว์หน้าจอ
+        // โหลดข้อมูลภาพรวมแบบก้อนใหญ่มาจากคลาวด์
         async function loadUserData() {
             try {
                 const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
                 const data = await res.json();
                 if (data) {
+                    // ดึงค่าตามโครงสร้างแพ็กเกจรวม
                     balance = parseFloat(data.balance) || 0;
                     walletAddr = data.wallet_address || "not_connected";
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4);
@@ -68,7 +69,7 @@
                     }
                 }
             } catch (err) {
-                console.log("ไม่มีข้อมูลเก่า");
+                console.log("สร้างโปรไฟล์แรกเข้าคลาวด์");
             }
         }
         loadUserData();
@@ -102,26 +103,24 @@
             }
         }
 
-        // ปรับปรุงโครงสร้างข้อมูลม้วนเดียวให้แตกกิ่งก้านชัดเจนบนหน้าจอ Firebase
+        // สั่งแพ็กข้อมูลลงกล่องพัสดุชิ้นเดียวแล้วส่งทีเดียว ป้องกันระบบเน็ตเวิร์กมือถือบล็อกตัวแปร
         async function saveDataToFirebase() {
             try {
-                // บังคับแปลงค่าตัวเลขให้เป็น String ชัดๆ ป้องกันคลาวด์เอ๋อ
                 const uId = tgUser.id.toString();
                 
-                // ยิงอัปเดตตรงเข้าโฟลเดอร์ผู้ใช้งาน
-                await fetch(`${FIREBASE_URL}/users/${uId}/balance.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(balance)
-                });
-                
-                await fetch(`${FIREBASE_URL}/users/${uId}/tg_id.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(uId)
-                });
+                // ยัดข้อมูลรวมกันเป็นวัตถุชิ้นเดียวก่อนส่ง
+                const packageData = {
+                    balance: balance,
+                    tg_id: uId,
+                    wallet_address: walletAddr,
+                    last_updated: new Date().toISOString()
+                };
 
-                await fetch(`${FIREBASE_URL}/users/${uId}/wallet_address.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(walletAddr)
+                // ส่งโป้งเดียวจอดด้วยวิธี PATCH สากล
+                await fetch(`${FIREBASE_URL}/users/${uId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(packageData)
                 });
 
                 document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
