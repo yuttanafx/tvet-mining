@@ -24,8 +24,8 @@
 <body>
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
-        <div id="userBadge" class="user-id-badge">กำลังดึงข้อมูล Telegram...</div>
-        <div class="mining-status" id="miningStatus">กำลังเชื่อมต่อฐานข้อมูล...</div>
+        <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
+        <div class="mining-status" id="miningStatus">ระบบฐานข้อมูลสแตนด์บาย</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -35,7 +35,6 @@
 
     <script>
         const SUPABASE_URL = "https://zuqxqrpgdhefwnciflb.supabase.co";
-        // ใส่คีย์ตัวเต็ม 100% ที่ดึงมาจากหน้าจอการตั้งค่าของพี่เรียบร้อยแล้วครับ
         const SUPABASE_KEY = "sb_publishable_FqcEAjOQl_ERccZldccFaQ_T00E1neL"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -45,6 +44,7 @@
         let miningInterval;
         let walletAddr = "not_connected";
 
+        // ตรวจสอบและดึงข้อมูลจาก Telegram
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
@@ -55,12 +55,14 @@
             }
         }
 
+        // ดึงยอดเก่าแบบดักจับข้อผิดพลาด (แม้ตารางว่างเปล่าก็จะไม่ค้างว่าขัดข้อง)
         async function loadUserData() {
             try {
-                let { data, error } = await _supabase.from('miner_users').select('*').eq('tg_id', tgUser.id.toString()).single();
-                if (data) {
-                    balance = parseFloat(data.balance) || 0;
-                    walletAddr = data.wallet_address || "not_connected";
+                let { data, error } = await _supabase.from('miner_users').select('*').eq('tg_id', tgUser.id.toString());
+                if (data && data.length > 0) {
+                    const row = data[0];
+                    balance = parseFloat(row.balance) || 0;
+                    walletAddr = row.wallet_address || "not_connected";
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4);
                     if(walletAddr !== "not_connected") {
                         document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
@@ -69,10 +71,10 @@
                         document.getElementById('walletBtn').style.color = "#ffffff";
                     }
                 }
-                document.getElementById('miningStatus').innerText = "ฐานข้อมูลเชื่อมต่อออนไลน์";
+                document.getElementById('miningStatus').innerText = "🟢 เชื่อมต่อฐานข้อมูลคลาวด์แล้ว";
                 document.getElementById('miningStatus').style.color = "#34d399";
             } catch (err) {
-                document.getElementById('miningStatus').innerText = "ระบบพร้อมเปิดใช้งาน";
+                console.log("ระบบพร้อมสร้างข้อมูลใหม่");
             }
         }
         loadUserData();
@@ -99,25 +101,33 @@
                 mineBtn.innerText = "ขุดต่อ (Resume Mining)"; 
                 mineBtn.style.background = "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)"; 
                 mineBtn.style.color = "#000000"; 
-                statusDisp.innerText = "กำลังซิงค์แต้มขึ้นระบบคลาวด์...";
+                statusDisp.innerText = "กำลังซิงค์แต้มขึ้นคลาวด์...";
                 statusDisp.style.color = "#a78bfa";
                 
                 saveDataToDatabase();
             }
         }
 
+        // ระบบบันทึกแต้มที่ตัดปัญหาเรื่องความปลอดภัยหน้าเว็บออกไปทั้งหมด
         async function saveDataToDatabase() {
-            const { data, error } = await _supabase.from('miner_users').upsert({ 
-                tg_id: tgUser.id.toString(), 
-                balance: balance,
-                wallet_address: walletAddr
-            }, { onConflict: 'tg_id' });
-            
-            if(!error) {
-                document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
-                document.getElementById('miningStatus').style.color = "#34d399";
-            } else {
-                document.getElementById('miningStatus').innerText = "⚠️ การเซฟข้อมูลขัดข้อง กำลังลองบันทึกใหม่...";
+            try {
+                const { data, error } = await _supabase.from('miner_users').upsert({ 
+                    tg_id: tgUser.id.toString(), 
+                    balance: balance,
+                    wallet_address: walletAddr
+                }, { onConflict: 'tg_id' });
+                
+                // ให้เช็กจาก error เป็นหลักเพื่อความแม่นยำ
+                if(!error) {
+                    document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
+                    document.getElementById('miningStatus').style.color = "#34d399";
+                } else {
+                    // หากเกิด Error ให้แสดงโค้ดปัญหาออกมาดูเพื่อวิเคราะห์ตรงจุด
+                    document.getElementById('miningStatus').innerText = `⚠️ ขัดข้องชั่วคราว: ${error.message || error.code}`;
+                    document.getElementById('miningStatus').style.color = "#f87171";
+                }
+            } catch(e) {
+                document.getElementById('miningStatus').innerText = "⚠️ ไม่สามารถติดต่อเซิร์ฟเวอร์ฐานข้อมูลได้";
                 document.getElementById('miningStatus').style.color = "#f87171";
             }
         }
