@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TVET Token Mining App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
@@ -25,7 +24,7 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">ระบบพร้อมใช้งาน</div>
+        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูล Google สแตนด์บาย</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -34,13 +33,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = "https://zuqxqrpgdhefwnciflb.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_FqcEAjOQl_ERccZldccFaQ_T00E1neL"; 
-        
-        // บังคับกำหนดค่า Headers พิเศษเพื่อแก้ทางเบราว์เซอร์บล็อกโดยเฉพาะ
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: { persistSession: false }
-        });
+        // ดึงค่า URL ของฐานข้อมูลพี่โดยตรง ยิงผ่าน REST API ความเร็วสูง
+        const FIREBASE_URL = "https://tvet-mining-default-rtdb.asia-southeast1.firebasedatabase.app";
 
         let tgUser = { id: "12345678" }; 
         let isMining = false; 
@@ -58,23 +52,24 @@
             }
         }
 
+        // ฟังก์ชันดึงยอดขุดล่าสุดจาก Firebase
         async function loadUserData() {
             try {
-                let { data, error } = await _supabase.from('miner_users').select('*').eq('tg_id', tgUser.id.toString());
-                if (data && data.length > 0) {
-                    balance = parseFloat(data[0].balance) || 0;
-                    walletAddr = data[0].wallet_address || "not_connected";
+                const response = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
+                const data = await response.json();
+                if (data) {
+                    balance = parseFloat(data.balance) || 0;
+                    walletAddr = data.wallet_address || "not_connected";
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4);
                     if(walletAddr !== "not_connected") {
                         document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
                         document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
                         document.getElementById('walletBtn').style.background = "#10b981";
+                        document.getElementById('walletBtn').style.color = "#ffffff";
                     }
                 }
-                document.getElementById('miningStatus').innerText = "🟢 เชื่อมต่อฐานข้อมูลสำเร็จ";
-                document.getElementById('miningStatus').style.color = "#34d399";
             } catch (err) {
-                console.log("สร้างโปรไฟล์ใหม่");
+                console.log("ไม่มีข้อมูลเดิม ระบบจะสร้างใหม่เมื่อขุดเสร็จ");
             }
         }
         loadUserData();
@@ -104,44 +99,19 @@
                 statusDisp.innerText = "กำลังซิงค์แต้มขึ้นคลาวด์...";
                 statusDisp.style.color = "#a78bfa";
                 
-                saveDataToDatabase();
+                saveDataToFirebase();
             }
         }
 
-        async function saveDataToDatabase() {
+        // ฟังก์ชันยิงแต้มขุดบันทึกเข้าคลาวด์ Firebase ตรงๆ ไม่ง้อ CORS ล็อก
+        async function saveDataToFirebase() {
             try {
-                // ส่งข้อมูลโดยตรง
-                const { data, error } = await _supabase.from('miner_users').upsert({ 
-                    tg_id: tgUser.id.toString(), 
+                const payload = {
+                    tg_id: tgUser.id.toString(),
                     balance: balance,
-                    wallet_address: walletAddr
-                }, { onConflict: 'tg_id' });
-                
-                if(!error) {
-                    document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
-                    document.getElementById('miningStatus').style.color = "#34d399";
-                } else {
-                    document.getElementById('miningStatus').innerText = `⚠️ ขัดข้อง: ${error.message}`;
-                    document.getElementById('miningStatus').style.color = "#f87171";
-                }
-            } catch(e) {
-                document.getElementById('miningStatus').innerText = "✅ ซิงค์ข้อมูลเรียบร้อยแล้ว";
-                document.getElementById('miningStatus').style.color = "#34d399";
-            }
-        }
+                    wallet_address: walletAddr,
+                    last_updated: new Date().toISOString()
+                };
 
-        async function connectWallet() {
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    walletAddr = accounts[0];
-                    document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
-                    document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ"; 
-                    document.getElementById('walletBtn').style.background = "#10b981"; 
-                    saveDataToDatabase();
-                } catch (error) { alert("ปฏิเสธการเชื่อมต่อ"); }
-            } else { alert("กรุณาเปิดในเบราว์เซอร์ MetaMask ครับ"); }
-        }
-    </script>
-</body>
-</html>
+                const response = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`, {
+                    method: 'PUT',
