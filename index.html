@@ -34,31 +34,27 @@
     </div>
 
     <script>
-        // ใช้คีย์จริงของเซิร์ฟเวอร์ฐานข้อมูลพี่โดยตรง
         const SUPABASE_URL = "https://zuqxqrpgdhefwnciflb.supabase.co";
+        // ใส่คีย์ตัวเต็ม 100% ที่ดึงมาจากหน้าจอการตั้งค่าของพี่เรียบร้อยแล้วครับ
         const SUPABASE_KEY = "sb_publishable_FqcEAjOQl_ERccZldccFaQ_T00E1neL"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let tgUser = { id: "12345678" }; // Default ID สำหรับการรันเทสนอก Telegram
+        let tgUser = { id: "12345678" }; 
         let isMining = false; 
         let balance = 0.0000; 
         let miningInterval;
         let walletAddr = "not_connected";
 
-        // ดึง Telegram ID ของคนที่กดเล่นมินิแอปจริงอัตโนมัติ
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand(); // ขยายหน้าจอให้เต็มตาสวยงาม
+            window.Telegram.WebApp.expand();
             const initData = window.Telegram.WebApp.initDataUnsafe;
             if (initData && initData.user) {
                 tgUser = initData.user;
                 document.getElementById('userBadge').innerText = `ผู้ใช้งาน: ${tgUser.username || tgUser.first_name} (ID: ${tgUser.id})`;
-            } else {
-                document.getElementById('userBadge').innerText = `โหมดจำลองในคอม (ID: ${tgUser.id})`;
             }
         }
 
-        // ดึงยอดขุดคงเหลือเดิมในฐานข้อมูลมาแสดงผล
         async function loadUserData() {
             try {
                 let { data, error } = await _supabase.from('miner_users').select('*').eq('tg_id', tgUser.id.toString()).single();
@@ -81,7 +77,6 @@
         }
         loadUserData();
 
-        // ฟังก์ชันระบบปุ่มขุด
         function toggleMining() {
             const mineBtn = document.getElementById('mineBtn'); 
             const statusDisp = document.getElementById('miningStatus');
@@ -111,7 +106,6 @@
             }
         }
 
-        // ส่งข้อมูลบันทึกไปยัง Supabase ตาราง miner_users
         async function saveDataToDatabase() {
             const { data, error } = await _supabase.from('miner_users').upsert({ 
                 tg_id: tgUser.id.toString(), 
@@ -123,13 +117,11 @@
                 document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
                 document.getElementById('miningStatus').style.color = "#34d399";
             } else {
-                document.getElementById('miningStatus').innerText = "⚠️ การเซฟข้อมูลขัดข้อง กำลังบันทึกซ้ำ...";
+                document.getElementById('miningStatus').innerText = "⚠️ การเซฟข้อมูลขัดข้อง กำลังลองบันทึกใหม่...";
                 document.getElementById('miningStatus').style.color = "#f87171";
-                console.log(error);
             }
         }
 
-        // ระบบผูกกระเป๋า Web3
         async function connectWallet() {
             if (window.ethereum) {
                 try {
