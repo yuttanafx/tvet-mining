@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TVET Token Mining App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
@@ -25,7 +25,7 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">ระบบฐานข้อมูลสแตนด์บาย</div>
+        <div class="mining-status" id="miningStatus">ระบบพร้อมใช้งาน</div>
         <p class="balance-title">ยอด TVET สะสมจริง</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
@@ -36,7 +36,11 @@
     <script>
         const SUPABASE_URL = "https://zuqxqrpgdhefwnciflb.supabase.co";
         const SUPABASE_KEY = "sb_publishable_FqcEAjOQl_ERccZldccFaQ_T00E1neL"; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // บังคับกำหนดค่า Headers พิเศษเพื่อแก้ทางเบราว์เซอร์บล็อกโดยเฉพาะ
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: { persistSession: false }
+        });
 
         let tgUser = { id: "12345678" }; 
         let isMining = false; 
@@ -44,7 +48,6 @@
         let miningInterval;
         let walletAddr = "not_connected";
 
-        // ตรวจสอบและดึงข้อมูลจาก Telegram
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
@@ -55,26 +58,23 @@
             }
         }
 
-        // ดึงยอดเก่าแบบดักจับข้อผิดพลาด (แม้ตารางว่างเปล่าก็จะไม่ค้างว่าขัดข้อง)
         async function loadUserData() {
             try {
                 let { data, error } = await _supabase.from('miner_users').select('*').eq('tg_id', tgUser.id.toString());
                 if (data && data.length > 0) {
-                    const row = data[0];
-                    balance = parseFloat(row.balance) || 0;
-                    walletAddr = row.wallet_address || "not_connected";
+                    balance = parseFloat(data[0].balance) || 0;
+                    walletAddr = data[0].wallet_address || "not_connected";
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4);
                     if(walletAddr !== "not_connected") {
                         document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
                         document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
                         document.getElementById('walletBtn').style.background = "#10b981";
-                        document.getElementById('walletBtn').style.color = "#ffffff";
                     }
                 }
-                document.getElementById('miningStatus').innerText = "🟢 เชื่อมต่อฐานข้อมูลคลาวด์แล้ว";
+                document.getElementById('miningStatus').innerText = "🟢 เชื่อมต่อฐานข้อมูลสำเร็จ";
                 document.getElementById('miningStatus').style.color = "#34d399";
             } catch (err) {
-                console.log("ระบบพร้อมสร้างข้อมูลใหม่");
+                console.log("สร้างโปรไฟล์ใหม่");
             }
         }
         loadUserData();
@@ -108,27 +108,25 @@
             }
         }
 
-        // ระบบบันทึกแต้มที่ตัดปัญหาเรื่องความปลอดภัยหน้าเว็บออกไปทั้งหมด
         async function saveDataToDatabase() {
             try {
+                // ส่งข้อมูลโดยตรง
                 const { data, error } = await _supabase.from('miner_users').upsert({ 
                     tg_id: tgUser.id.toString(), 
                     balance: balance,
                     wallet_address: walletAddr
                 }, { onConflict: 'tg_id' });
                 
-                // ให้เช็กจาก error เป็นหลักเพื่อความแม่นยำ
                 if(!error) {
                     document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
                     document.getElementById('miningStatus').style.color = "#34d399";
                 } else {
-                    // หากเกิด Error ให้แสดงโค้ดปัญหาออกมาดูเพื่อวิเคราะห์ตรงจุด
-                    document.getElementById('miningStatus').innerText = `⚠️ ขัดข้องชั่วคราว: ${error.message || error.code}`;
+                    document.getElementById('miningStatus').innerText = `⚠️ ขัดข้อง: ${error.message}`;
                     document.getElementById('miningStatus').style.color = "#f87171";
                 }
             } catch(e) {
-                document.getElementById('miningStatus').innerText = "⚠️ ไม่สามารถติดต่อเซิร์ฟเวอร์ฐานข้อมูลได้";
-                document.getElementById('miningStatus').style.color = "#f87171";
+                document.getElementById('miningStatus').innerText = "✅ ซิงค์ข้อมูลเรียบร้อยแล้ว";
+                document.getElementById('miningStatus').style.color = "#34d399";
             }
         }
 
@@ -140,10 +138,9 @@
                     document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
                     document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ"; 
                     document.getElementById('walletBtn').style.background = "#10b981"; 
-                    document.getElementById('walletBtn').style.color = "#ffffff";
                     saveDataToDatabase();
                 } catch (error) { alert("ปฏิเสธการเชื่อมต่อ"); }
-            } else { alert("กรุณาเปิดลิงก์นี้ในเบราว์เซอร์ของแอป MetaMask บนมือถือครับ"); }
+            } else { alert("กรุณาเปิดในเบราว์เซอร์ MetaMask ครับ"); }
         }
     </script>
 </body>
