@@ -52,7 +52,6 @@
     </div>
 
     <script>
-        // ล็อกเลขสัญญาตัวเหมืองขุดของพี่ถาวรครับ
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
 
         const MINING_CONTRACT_ABI = [
@@ -74,19 +73,17 @@
         let currentRatePerBlock = 0.0050;
 
         async function connectWallet() {
-            if (!window.ethereum) { return alert("กรุณาเปิดใน MetaMask Browser หรือเบราว์เซอร์ที่ผูกกระเป๋าครับ"); }
+            if (!window.ethereum) { return alert("กรุณาเปิดใน MetaMask Browser ครับ"); }
             const statusDisp = document.getElementById('miningStatus');
             try {
                 statusDisp.innerText = "⏳ กำลังเรียกสิทธิ์ตรวจสอบเครือข่าย...";
                 
-                // 🎯 บังคับสั่งให้ MetaMask สลับเข้า Polygon Mainnet อัตโนมัติ (Hex: 0x89 = 137)
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: '0x89' }], 
                     });
                 } catch (switchError) {
-                    // หากในกระเป๋ายังไม่มีเน็ตเวิร์ก Polygon ระบบจะทำการเพิ่มให้ทันที
                     if (switchError.code === 4902) {
                         await window.ethereum.request({
                             method: 'wallet_addEthereumChain',
@@ -114,7 +111,7 @@
                 
                 miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 document.getElementById('mineBtn').disabled = false;
-                statusDisp.innerText = "🟢 สลับเข้าเครือข่าย Polygon สำเร็จ";
+                statusDisp.innerText = "🟢 เชื่อมต่อเครือข่าย Polygon แล้ว";
                 
                 await checkOnChainStatus();
                 
@@ -127,34 +124,30 @@
         async function checkOnChainStatus() {
             if(!miningContract || walletAddr === "not_connected") return;
             try {
-                // ดึงยอดเหรียญแก๊สของเน็ตเวิร์ก Polygon
                 const gasBalRaw = await provider.getBalance(walletAddr);
                 const gasBal = parseFloat(ethers.formatUnits(gasBalRaw, 18));
                 document.getElementById('gasDisplay').innerText = `${gasBal.toFixed(4)} POL`;
 
-                try {
-                    const minerInfo = await miningContract.miners(walletAddr);
-                    isMiningOnChain = minerInfo.isMining;
-                    
-                    const rateRaw = await miningContract.getRewardRate();
-                    currentRatePerBlock = parseFloat(ethers.formatUnits(rateRaw, 18));
-                    document.getElementById('rateDisplay').innerText = `${currentRatePerBlock.toFixed(4)} TVE / บล็อก`;
+                const minerInfo = await miningContract.miners(walletAddr);
+                isMiningOnChain = minerInfo.isMining;
+                
+                const rateRaw = await miningContract.getRewardRate();
+                currentRatePerBlock = parseFloat(ethers.formatUnits(rateRaw, 18));
+                document.getElementById('rateDisplay').innerText = `${currentRatePerBlock.toFixed(4)} TVE / บล็อก`;
 
-                    const diffDisp = document.getElementById('diffDisplay');
-                    if(currentRatePerBlock === 0.0050) diffDisp.innerText = "100% (ปกติ)";
-                    else if(currentRatePerBlock === 0.0025) diffDisp.innerText = "200% (ยากขึ้น 1 เท่า)";
-                    else if(currentRatePerBlock === 0.00125) diffDisp.innerText = "400% (ยากขึ้น 2 เท่า)";
-                    else diffDisp.innerText = "2,500% (ยากสูงสุด)";
+                const diffDisp = document.getElementById('diffDisplay');
+                if(currentRatePerBlock === 0.0050) diffDisp.innerText = "100% (ปกติ)";
+                else if(currentRatePerBlock === 0.0025) diffDisp.innerText = "200% (ยากขึ้น 1 เท่า)";
+                else if(currentRatePerBlock === 0.00125) diffDisp.innerText = "400% (ยากขึ้น 2 เท่า)";
+                else diffDisp.innerText = "2,500% (ยากสูงสุด)";
 
-                    const rawBal = await miningContract.getLiveBalance(walletAddr);
-                    const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
-                    document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
-                    
-                    document.getElementById('claimBtn').disabled = (currentBal < 20.0);
-                } catch(contractErr) {
-                    console.error(contractErr);
-                    document.getElementById('claimBtn').disabled = false; 
-                }
+                // 🎯 ดึงยอดจริงจากสัญญาออนเชนตรงๆ
+                const rawBal = await miningContract.getLiveBalance(walletAddr);
+                const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
+                document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
+                
+                // ปุ่มถอนจะเปิดใช้งานเมื่อยอดสะสมบนเชนจริงถึง 20 TVE เท่านั้น
+                document.getElementById('claimBtn').disabled = (currentBal < 20.0);
 
                 try {
                     const tokenAddr = await miningContract.tveToken();
@@ -162,9 +155,7 @@
                     const totalTokensRaw = await tokenContract.totalSupply();
                     const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
                     document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-                } catch(tokenErr) {
-                    document.getElementById('totalSupplyDisplay').innerText = "0 / 47,000,000 TVE (โหลดข้อมูลเหรียญ)";
-                }
+                } catch(e) {}
 
                 const mineBtn = document.getElementById('mineBtn');
                 const statusDisp = document.getElementById('miningStatus');
@@ -172,9 +163,9 @@
                 if(isMiningOnChain) {
                     mineBtn.innerText = "🛑 หยุดขุด (Stop Mining)";
                     mineBtn.className = "btn btn-stop";
-                    statusDisp.innerText = "⛏️ บล็อกเชนกำลังบันทึกด้วยสมการออนเชน...";
+                    statusDisp.innerText = "⛏️ บล็อกเชนกำลังปั๊มเหรียญจริงตามจำนวนบล็อก...";
                     statusDisp.style.color = "#34d399";
-                    startUiSimulation();
+                    startUiRealFetch(); // สั่งให้เริ่มดึงค่าจริงจากเชน
                 } else {
                     mineBtn.innerText = "🚀 เริ่มขุดเหมืองตรง (Start)";
                     mineBtn.className = "btn btn-primary";
@@ -202,7 +193,7 @@
                 await checkOnChainStatus();
             } catch (err) {
                 console.error(err);
-                statusDisp.innerText = "❌ ธุรกรรมถูกยกเลิก หรือค่าแก๊ส POL ไม่เพียงพอ";
+                statusDisp.innerText = "❌ ธุรกรรมล้มเหลว หรือค่าแก๊ส POL ไม่พอ";
             }
         }
 
@@ -212,22 +203,29 @@
                 statusDisp.innerText = "🦊 กรุณากดอนุมัติถอนเหรียญบนหน้าต่าง MetaMask...";
                 const tx = await miningContract.claimReward();
                 await tx.wait();
-                statusDisp.innerText = "🎉 ผลิตเหรียญใหม่สำเร็จเสร็จสิ้น!";
+                statusDisp.innerText = "🎉 ผลิตเหรียญใหม่เข้ากระเป๋าพี่สำเร็จเสร็จสิ้น!";
                 statusDisp.style.color = "#34d399";
                 await checkOnChainStatus();
             } catch (err) {
                 console.error(err);
-                statusDisp.innerText = "❌ ถอนไม่สำเร็จ";
+                statusDisp.innerText = "❌ ถอนไม่สำเร็จ: ยอดออนเชนจริงอาจยังไม่ถึงขั้นต่ำ";
             }
         }
 
-        function startUiSimulation() {
+        // 🎯 ฟังก์ชันดึงค่ายอดจริงออนเชนทุกๆ 3 วินาที (ไม่ใช้ระบบเดาตัวเลขวิ่งอีกต่อไป)
+        function startUiRealFetch() {
             clearInterval(uiInterval);
-            uiInterval = setInterval(() => {
-                let current = parseFloat(document.getElementById('balanceDisplay').innerText);
-                current += (currentRatePerBlock / 12); 
-                document.getElementById('balanceDisplay').innerText = current.toFixed(4);
-            }, 1000);
+            uiInterval = setInterval(async () => {
+                if(!miningContract || walletAddr === "not_connected") return;
+                try {
+                    const rawBal = await miningContract.getLiveBalance(walletAddr);
+                    const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
+                    document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
+                    
+                    // ปลดล็อกปุ่มถอนทันทีเมื่อถึงเกณฑ์จริง
+                    document.getElementById('claimBtn').disabled = (currentBal < 20.0);
+                } catch(e) { console.error("โหลดข้อมูลหลุดช่วง:", e); }
+            }, 3000); 
         }
     </script>
 </body>
