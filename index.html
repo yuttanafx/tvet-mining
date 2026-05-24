@@ -2,42 +2,82 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TVET Mining V2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TVET Telegram Web3 Mining V2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        body { background: #060913; color: white; text-align: center; font-family: sans-serif; margin: 0; padding: 20px; }
-        .box { background: #1f2937; padding: 20px; border-radius: 20px; max-width: 340px; margin: auto; }
-        .btn { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; background: #24a1de; }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #060913; }
+        body { font-family: sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; }
+        .app-container { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); padding: 15px; width: 340px; height: 580px; text-align: center; border: 1px solid #334155; border-radius: 20px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; margin: 5px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-claim { background: #10b981; color: white; }
+        .btn:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
+        .info-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; font-size: 11px; margin: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>TVET Mining</h1>
-        <div id="status">รอเชื่อมต่อ...</div>
-        <button class="btn" onclick="start()">เชื่อมต่อและขุด</button>
-        <div id="info" style="font-size:10px; margin-top:10px;"></div>
+    <div class="app-container">
+        <h3 style="margin:0">TVET Mining V2</h3>
+        <div id="status" style="font-size:12px; color:#fbbf24;">เชื่อมต่อกระเป๋าเพื่อเริ่มต้น</div>
+        <div id="balance" style="font-size:30px; font-weight:bold; margin:10px 0;">0.0000 TVE</div>
+        
+        <div class="info-box">
+            <div>ระดับความยาก (Difficulty): <span id="diffDisplay">...</span></div>
+            <div>ความเร็ว (Rate): <span id="rateDisplay">...</span></div>
+        </div>
+
+        <button class="btn" style="background:#24a1de;" onclick="quickLogin()">เชื่อมต่อกระเป๋า</button>
+        <button class="btn" id="mineBtn" style="background:#f59e0b;" disabled onclick="toggleMining()">เริ่มขุด (Start)</button>
+        <button class="btn btn-claim" id="claimBtn" disabled onclick="claimReward()">ถอนเหรียญเข้ากระเป๋า</button>
+
+        <div id="walletAddr" style="font-size:10px; margin-top:10px; word-break:break-all;">สถานะ: ไม่ได้เชื่อมต่อ</div>
     </div>
 
     <script>
-        const CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648";
-        const ABI = ["function startMining() external"];
+        // 🎯 พี่วางเลขสัญญาเหมืองที่นี่
+        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        // 🎯 พี่วางเลขสัญญาเหรียญที่นี่
+        const TOKEN_CONTRACT = "0x003129a07b947ABf696C91FdB440EC77f26613B7";
+
+        const ABI = [
+            "function startMining() external",
+            "function stopMining() external",
+            "function claimReward() external",
+            "function getRewardRate() external view returns (uint256)"
+        ];
+
+        let provider, signer, contract;
         
-        async function start() {
+        async function quickLogin() {
             try {
-                const provider = new ethers.JsonRpcProvider("https://polygon.llamarpc.com");
+                provider = new ethers.JsonRpcProvider("https://polygon-llamarpc.com");
                 let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
                 localStorage.setItem('tvet_pkey', pk);
-                const signer = new ethers.Wallet(pk, provider);
-                const contract = new ethers.Contract(CONTRACT, ABI, signer);
+                signer = new ethers.Wallet(pk, provider);
+                contract = new ethers.Contract(MINING_CONTRACT, ABI, signer);
                 
-                document.getElementById('status').innerText = "กำลังขุด...";
-                const tx = await contract.startMining({ gasLimit: 300000 });
-                await tx.wait();
-                alert("ขุดสำเร็จ!");
-            } catch(e) {
-                alert("เกิด Error: " + e.message);
+                document.getElementById('walletAddr').innerText = await signer.getAddress();
+                document.getElementById('mineBtn').disabled = false;
+                document.getElementById('claimBtn').disabled = false; // บังคับปลดล็อกสีเทา
+                document.getElementById('status').innerText = "เชื่อมต่อสำเร็จ";
+                
+                // ดึงสเต็ปความยาก
+                let rate = await contract.getRewardRate();
+                document.getElementById('rateDisplay').innerText = ethers.formatUnits(rate, 18) + " /บล็อก";
+                document.getElementById('diffDisplay').innerText = "Active";
+            } catch(e) { 
+                alert("เชื่อมต่อได้ แต่ดึงข้อมูลสัญญาไม่ได้ เช็กเลขสัญญาบรรทัดที่ 40 ครับ");
             }
+        }
+
+        function toggleMining() {
+            contract.startMining();
+            document.getElementById('status').innerText = "กำลังขุด...";
+        }
+
+        function claimReward() {
+            contract.claimReward();
+            alert("ส่งคำสั่งถอนแล้ว!");
         }
     </script>
 </body>
