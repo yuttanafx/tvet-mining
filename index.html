@@ -10,10 +10,20 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: none; }
         
-        /* สไตล์หน้าจอล็อกสิทธิ์ (Lock Screen) */
         .lock-container { background: rgba(31, 41, 55, 0.7); backdrop-filter: blur(12px); border: 1px solid #ef4444; border-radius: 25px; padding: 40px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: none; }
         
-        .logo-img { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: cover; }
+        /* 💎 สไตล์เหรียญ TVET ใหม่ (สวย สง่า สมจริง) */
+        .logo-img { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            /* ✅ [ปรับใหม่]: นำกรอบหนาออก และเพิ่มเอฟเฟกต์เรืองแสงสีฟ้าแทน */
+            box-shadow: 0 0 25px rgba(27, 169, 233, 0.5); 
+            margin-bottom: 15px; 
+            object-fit: cover; 
+            border: none; /* ลบ border เก่า */
+        }
+        
         .mining-status { font-size: 13px; color: #34d399; background: rgba(52, 211, 153, 0.15); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
         .promotion-badge { font-size: 11px; color: #34d399; background: rgba(52, 211, 153, 0.2); padding: 3px 8px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
         .balance-title { font-size: 13px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
@@ -25,7 +35,6 @@
         .btn { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
         .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); }
-        /* 🎁 ปุ่มเคลมสีเขียวสะท้อนแสงสไตล์ DeFi */
         .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
         .btn-claim:disabled { background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; }
         
@@ -36,7 +45,7 @@
 <body>
 
     <div class="lock-container" id="lockScreen">
-        <h1 style="font-size: 50px; margin: 0;">🔒</h1>
+        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" style="width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 0 20px rgba(248, 113, 113, 0.4); margin-bottom: 15px; object-fit: cover;" alt="TVET Lock">
         <h3 style="color: #f87171; margin-top: 10px;">หมดช่วงโปรโมชั่นขุดฟรี</h3>
         <p style="font-size: 13px; color: #d1d5db; line-height: 1.6;">ขณะนี้ระบบซัพพลายรวมทะลุ 100,000 TVET แล้ว สิทธิ์ขุดของท่านต้องได้รับการอนุมัติจากผู้ดูแลระบบ</p>
         <div id="myIdBadge" class="user-id-badge" style="color: #f87171; background: rgba(248, 113, 113, 0.1);">ID: กำลังตรวจสอบ...</div>
@@ -44,7 +53,7 @@
     </div>
 
     <div class="app-container" id="mainApp">
-        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
+        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Coin Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
         <div class="mining-status" id="miningStatus">🟢 กำลังตรวจสอบสิทธิ์เครือข่าย...</div>
         
@@ -69,10 +78,9 @@
     <script>
         const FIREBASE_URL = "https://tvet-mining-default-rtdb.asia-southeast1.firebasedatabase.app";
         
-        // 🚨 [สำคัญมากพี่]: เอาเลขที่ตั้งสัญญาตู้เคลมใน Remix หลัง Deploy สำเร็จมาวางตรงนี้ครับแทนคำเดิม
+        // 🚨 [สำคัญมากพี่]: นำเลขที่ตั้งสัญญาตู้เคลมที่พี่ Deploy สำเร็จบน Polygon มาวางตรงนี้ครับแทนคำเดิม
         const CLAIM_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
         
-        // ABI ย่อสำหรับสั่งงานฟังก์ชันเคลมเหรียญบนบล็อกเชน
         const CLAIM_CONTRACT_ABI = [
             "function claimTokens(uint256 totalCumulativeAmount, bytes memory signature) external",
             "function claimedAmounts(address account) external view returns (uint256)"
@@ -180,7 +188,6 @@
                         document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
                         document.getElementById('walletBtn').style.background = "#10b981";
                         document.getElementById('walletBtn').style.color = "#ffffff";
-                        // 🔐 ถ้าผูกกระเป๋าแล้ว เปิดล็อกปุ่มเคลมให้ใช้งานได้ทันที
                         document.getElementById('claimBtn').disabled = false;
                     }
                 }
@@ -250,13 +257,12 @@
                     document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ"; 
                     document.getElementById('walletBtn').style.background = "#10b981"; 
                     document.getElementById('walletBtn').style.color = "#ffffff";
-                    document.getElementById('claimBtn').disabled = false; // เปิดล็อกปุ่มเคลม
+                    document.getElementById('claimBtn').disabled = false;
                     saveDataToFirebase();
                 } catch (error) { alert("ปฏิเสธการเชื่อมต่อ"); }
             } else { alert("กรุณาเปิดลิงก์นี้ในแอป MetaMask บนมือถือครับ"); }
         }
 
-        // 👑 ฟังก์ชันหัวใจหลักในการส่งยอดเครมวิ่งเข้าสู่ Smart Contract บล็อกเชน
         async function claimTokensWeb3() {
             if (!window.ethereum) {
                 alert("กรุณาเปิดหน้าจอนี้ผ่านแอปกระเป๋า MetaMask เพื่อทำรายการเคลมเหรียญครับ");
@@ -268,14 +274,11 @@
             statusDisp.style.color = "#fbbf24";
 
             try {
-                // เชื่อมต่อ Web3 Provider ผ่าน Ethers.js v6
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 const signer = await provider.getSigner();
                 
-                // แตกแขนงเรียกใช้ตู้เครมเหรียญบนเครือข่ายจริง
                 const claimContract = new ethers.Contract(CLAIM_CONTRACT_ADDRESS, CLAIM_CONTRACT_ABI, signer);
                 
-                // แปลงหน่วยค่าบาลานซ์ขุดจากเลขทศนิยมปกติให้กลายเป็น Wei (มาตรฐาน 18 ทศนิยมของบล็อกเชน)
                 const totalCumulativeWei = ethers.parseUnits(balance.toFixed(4), 18);
                 
                 // 🔐 ในระนาบโปรเจกต์ทดสอบ ยิงลายเซ็นหลอกแบบบายพาสเพื่อเปิดทางทดสอบตู้บน Polygon
@@ -283,11 +286,10 @@
 
                 statusDisp.innerText = "🦊 กรุณากดอนุมัติค่าแก๊สบนกระเป๋า MetaMask...";
                 
-                // สั่งยิงคำสั่งส่งเลขทำรายการเคลมเข้าตู้บนบล็อกเชน
                 const tx = await claimContract.claimTokens(totalCumulativeWei, dummySignature);
                 
                 statusDisp.innerText = "⛓️ กำลังบันทึกบล็อกลงสู่เครือข่าย Polygon...";
-                await tx.wait(); // รอจนบล็อกเชนคอนเฟิร์มเสร็จสิ้น
+                await tx.wait(); 
 
                 statusDisp.innerText = "🎉 เคลมเหรียญ TVET เข้ากระเป๋าสำเร็จเสร็จสิ้น!";
                 statusDisp.style.color = "#34d399";
