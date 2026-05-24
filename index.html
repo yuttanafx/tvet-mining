@@ -6,8 +6,8 @@
     <title>TVET Telegram Web3 Mining V2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #060913; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         
         .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 100%; max-width: 340px; height: 95vh; max-height: 590px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
         
@@ -46,7 +46,7 @@
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
         <div>
-            <div class="gas-alert-box" id="gasAlert">⛽ <b>เช็กแก๊ส:</b> กำลังเชื่อมต่อ Polygon...</div>
+            <div class="gas-alert-box" id="gasAlert">⛽ กำลังเชื่อมต่อ Polygon...</div>
             <div class="card-info">
                 <div>📊 ผลิตแล้ว: <span id="totalSupplyDisplay">Loading...</span></div>
                 <div>⚡ ความเร็ว: <span id="rateDisplay">0.0050 TVE/บล็อก</span></div>
@@ -66,7 +66,8 @@
     </div>
 
     <script>
-        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; // ใส่เลขสัญญาเหมืองของพี่ตรงนี้ครับ!
+        // ใส่เลขสัญญาที่นี่ครับพี่
+        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
         const TOKEN_CONTRACT = "0x003129a07b947ABf696C91FdB440EC77f26613B7";
         const ABI = ["function startMining() external", "function stopMining() external", "function claimReward() external"];
         
@@ -74,19 +75,20 @@
 
         async function quickLogin() {
             try {
-                provider = new ethers.JsonRpcProvider("https://polygon-llamarpc.com");
+                // ใช้ RPC ตัวที่เสถียรที่สุด
+                provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
                 let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
                 localStorage.setItem('tvet_pkey', pk);
                 signer = new ethers.Wallet(pk, provider);
                 contract = new ethers.Contract(MINING_CONTRACT, ABI, signer);
                 
-                document.getElementById('walletAddress').innerText = await signer.getAddress();
+                const addr = await signer.getAddress();
+                document.getElementById('walletAddress').innerText = addr;
                 document.getElementById('loginBtn').innerText = "🟢 เชื่อมต่อสำเร็จ";
                 
-                // เช็กแก๊สทันที
-                const bal = await provider.getBalance(await signer.getAddress());
-                document.getElementById('gasAlert').innerHTML = `⛽ ยอดแก๊สในกระเป๋า: ${ethers.formatUnits(bal, 18)} POL`;
-            } catch(e) { alert("เชื่อมต่อไม่ได้"); }
+                const bal = await provider.getBalance(addr);
+                document.getElementById('gasAlert').innerHTML = `⛽ แก๊ส: ${ethers.formatUnits(bal, 18).substring(0, 6)} POL`;
+            } catch(e) { alert("เชื่อมต่อไม่ได้! ลองปิด WiFi แล้วเปิด 4G ครับ"); }
         }
 
         async function handleMiningAction() {
@@ -94,7 +96,7 @@
                 const tx = await contract.startMining({ gasLimit: 300000 });
                 await tx.wait();
                 alert("⛏️ เริ่มขุดจริงบนบล็อกเชนสำเร็จ!");
-            } catch(e) { alert("ขุดไม่ได้! เช็กแก๊ส POL ในกระเป๋าครับ"); }
+            } catch(e) { alert("ขุดไม่ผ่าน: โปรดเช็กแก๊ส POL ในกระเป๋า"); }
         }
 
         async function claimMiningReward() {
