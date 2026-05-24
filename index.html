@@ -1,76 +1,31 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TVET Telegram Web3 Mining V2</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <style>
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #060913; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
-        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 100%; max-width: 340px; height: 95vh; max-height: 590px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .logo-img { width: 75px; height: 75px; border-radius: 50%; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); margin: 0 auto 4px auto; }
-        .btn { width: 100%; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; margin-bottom: 5px; color: #fff; }
-        .btn-tg { background: #24a1de; }
-        .btn-primary { background: #f59e0b; }
-        .btn-claim { background: #10b981; }
-        .info-box { font-size: 11px; color: #a1a1aa; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; margin: 10px 0; word-break: break-all; }
-    </style>
-</head>
-<body>
-    <div class="app-container">
-        <div>
-            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img">
-            <div id="status" style="font-size:12px; color:#fbbf24;">รอเชื่อมต่อกระเป๋า</div>
-            <div style="font-size:30px; font-weight:bold; margin:10px 0;">0.0000 TVE</div>
-        </div>
-        <div>
-            <button class="btn btn-tg" onclick="quickLogin()">⚡ เชื่อมต่อกระเป๋า</button>
-            <button class="btn btn-primary" id="mineBtn" disabled onclick="handleMining()">🚀 เริ่มขุดจริง (Start)</button>
-            <button class="btn btn-claim" onclick="claimReward()">ถอนเหรียญเข้ากระเป๋า</button>
-        </div>
-        <div class="info-box" id="walletInfo">สถานะ: ไม่ได้เชื่อมต่อ</div>
-    </div>
-
-    <script>
-        // 🎯 พี่วางเลขสัญญาเหมืองที่นี่
-        const CONTRACT_ADDR = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
-        const ABI = ["function startMining() external", "function claimReward() external"];
-        let signer, contract;
-
-        async function quickLogin() {
-            try {
-                // แก้ Error 401 ด้วยการใช้ RPC ที่เสถียร
-                const provider = new ethers.JsonRpcProvider("https://polygon.llamarpc.com");
-                let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
-                localStorage.setItem('tvet_pkey', pk);
-                signer = new ethers.Wallet(pk, provider);
-                contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-                
-                document.getElementById('walletInfo').innerText = "Addr: " + await signer.getAddress();
-                document.getElementById('status').innerText = "🟢 เชื่อมต่อสำเร็จ";
-                document.getElementById('mineBtn').disabled = false;
-            } catch(e) { 
-                document.getElementById('status').innerText = "❌ Error: " + e.message;
+<script>
+    // 1. เปลี่ยนมาใช้ URL Gateway ที่ผ่านได้ทุก Gateway ครับพี่
+    async function quickLogin() {
+        try {
+            // ปรับเปลี่ยน RPC มาใช้ตัว Public ที่เสถียรที่สุด
+            const rpcs = [
+                "https://polygon.llamarpc.com",
+                "https://rpc-mainnet.maticvigil.com",
+                "https://polygon-mainnet.public.blastapi.io"
+            ];
+            
+            let provider;
+            for(let url of rpcs) {
+                try {
+                    provider = new ethers.JsonRpcProvider(url);
+                    await provider.getNetwork(); // ถ้าเข้าได้จะข้ามไป
+                    break;
+                } catch(e) { continue; }
             }
+            
+            // ... (ส่วนที่เหลือของฟังก์ชัน quickLogin คงเดิมครับ)
+            let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
+            localStorage.setItem('tvet_pkey', pk);
+            signer = new ethers.Wallet(pk, provider);
+            contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
+            // ...
+        } catch(e) { 
+            document.getElementById('status').innerText = "❌ ติดปัญหา: " + e.message;
         }
-
-        async function handleMining() {
-            try {
-                document.getElementById('status').innerText = "⏳ กำลังส่งคำสั่ง...";
-                const tx = await contract.startMining({ gasLimit: 300000 });
-                await tx.wait();
-                alert("⛏️ ขุดจริงบนบล็อกเชนสำเร็จ!");
-            } catch(e) { alert("ขุดไม่ผ่าน: " + e.message); }
-        }
-
-        async function claimReward() {
-            try {
-                const tx = await contract.claimReward({ gasLimit: 300000 });
-                await tx.wait();
-                alert("ถอนสำเร็จ!");
-            } catch(e) { alert("ถอนไม่ได้: " + e.message); }
-        }
-    </script>
-</body>
-</html>
+    }
+</script>
