@@ -7,24 +7,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* 📱 ตั้งค่าล็อกหน้าจอไม่ให้เลื่อนหลุดเฟรมมือถือ */
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
-        
-        /* 🎯 บังคับขนาด Container ให้พอดีหน้าจอมือถือเป๊ะๆ */
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        
-        /* 🖼️ ปรับขนาดโลโก้ให้กระชับสมส่วน ไม่เบียดปุ่ม */
         .logo-img { width: 85px; height: 85px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
-        
         .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 5px; font-weight: 500; width: 100%; box-sizing: border-box; }
         .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .balance-value { font-size: 32px; font-weight: 800; color: #ffffff; margin: 2px 0 5px 0; font-family: monospace; }
-        
         .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 5px; text-align: left; font-size: 11px; line-height: 1.5; }
         .difficulty-card span { float: right; font-weight: bold; color: #fbbf24; }
-        
-        /* 🎛️ ปุ่มกดยาวเต็มเฟรม พอดีนิ้วสัมผัส */
         .btn { width: 100%; padding: 11px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; box-sizing: border-box; }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
         .btn-stop { background: #ef4444; color: #ffffff; }
@@ -61,7 +52,7 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 66: ใส่เลขสัญญาเหมืองปั๊มเหรียญของพี่ตรงนี้ได้เลยครับ!
+        // 🎯 บรรทัดที่ 66: อย่าลืมเอาเลขสัญญาเหมืองปั๊มเหรียญของพี่มาแทนเลขศูนย์ตรงนี้ก่อนเซฟนะครับ!
         const MINING_CONTRACT_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; 
 
         const MINING_CONTRACT_ABI = [
@@ -86,22 +77,11 @@
             if (!window.ethereum) { return alert("กรุณาเปิดหน้าลิงก์นี้ในเบราว์เซอร์ของแอป MetaMask เพื่อเชื่อมต่อระบบขุดครับ"); }
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ กำลังเชื่อมต่อเครือข่ายบล็อกเชน...";
+                statusDisp.innerText = "⏳ กำลังดึงค่าสิทธิ์กระเป๋าจาก MetaMask...";
                 
-                // ระบบ Auto-Fallback RPC ป้องกัน Node ล่ม
-                const rpcs = ["https://polygon.llamarpc.com", "https://polygon-rpc.com", "https://rpc-mainnet.maticvigil.com"];
-                let connectionSuccess = false;
-                
-                for(let url of rpcs) {
-                    try {
-                        provider = new ethers.BrowserProvider(window.ethereum);
-                        signer = await provider.getSigner();
-                        connectionSuccess = true;
-                        break;
-                    } catch(rpcErr) { console.log("สลับโหนด RPC..."); }
-                }
-                
-                if(!connectionSuccess) throw new Error("โหนดบล็อกเชนไม่ตอบสนอง");
+                // บังคับให้ใช้ BrowserProvider เชื่อมต่อตรงกับกระเป๋า MetaMask เสมอ
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
 
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 walletAddr = accounts[0];
@@ -113,20 +93,21 @@
                 
                 miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 document.getElementById('mineBtn').disabled = false;
-                statusDisp.innerText = "🟢 เชื่อมต่อออนเชนเรียบร้อย";
+                statusDisp.innerText = "🟢 ผูก MetaMask สำเร็จ";
                 
                 await checkOnChainStatus();
                 
             } catch (error) { 
                 console.error(error);
-                statusDisp.innerText = "❌ การเชื่อมต่อล้มเหลว";
-                alert("การเชื่อมต่อล้มเหลว หรือเลขสัญญายังไม่ถูกต้อง"); 
+                statusDisp.innerText = "❌ ผูกกระเป๋าไม่สำเร็จ";
+                alert("ปฏิเสธการเชื่อมต่อกระเป๋า หรือเลขสัญญายังไม่ถูกต้อง"); 
             }
         }
 
         async function checkOnChainStatus() {
             if(!miningContract || walletAddr === "not_connected") return;
             try {
+                // ⛽ ดึงยอด POL จากกระเป๋า MetaMask ปลายสายตรงๆ
                 const gasBalRaw = await provider.getBalance(walletAddr);
                 const gasBal = parseFloat(ethers.formatUnits(gasBalRaw, 18));
                 document.getElementById('gasDisplay').innerText = `${gasBal.toFixed(4)} POL`;
@@ -151,7 +132,7 @@
                     
                     document.getElementById('claimBtn').disabled = (currentBal < 20.0);
                 } catch(contractErr) {
-                    console.log("สัญญายังไม่สมบูรณ์ ปลดล็อกโหมดจำลองเพื่อให้ทดสอบปุ่มได้");
+                    console.log("สัญญายังไม่ได้ผูกสมบูรณ์ หรือเลขสัญญาบรรทัด 66 ผิดพลาด");
                     document.getElementById('claimBtn').disabled = false;
                 }
 
@@ -191,19 +172,22 @@
                 if(MINING_CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
                     return alert("โปรดใส่เลขสัญญาเหมืองขุดจริงแทนเลขศูนย์ที่บรรทัด 66 ก่อนครับพี่!");
                 }
-                statusDisp.innerText = "🦊 กรุณากดยืนยันธุรกรรมบน MetaMask...";
+                statusDisp.innerText = "🦊 กรุณากดยืนยันธุรกรรมบนหน้าต่าง MetaMask...";
+                
+                // ถอดการล็อกแก๊สแบบฟิกค่าออก ให้ระบบ MetaMask คำนวณแก๊สให้อัตโนมัติ ป้องกันการบล็อก
                 if (!isMiningOnChain) {
                     const tx = await miningContract.startMining();
-                    statusDisp.innerText = "⛓️ กำลังบันทึกบล็อกเริ่มต้นขุด...";
+                    statusDisp.innerText = "⛓️ กำลังเริ่มบันทึกการขุดเข้าเครือข่ายบล็อกเชน...";
                     await tx.wait();
                 } else {
                     const tx = await miningContract.stopMining();
-                    statusDisp.innerText = "⛓️ กำลังคำนวณและสรุปยอดบล็อกขุด...";
+                    statusDisp.innerText = "⛓️ กำลังคำนวณบล็อกและหยุดเครื่องขุด...";
                     await tx.wait();
                 }
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ธุรกรรมล้มเหลว: ตรวจสอบค่าแก๊ส POL ในกระเป๋า (ควรมี 0.1-0.2 POL)");
+                console.error(err);
+                alert("ธุรกรรมล้มเหลว: โปรดตรวจสอบว่าพี่กด 'ปฏิเสธ (Reject)' หรือเครือข่ายค้าง");
                 await checkOnChainStatus();
             }
         }
@@ -211,15 +195,15 @@
         async function claimMiningReward() {
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "🦊 กรุณากดอนุมัติถอนเหรียญบน MetaMask...";
+                statusDisp.innerText = "🦊 กรุณากดอนุมัติถอนเหรียญบนหน้าต่าง MetaMask...";
                 const tx = await miningContract.claimReward();
-                statusDisp.innerText = "⛓️ สัญญาออนเชนกำลังเสก (Mint) เหรียญใหม่...";
+                statusDisp.innerText = "⛓️ สัญญาออนเชนกำลังเสกเหรียญใหม่เข้ากระเป๋า...";
                 await tx.wait();
                 statusDisp.innerText = "🎉 ผลิตเหรียญใหม่เข้ากระเป๋าพี่สำเร็จเสร็จสิ้น!";
                 statusDisp.style.color = "#34d399";
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ถอนไม่สำเร็จ: ยอดขุดรวมอาจไม่ถึง 20 TVE หรือกระเป๋ายังไม่มีค่าแก๊ส");
+                alert("ถอนไม่สำเร็จ: ยอดขุดรวมอาจไม่ถึง 20 TVE หรือสัญญายังไม่เปิดสิทธิ์");
                 await checkOnChainStatus();
             }
         }
