@@ -2,91 +2,85 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TVET Telegram Web3 Mining V2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
-        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 25px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; }
+        /* 📱 บังคับให้ขนาดหน้าจอพอดีเป๊ะ ไม่มีส่วนเกินให้เลื่อนจอ */
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         
-        .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 15px rgba(130, 71, 229, 0.4); }
-        .network-dot { width: 7px; height: 7px; background-color: #34d399; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        
+        .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin: 0 auto 8px auto; border: 1px solid rgba(255,255,255,0.2); width: fit-content; }
+        .network-dot { width: 6px; height: 6px; background-color: #34d399; border-radius: 50%; display: inline-block; }
 
-        .logo-img { width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 0 35px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: contain; }
-        .mining-status { font-size: 13px; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
-        .balance-value { font-size: 36px; font-weight: 800; color: #ffffff; margin: 5px 0 15px 0; font-family: monospace; }
-        .card-info { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 12px; line-height: 1.6; }
+        .logo-img { width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); margin: 0 auto 5px auto; object-fit: contain; }
+        .mining-status { font-size: 12px; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 4px 12px; border-radius: 15px; display: inline-block; margin-bottom: 5px; font-weight: 500; }
+        .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .balance-value { font-size: 32px; font-weight: 800; color: #ffffff; margin: 2px 0 8px 0; font-family: monospace; }
         
-        .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #fca5a5; display: none; line-height: 1.5; }
-        .gas-success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #34d399; display: none; }
+        .card-info { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; text-align: left; font-size: 11px; line-height: 1.5; }
+        .card-info span { float: right; font-weight: bold; color: #fbbf24; }
         
-        .btn { width: 100%; padding: 13px; font-size: 15px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
-        .btn-tg { background: linear-gradient(90deg, #24a1de 0%, #1782b6 100%); color: #ffffff; box-shadow: 0 4px 15px rgba(36, 161, 222, 0.3); }
+        .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 8px; font-size: 11px; text-align: left; color: #fca5a5; display: none; line-height: 1.4; }
+        .gas-success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 8px; font-size: 11px; text-align: left; color: #34d399; display: none; }
+        
+        .btn { width: 100%; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; }
+        .btn-tg { background: linear-gradient(90deg, #24a1de 0%, #1782b6 100%); color: #ffffff; }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
         .btn-stop { background: #ef4444; color: #ffffff; }
         .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; }
         .btn-claim:disabled, .btn-primary:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; }
         
-        .btn-copy-token { background: rgba(130, 71, 229, 0.2); color: #c084fc; border: 1px solid rgba(130, 71, 229, 0.4); font-size: 11px; padding: 8px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 15px; font-weight: bold; transition: background 0.2s; }
-        .btn-copy-token:hover { background: rgba(130, 71, 229, 0.4); }
+        .btn-copy-token { background: rgba(130, 71, 229, 0.15); color: #c084fc; border: 1px solid rgba(130, 71, 229, 0.3); font-size: 10px; padding: 6px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 8px; font-weight: bold; }
 
-        .transfer-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-top: 15px; text-align: left; }
-        .input-addr { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 12px; box-sizing: border-box; margin-top: 5px; margin-bottom: 8px; }
-        .info-text { font-size: 11px; color: #a1a1aa; margin-top: 5px; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .transfer-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 10px; text-align: left; }
+        .input-addr { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 11px; box-sizing: border-box; margin-top: 4px; margin-bottom: 6px; }
+        .info-text { font-size: 10px; color: #a1a1aa; margin-top: 4px; word-break: break-all; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); text-align: left; line-height: 1.3; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <div>
-            <div class="network-badge">
-                <span class="network-dot"></span> 🌐 Polygon Mainnet Blockchain
+            <div class="network-badge"><span class="network-dot"></span> 🌐 Polygon Mainnet</div>
+            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
+            <div class="mining-status" id="miningStatus">⚙️ เหมืองขุด TVE On-Chain V2</div>
+            <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
+            <div class="balance-value" id="balanceDisplay">0.0000</div>
+        </div>
+
+        <div>
+            <div class="gas-alert-box" id="gasAlert">⚠️ <b>ไม่พบเหรียญแก๊ส:</b> โปรดโอนเหรียญ <b>POL (Polygon)</b> มาที่กระเป๋าด้านล่างนี้เพื่อเปิดสิทธิ์ระบบครับ</div>
+            <div class="gas-success-box" id="gasSuccess">⛽ <b>Polygon เชื่อมต่อแล้ว:</b> มีแก๊ส <span id="gasValueDisplay">0.0000</span> POL พร้อมรัน!</div>
+
+            <div class="card-info">
+                <div>📊 ยอดผลิตทั้งหมด: <span style="color: #fbbf24;">47,000,000 TVE</span></div>
+                <div>⚡ ความเร็วเฟส: <span style="color: #fbbf24;">0.0050 TVE / วิ</span></div>
             </div>
+
+            <button class="btn-copy-token" onclick="copyTokenAddress()">🦊 คัดลอกเลขสัญญาเหรียญ ไปใส่ MetaMask</button>
+            <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ เชื่อมต่อระบบกระเป๋าด่วน</button>
+            <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 เริ่มขุดเหมืองตรง (Start)</button>
+            <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนเหรียญเข้ากระเป๋าจริง</button>
         </div>
 
-        <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-        <div class="mining-status" id="miningStatus">⚙️ ระบบเหมืองขุด TVE On-Chain V2</div>
-        
-        <p style="font-size: 12px; color: #9ca3af; margin: 0; text-transform: uppercase;">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
-        <div class="balance-value" id="balanceDisplay">0.0000</div>
-
-        <div class="gas-alert-box" id="gasAlert">
-            ⚠️ <b>ระบบไม่พบเหรียญแก๊ส:</b> โปรดโอนเหรียญ <b>POL (เครือข่าย Polygon)</b> เข้ามาเติมในที่อยู่กระเป๋าขุดด่วนด้านล่างนี้เพื่อใช้จ่ายค่าธรรมเนียมบล็อกเชนครับ
-        </div>
-        <div class="gas-success-box" id="gasSuccess">
-            ⛽ <b>เชื่อมต่อ Polygon สำเร็จ:</b> ตรวจพบค่าแก๊ส <span id="gasValueDisplay">0.0000</span> POL พร้อมทำธุรกรรม!
-        </div>
-
-        <div class="card-info">
-            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span style="float: right; font-weight: bold; color: #fbbf24;">47,000,000 TVE</span></div>
-            <div>⚡ ความเร็วเฟสปัจจุบัน: <span style="float: right; font-weight: bold; color: #fbbf24;">0.0050 TVE / วินาที</span></div>
-            <div>🔗 ประเภทเครือข่าย: <span style="float: right; font-weight: bold; color: #a855f7;">Polygon Network</span></div>
-        </div>
-
-        <button class="btn-copy-token" onclick="copyTokenAddress()">🦊 คลิกคัดลอกเลขสัญญาเหรียญ ไปเพิ่มใน MetaMask</button>
-
-        <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ คลิกเพื่อเชื่อมต่อระบบด่วน</button>
-        
-        <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 เริ่มขุดเหมืองตรง (Start)</button>
-        <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและผลิตเหรียญใหม่เข้ากระเป๋า</button>
-        
-        <div class="info-text" id="walletAddress" onclick="copyWalletAddress()" style="cursor: pointer;">
-            สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า (คลิกเพื่อก๊อปปี้เลขกระเป๋าหลังเชื่อมต่อ)
-        </div>
-
-        <div class="transfer-box">
-            <label style="font-size: 12px; font-weight: bold; color: #9ca3af;">📦 โอนเหรียญ TVE ไปกระเป๋าหลัก (MetaMask)</label>
-            <input type="text" class="input-addr" id="targetWallet" placeholder="วางเลขกระเป๋า 0x... ปลายทาง">
-            <button class="btn btn-claim" id="transferBtn" style="padding: 8px; font-size: 12px; margin: 0;" onclick="transferToMetaMask()" disabled>กดโอนเหรียญข้ามกระเป๋า</button>
+        <div>
+            <div class="info-text" id="walletAddress" onclick="copyWalletAddress()" style="cursor: pointer;">สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า (คลิกเพื่อก๊อปปี้)</div>
+            <div class="transfer-box">
+                <label style="font-size: 11px; font-weight: bold; color: #9ca3af;">📦 โอนเหรียญ TVE ไปกระเป๋าหลัก (MetaMask)</label>
+                <input type="text" class="input-addr" id="targetWallet" placeholder="วางเลขกระเป๋า 0x... ปลายทาง">
+                <button class="btn btn-claim" id="transferBtn" style="padding: 6px; font-size: 11px; margin: 0;" onclick="transferToMetaMask()" disabled>กดโอนเหรียญหนีข้ามกระเป๋า</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 71: แปะเลขสัญญาตัวเหมืองจริง V2 ของพี่ตรงนี้ได้เลยครับ!
-        const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        // 🎯 บรรทัดที่ 71: แปะเลขสัญญาตัวเหมืองจริง V2 ของพี่ตรงนี้เช่นเคยครับ!
+        const MINING_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
 
-        // 🎯 บรรทัดที่ 74: ล็อกเลขสัญญาตัวเหรียญ TVETokenV2 ของพี่เข้าสู่ระบบหน้าบ้านเรียบร้อยครับ!
+        // ล็อกเลขสัญญาตัวเหรียญ TVETokenV2 ของพี่เรียบร้อยครับ
         const TOKEN_CONTRACT_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; 
 
         const MINING_CONTRACT_ABI = [
@@ -104,7 +98,7 @@
 
         async function quickLogin() {
             const loginBtn = document.getElementById('loginBtn');
-            loginBtn.innerText = "⏳ กำลังเชื่อมต่อกระเป๋า...";
+            loginBtn.innerText = "⏳ กำลังเชื่อมต่อ...";
             try {
                 let privateKey = localStorage.getItem('tvet_miner_pkey');
                 if (!privateKey) {
@@ -117,7 +111,7 @@
                 signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
-                document.getElementById('walletAddress').innerText = `📋 เลขกระเป๋าขุด Polygon (คลิกเพื่อก๊อปปี้):\n${walletAddr}`;
+                document.getElementById('walletAddress').innerText = `📋 เลขกระเป๋า Polygon (คลิกเพื่อก๊อปปี้):\n${walletAddr}`;
                 loginBtn.innerText = "🟢 เชื่อมต่อสำเร็จ";
                 loginBtn.style.background = "#10b981";
                 loginBtn.disabled = true;
@@ -126,7 +120,7 @@
                 document.getElementById('transferBtn').disabled = false;
                 document.getElementById('miningStatus').innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
 
-                if(MINING_CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                if(MINING_CONTRACT_ADDRESS !== "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648") {
                     miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 }
 
@@ -165,7 +159,7 @@
                 isMiningOnChain = true;
                 mineBtn.innerText = "🛑 หยุดขุด (Stop Mining)";
                 mineBtn.className = "btn btn-stop";
-                statusDisp.innerText = "⛏️ เครื่องกำลังรันปั๊มเหรียญ และบันทึกออนเชน...";
+                statusDisp.innerText = "⛏️ เครื่องกำลังรัน และบันทึกออนเชน...";
                 statusDisp.style.color = "#34d399";
                 
                 startUiSimulation();
@@ -216,7 +210,7 @@
             if(!miningContract) return;
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ กำลังส่งคำสั่งมินต์ผลิตเหรียญใหม่เข้ากระเป๋า...";
+                statusDisp.innerText = "⏳ กำลังส่งคำสั่งถอนเหรียญ...";
                 
                 const feeData = await provider.getFeeData();
                 const overGasPrice = feeData.gasPrice ? (feeData.gasPrice * 13n) / 10n : 50000000000n;
@@ -227,7 +221,7 @@
                 });
                 await tx.wait();
                 
-                alert("🎉 เคลมรางวัลผลิตเหรียญ TVE บน Polygon สำเร็จเรียบร้อยครับพี่!");
+                alert("🎉 เคลมรางวัลผลิตเหรียญ TVE บน Polygon สำเร็จ!");
                 currentMiningBalance = 0.0000;
                 document.getElementById('balanceDisplay').innerText = "0.0000";
                 statusDisp.innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
@@ -238,13 +232,13 @@
                 isMiningOnChain = false;
                 setTimeout(checkGasBalance, 1000);
             } catch (err) {
-                alert("การเคลมล้มเหลว: โปรดลองอีกครั้งหรือเช็กค่าแก๊ส POL");
+                alert("การเคลมล้มเหลว: โปรดตรวจสอบค่าแก๊ส POL");
             }
         }
 
         function copyTokenAddress() {
             navigator.clipboard.writeText(TOKEN_CONTRACT_ADDRESS);
-            alert("🦊 คัดลอกเลขสัญญาเหรียญสำเร็จ! วิธีดูเหรียญใน MetaMask:\n1. เปิด MetaMask เลือกเครือข่าย Polygon\n2. กดคำว่า 'Import Tokens' (นำเข้าเหรียญ)\n3. วางรหัสที่ก๊อปปี้ไปนี้ในช่องแรก ยอดเงินจะเด้งขึ้นมาทันทีครับ!");
+            alert("🦊 คัดลอกเลขสัญญาเหรียญสำเร็จ! นำไปวางในช่อง นำเข้าเหรียญ (Import Tokens) ของ MetaMask ได้เลยครับ");
         }
 
         function copyWalletAddress() {
