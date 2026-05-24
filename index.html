@@ -1,42 +1,69 @@
-<script>
-    // ... โค้ดส่วนบนคงเดิม ...
-    
-    async function quickLogin() {
-        const statusEl = document.getElementById('miningStatus');
-        statusEl.innerText = "⏳ กำลัง Debug การเชื่อมต่อ...";
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TVET Telegram Web3 Mining V2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #060913; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; }
+        .app-container { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 340px; height: 580px; text-align: center; box-sizing: border-box; }
+        .logo-img { width: 75px; height: 75px; border-radius: 50%; margin: 0 auto 5px auto; display: block; }
+        .btn { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-tg { background: #24a1de; }
+        .btn-primary { background: #f59e0b; }
+        .btn-claim { background: #10b981; }
+        .info-box { font-size: 11px; color: #a1a1aa; margin: 10px 0; word-break: break-all; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img">
+        <div id="status" style="color:#fbbf24; font-size:12px;">รอเชื่อมต่อกระเป๋า</div>
+        <div id="balance" style="font-size:30px; font-weight:bold; margin:10px 0;">0.0000 TVE</div>
         
-        try {
-            // ลองเข้าถึง Provider แบบเจาะจง Node
-            provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
-            
-            // ตรวจสอบกระเป๋า (ถ้าไม่มีให้สร้าง)
-            let pk = localStorage.getItem('tvet_pkey');
-            if(!pk) {
-                let wallet = ethers.Wallet.createRandom();
-                pk = wallet.privateKey;
+        <button class="btn btn-tg" onclick="quickLogin()">เชื่อมต่อกระเป๋าด่วน</button>
+        <button class="btn btn-primary" id="mineBtn" disabled onclick="handleMining()">เริ่มขุด (Start)</button>
+        <button class="btn btn-claim" onclick="claimReward()">ถอนเหรียญ</button>
+        
+        <div class="info-box" id="walletInfo">สถานะ: ไม่ได้เชื่อมต่อ</div>
+    </div>
+
+    <script>
+        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        const ABI = ["function startMining() external", "function claimReward() external"];
+        let signer, contract;
+
+        async function quickLogin() {
+            try {
+                const provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+                let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
                 localStorage.setItem('tvet_pkey', pk);
-            }
-            signer = new ethers.Wallet(pk, provider);
-            
-            // [จุดตายที่ 1] ตรวจสอบเลขสัญญา (ถ้าเลขนี้ว่าง หรือเป็น 0x0... มันจะค้าง)
-            if(MINING_CONTRACT === "0x0000000000000000000000000000000000000000") {
-                throw new Error("ลืมใส่เลขสัญญาเหมืองที่บรรทัด 90 ครับ!");
-            }
-            
-            contract = new ethers.Contract(MINING_CONTRACT, ABI, signer);
-            
-            // [จุดตายที่ 2] ทดสอบดึงข้อมูลจากสัญญา (ถ้าติดตรงนี้คือเลขสัญญาเหมืองผิด)
-            const addr = await signer.getAddress();
-            document.getElementById('walletAddress').innerText = addr;
-            document.getElementById('loginBtn').innerText = "🟢 เชื่อมต่อสำเร็จ";
-            statusEl.innerText = "🟢 เชื่อมต่อออนเชนเรียบร้อย";
-            
-        } catch(e) { 
-            console.error(e);
-            // โชว์ Error ออกมาที่หน้าจอให้พี่เห็นชัดๆ เลยครับ
-            statusEl.innerText = "❌ ERROR: " + e.message;
-            alert("เชื่อมต่อไม่ได้เพราะ: " + e.message);
+                signer = new ethers.Wallet(pk, provider);
+                contract = new ethers.Contract(MINING_CONTRACT, ABI, signer);
+                
+                document.getElementById('walletInfo').innerText = await signer.getAddress();
+                document.getElementById('status').innerText = "เชื่อมต่อสำเร็จ";
+                document.getElementById('mineBtn').disabled = false;
+            } catch(e) { alert("เชื่อมต่อไม่ได้: " + e.message); }
         }
-    }
-    // ... โค้ดส่วนล่างคงเดิม ...
-</script>
+
+        async function handleMining() {
+            try {
+                const tx = await contract.startMining({ gasLimit: 300000 });
+                await tx.wait();
+                alert("ขุดสำเร็จ!");
+            } catch(e) { alert("ขุดไม่ได้: " + e.message); }
+        }
+
+        async function claimReward() {
+            try {
+                const tx = await contract.claimReward({ gasLimit: 300000 });
+                await tx.wait();
+                alert("ถอนสำเร็จ!");
+            } catch(e) { alert("ถอนไม่ได้: " + e.message); }
+        }
+    </script>
+</body>
+</html>
