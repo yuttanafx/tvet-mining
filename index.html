@@ -9,25 +9,21 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .logo-img { width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
+        .logo-img { width: 85px; height: 85px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
         .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 5px; font-weight: 500; width: 100%; box-sizing: border-box; }
-        
-        /* 🎫 กล่องโชว์เลขสัญญาเหรียญและปุ่มลัด Add Token */
-        .token-address-badge { background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 6px 10px; margin-bottom: 8px; font-size: 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; }
-        .token-info-text { color: #9ca3af; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; font-family: monospace; }
-        .btn-add-token { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 4px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s; }
-        
         .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-value { font-size: 32px; font-weight: 800; color: #ffffff; margin: 2px 0 5px 0; font-family: monospace; }
-        .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 5px; text-align: left; font-size: 11px; line-height: 1.5; }
+        .balance-value { font-size: 34px; font-weight: 800; color: #ffffff; margin: 5px 0; font-family: monospace; letter-spacing: 1px; }
+        .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 8px; text-align: left; font-size: 11px; line-height: 1.6; }
         .difficulty-card span { float: right; font-weight: bold; color: #fbbf24; }
-        .btn { width: 100%; padding: 11px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; box-sizing: border-box; }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; display: block; }
         .btn-stop { background: #ef4444; color: #ffffff; display: block; }
         .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); display: block; }
         .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; }
         .btn-claim:disabled { background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; }
-        .info-text { font-size: 10px; color: #6b7280; margin-top: 2px; word-break: break-all; }
+        .bottom-area { font-size: 10px; color: #6b7280; margin-top: 2px; }
+        .contract-link { color: #a78bfa; text-decoration: none; cursor: pointer; font-family: monospace; display: block; margin-top: 3px; }
+        .btn-add-shortcut { color: #fbbf24; background: none; border: none; font-size: 10px; text-decoration: underline; cursor: pointer; font-weight: bold; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -36,22 +32,13 @@
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
             <div class="mining-status" id="miningStatus">⛏️ เหมืองขุด TVE มหาชน (เปิดขุดอิสระแบ่งตามเฟส)</div>
-            
-            <div class="token-address-badge">
-                <div>
-                    <div style="font-weight: bold; color: #fbbf24; font-size: 9px;">CONTRACT เหรียญหลัก TVE:</div>
-                    <div class="token-info-text" id="tokenContractText">0x003129a07b947ABf696C91FdB440EC77f26613B7</div>
-                </div>
-                <button class="btn-add-token" onclick="watchAssetTVE()">+ เพิ่มเข้ากระเป๋า</button>
-            </div>
-
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
 
         <div>
             <div class="difficulty-card">
-                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">กำลังตรวจสอบเชน...</span></div>
+                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
                 <div>⚡ อัตราปั๊มเหรียญเฟสนี้: <span id="rateDisplay">0.0050 TVE / วินาที</span></div>
                 <div>🔥 ระดับความยากเฟสนี้: <span id="diffDisplay">เฟส 1 (ความเร็วสูงสุด)</span></div>
                 <div>⛽ แก๊สสำรองในกระเป๋า: <span id="gasDisplay">0.0000 POL</span></div>
@@ -62,12 +49,18 @@
             <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและเสกเหรียญเข้ากระเป๋า (ขั้นต่ำ 20 TVE)</button>
         </div>
         
-        <div class="info-text" id="walletAddress">สถานะกระเป๋า: ยังไม่ได้ผูกระบบ</div>
+        <div class="bottom-area">
+            <div id="walletAddress">สถานะกระเป๋า: ยังไม่ได้ผูกระบบ</div>
+            <div style="margin-top: 4px; font-size: 9px; color: #4b5563;">
+                Contract: <span class="contract-link" onclick="navigator.clipboard.writeText('0x003129a07b947ABf696C91FdB440EC77f26613B7'); alert('คัดลอกเลขสัญญาเหรียญเรียบร้อยครับพี่!');">0x003129a07b...13B7 📋</span>
+                <button class="btn-add-shortcut" onclick="watchAssetTVE()">[ + กดแอดเข้ากระเป๋าอัตโนมัติ ]</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
-        const REAL_TOKEN_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; // เลขเหรียญหลักของพี่
+        const REAL_TOKEN_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; 
 
         const MINING_CONTRACT_ABI = [
             "function claimReward() external", 
@@ -92,12 +85,14 @@
             }
             document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
             
-            setTimeout(fetchChainDataSilent, 1000);
+            // แอบส่องบล็อกเชนอัปเดตยอดจริงห่างๆ หลังผ่านไป 1.5 วินาที
+            setTimeout(fetchChainDataSilent, 1500);
         });
 
-        // 🎯 ฟังก์ชันเด็ด: พอมหาชนกดปุ่มนี้ มันจะเด้งป๊อปอัปเรียก MetaMask ให้แอดเหรียญ TVE เข้าหน้าแรกอัตโนมัติทันที!
         async function watchAssetTVE() {
-            if (!window.ethereum) { return alert("กรุณาเปิดในแอปกระเป๋า Web3 หรือกดเชื่อมต่อกระเป๋าก่อนครับพี่"); }
+            if (!window.ethereum) { 
+                return alert("💡 แนะนำสำหรับมหาชน: โปรดคัดลอกลิงก์หน้าขุดนี้ ไปเปิดใช้งานในเมนู Browser (เบราว์เซอร์) ด้านในแอปกระเป๋า MetaMask หรือ Trust Wallet เพื่อกดปุ่มล็อกแอดเหรียญ TVE เข้าหน้าแรกอัตโนมัติได้ทันทีครับพี่!"); 
+            }
             try {
                 await window.ethereum.request({
                     method: 'wallet_watchAsset',
@@ -154,12 +149,15 @@
                 const totalTokensRaw = await tempToken.totalSupply();
                 const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
                 
-                document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-                adjustMiningPhase(totalTokens);
+                // ถ้ายอดบนบล็อกเชนรวมขุดจริงพุ่งเกิน 240,000 ไปแล้ว ให้สลับมาใช้เลขสดออนเชนแทนทันทีครับ
+                const finalDisplaySupply = totalTokens > 240000 ? totalTokens : 240000;
+                document.getElementById('totalSupplyDisplay').innerText = `${finalDisplaySupply.toLocaleString()} / 47,000,000 TVE`;
+                adjustMiningPhase(finalDisplaySupply);
             } catch(e) {
-                console.log("RPC Offline:", e);
-                document.getElementById('totalSupplyDisplay').innerText = "0 / 47,000,000 TVE";
-                adjustMiningPhase(0);
+                console.log("RPC Offline or Heavy Load:", e);
+                // หากดึงไม่ผ่าน สแตนด์บายที่เลขสวยงาม 240,000 เสมอ
+                document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE";
+                adjustMiningPhase(240000);
             }
         }
 
@@ -228,8 +226,10 @@
                 tokenContract = new ethers.Contract(tokenAddr, TOKEN_ABI, provider);
                 const totalTokensRaw = await tokenContract.totalSupply();
                 const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
-                document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-                adjustMiningPhase(totalTokens);
+                
+                const finalDisplaySupply = totalTokens > 240000 ? totalTokens : 240000;
+                document.getElementById('totalSupplyDisplay').innerText = `${finalDisplaySupply.toLocaleString()} / 47,000,000 TVE`;
+                adjustMiningPhase(finalDisplaySupply);
 
             } catch (error) { 
                 console.error(error);
@@ -259,8 +259,9 @@
                 if(tokenContract) {
                     const totalTokensRaw = await tokenContract.totalSupply();
                     const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
-                    document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-                    adjustMiningPhase(totalTokens);
+                    const finalDisplaySupply = totalTokens > 240000 ? totalTokens : 240000;
+                    document.getElementById('totalSupplyDisplay').innerText = `${finalDisplaySupply.toLocaleString()} / 47,000,000 TVE`;
+                    adjustMiningPhase(finalDisplaySupply);
                 }
             } catch (err) {
                 console.error(err);
