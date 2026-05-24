@@ -12,7 +12,10 @@
         .logo-img { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: cover; }
         .mining-status { font-size: 13px; color: #34d399; background: rgba(52, 211, 153, 0.15); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
         .balance-title { font-size: 13px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-value { font-size: 38px; font-weight: 800; color: #ffffff; margin: 5px 0 20px 0; }
+        .balance-value { font-size: 38px; font-weight: 800; color: #ffffff; margin: 5px 0 15px 0; }
+        .difficulty-card { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 10px; margin-bottom: 20px; text-align: left; font-size: 12px; }
+        .difficulty-card div { margin-bottom: 4px; }
+        .difficulty-card span { float: right; font-weight: bold; color: #fbbf24; }
         .btn { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
         .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); }
@@ -24,9 +27,18 @@
     <div class="app-container">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">🟢 ระบบฐานข้อมูล Google สแตนด์บาย</div>
-        <p class="balance-title">ยอด TVET สะสมจริง</p>
+        <div class="mining-status" id="miningStatus">🟢 ระบบเชื่อมต่อ Firebase สำเร็จ</div>
+        
+        <p class="balance-title">ยอด TVET สะสมของพี่</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
+
+        <div class="difficulty-card">
+            <div>📊 ซัพพลายรวมทั้งระบบ: <span id="totalGlobalSupply">0.00 TVET</span></div>
+            <div>⚡ ช่วงการขุดปัจจุบัน: <span id="currentPhaseDisplay">ช่วงที่ 1</span></div>
+            <div>⛏️ อัตราปล่อยเหรียญ: <span id="miningRateDisplay">0.0025 / วินาที</span></div>
+            <div>🔥 ระดับความยาก: <span id="difficultyPercentDisplay">100%</span></div>
+        </div>
+
         <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุด (Start Mining)</button>
         <button class="btn btn-web3" id="walletBtn" onclick="connectWallet()">เชื่อมต่อกระเป๋า Web3</button>
         <div class="info-text" id="walletAddress">สถานะกระเป๋า: ยังไม่ได้ผูกระบบ</div>
@@ -38,6 +50,8 @@
         let tgUser = { id: "12345678" }; 
         let isMining = false; 
         let balance = 0.0000; 
+        let globalTotalSupply = 0.0000;
+        let currentMiningRate = 0.0025; // ค่าเริ่มต้นวินาทีละ 0.0025
         let miningInterval;
         let walletAddr = "not_connected";
 
@@ -51,13 +65,62 @@
             }
         }
 
-        // โหลดข้อมูลภาพรวมแบบก้อนใหญ่มาจากคลาวด์
+        // 1. ฟังก์ชันดึงค่าและคำนวณหาซัพพลายรวมทั้งโลกจาก Firebase เพื่อระบุระดับความยาก
+        async function calculateSystemDifficulty() {
+            try {
+                const res = await fetch(`${FIREBASE_URL}/users.json`);
+                const allUsers = await res.json();
+                
+                globalTotalSupply = 0;
+                if (allUsers) {
+                    // วนลูปบวกยอดบาลานซ์ของทุกคนรวมกันจริงบนคลาวด์
+                    Object.keys(allUsers).forEach(key => {
+                        if (allUsers[key].balance) {
+                            globalTotalSupply += parseFloat(allUsers[key].balance);
+                        }
+                    });
+                }
+                
+                document.getElementById('totalGlobalSupply').innerText = `${globalTotalSupply.toFixed(2)} TVET`;
+                
+                // ล็อกเงื่อนไขขั้นบันไดความยากตามสูตรคำนวณของพี่เป๊ะๆ
+                if (globalTotalSupply <= 100000) {
+                    // ช่วงที่ 1
+                    currentMiningRate = 0.0025;
+                    document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 1";
+                    document.getElementById('miningRateDisplay').innerText = "0.0025 / วินาที";
+                    document.getElementById('difficultyPercentDisplay').innerText = "100% (ปกติ)";
+                } else if (globalTotalSupply > 100000 && globalTotalSupply <= 500000) {
+                    // ช่วงที่ 2
+                    currentMiningRate = 0.00125;
+                    document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 2";
+                    document.getElementById('miningRateDisplay').innerText = "0.00125 / วินาที";
+                    document.getElementById('difficultyPercentDisplay').innerText = "200% (ยากขึ้น 1 เท่า)";
+                } else if (globalTotalSupply > 500000 && globalTotalSupply <= 1000000) {
+                    // ช่วงที่ 3
+                    currentMiningRate = 0.000625;
+                    document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 3";
+                    document.getElementById('miningRateDisplay').innerText = "0.000625 / วินาที";
+                    document.getElementById('difficultyPercentDisplay').innerText = "400% (ยากขึ้น 2 เท่า)";
+                } else {
+                    // ช่วงที่ 4 (มากกว่า 1,000,000 เป็นต้นไป)
+                    currentMiningRate = 0.0001;
+                    document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 4";
+                    document.getElementById('miningRateDisplay').innerText = "0.000100 / วินาที";
+                    document.getElementById('difficultyPercentDisplay').innerText = "2,500% (ยากสูงสุด)";
+                }
+            } catch (err) {
+                console.log("Error คำนวณความยากระบบ:", err);
+            }
+        }
+
+        // โหลดโปรไฟล์ผู้ใช้เดี่ยวตัวพี่เอง
         async function loadUserData() {
+            await calculateSystemDifficulty(); // คำนวณความยากส่วนรวมก่อนโชว์หน้าบ้าน
             try {
                 const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
                 const data = await res.json();
                 if (data) {
-                    // ดึงค่าตามโครงสร้างแพ็กเกจรวม
                     balance = parseFloat(data.balance) || 0;
                     walletAddr = data.wallet_address || "not_connected";
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4);
@@ -69,7 +132,7 @@
                     }
                 }
             } catch (err) {
-                console.log("สร้างโปรไฟล์แรกเข้าคลาวด์");
+                console.log("ต้อนรับสมาชิกใหม่เข้าสู่ระบบ");
             }
         }
         loadUserData();
@@ -79,15 +142,19 @@
             const statusDisp = document.getElementById('miningStatus');
             
             if (!isMining) {
+                // ก่อนเริ่มขุด ให้สแกนดึงเช็กความยากซัพพลายปัจจุบันเผื่อมีใครตัดหน้าเซฟยอด
+                calculateSystemDifficulty();
+
                 isMining = true; 
                 mineBtn.innerText = "กำลังขุดระบบ... กดหยุดเพื่อเซฟแต้ม"; 
                 mineBtn.style.background = "#ef4444"; 
                 mineBtn.style.color = "#ffffff"; 
-                statusDisp.innerText = "⛏️ กำลังประมวลผลพลังงานจลน์..."; 
+                statusDisp.innerText = "⛏️ กำลังประมวลผลโมเมนตัมพลังงานจลน์..."; 
                 statusDisp.style.color = "#fbbf24";
                 
+                // วิ่งความเร็วสปีดตามอัตราแลกเปลี่ยนของแต่ละเฟสแบบเรียลไทม์
                 miningInterval = setInterval(() => { 
-                    balance += 0.0025; 
+                    balance += currentMiningRate; 
                     document.getElementById('balanceDisplay').innerText = balance.toFixed(4); 
                 }, 1000);
             } else {
@@ -103,12 +170,9 @@
             }
         }
 
-        // สั่งแพ็กข้อมูลลงกล่องพัสดุชิ้นเดียวแล้วส่งทีเดียว ป้องกันระบบเน็ตเวิร์กมือถือบล็อกตัวแปร
         async function saveDataToFirebase() {
             try {
                 const uId = tgUser.id.toString();
-                
-                // ยัดข้อมูลรวมกันเป็นวัตถุชิ้นเดียวก่อนส่ง
                 const packageData = {
                     balance: balance,
                     tg_id: uId,
@@ -116,7 +180,6 @@
                     last_updated: new Date().toISOString()
                 };
 
-                // ส่งโป้งเดียวจอดด้วยวิธี PATCH สากล
                 await fetch(`${FIREBASE_URL}/users/${uId}.json`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
@@ -125,6 +188,9 @@
 
                 document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
                 document.getElementById('miningStatus').style.color = "#34d399";
+                
+                // อัปเดตการ์ดความยากบนหน้าจออีกครั้งหลังจากเซฟแต้มใหม่แล้ว
+                calculateSystemDifficulty();
             } catch (e) {
                 document.getElementById('miningStatus').innerText = "⚠️ ระบบติดต่อฐานข้อมูลขัดข้อง";
                 document.getElementById('miningStatus').style.color = "#f87171";
