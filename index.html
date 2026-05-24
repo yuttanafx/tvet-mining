@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TVET Telegram On-Chain Mining V2</title>
-    <script src="https://cdn.jsdelivr.net/npm/@web3auth/modal"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@web3auth/ethereum-provider"></script>
+    <title>TVET Telegram Web3 Mining V2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
@@ -31,7 +29,7 @@
 
     <div class="app-container">
         <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-        <div class="mining-status" id="miningStatus">⚙️ ระบบล็อกอิน Telegram สร้างกระเป๋าออนเชน V2</div>
+        <div class="mining-status" id="miningStatus">✨ ระบบล็อกอินด่วนออนเชน V2 (No-Whitelist)</div>
         
         <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
@@ -42,12 +40,12 @@
             <div>🔥 ระดับความยากออนเชน: <span id="diffDisplay">100%</span></div>
         </div>
 
-        <button class="btn btn-tg" id="loginBtn" onclick="initAndLogin()">🔐 1. ล็อกอินด้วย Telegram</button>
+        <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ คลิกเพื่อเชื่อมต่อระบบด่วน</button>
         
-        <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 2. เริ่มขุดเหมืองตรง (Start)</button>
+        <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 เริ่มขุดเหมืองตรง (Start)</button>
         <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและผลิตเหรียญใหม่ (ขั้นต่ำ 20 TVE)</button>
         
-        <div class="info-text" id="walletAddress">สถานะ: ยังไม่ได้ผูกระบบบัญชี</div>
+        <div class="info-text" id="walletAddress">สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า</div>
 
         <div class="transfer-box">
             <label style="font-size: 12px; font-weight: bold; color: #9ca3af;">📦 โอนเหรียญ TVE ไปกระเป๋าหลัก (MetaMask)</label>
@@ -57,11 +55,8 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 60: อย่าลืมใส่เลขสัญญาเหมืองตัวใหม่ (TVEMiningOnChainV2) ของพี่ในเครื่องหมายคำพูดนะครับ!
+        // 🎯 บรรทัดที่ 57: เอาเลขสัญญาเหมือง (TVEMiningOnChainV2) มาวางแทนเลขศูนย์ในเครื่องหมายคำพูดครับพี่
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
-
-        // 🎯 บรรทัดที่ 63: ล็อกค่ารหัส Client ID ถาวรของพี่เข้าสู่ระบบเรียบร้อยครับ
-        const WEB3AUTH_CLIENT_ID = "BODXycneSPkZb-AQlyApky_qmn9o5j8THA8MV5GrRjFfsYCgJ5gWmW80eErxjWgq61ZpKnhtmarqZGSkuWoU51c"; 
 
         const MINING_CONTRACT_ABI = [
             "function startMining() external",
@@ -79,42 +74,30 @@
             "function transfer(address to, uint256 amount) external returns (bool)"
         ];
 
-        let web3auth, provider, signer, miningContract, tokenContract, tokenAddress;
+        let provider, signer, miningContract, tokenContract, tokenAddress;
         let walletAddr = "not_connected";
         let isMiningOnChain = false;
         let uiInterval;
         let currentRatePerBlock = 0.0050;
 
-        async function initAndLogin() {
+        async function quickLogin() {
             const loginBtn = document.getElementById('loginBtn');
-            loginBtn.innerText = "⏳ กำลังเชื่อมต่อระบบ...";
+            loginBtn.innerText = "⏳ กำลังสร้างกระเป๋าออนเชนด่วน...";
             try {
-                const chainConfig = {
-                    chainNamespace: "eip155",
-                    chainId: "0x89", // เชื่อมตรงเข้า Polygon Mainnet (137)
-                    rpcTarget: "https://polygon-rpc.com",
-                    displayName: "Polygon Mainnet",
-                    blockExplorerUrl: "https://polygonscan.com",
-                    ticker: "POL",
-                    tickerName: "POL",
-                };
+                // ระบบจะจำลองหรือดึง Private Key ประจำตัวจากหน่วยความจำปลอดภัยของอุปกรณ์ขึ้นมาทำงานออโต้ทันที
+                let privateKey = localStorage.getItem('tvet_miner_pkey');
+                if (!privateKey) {
+                    const wallet = ethers.Wallet.createRandom();
+                    privateKey = wallet.privateKey;
+                    localStorage.setItem('tvet_miner_pkey', privateKey);
+                }
 
-                // ล็อกสเปกเครือข่ายเป็น sapphire_devnet ตามสิทธิ์แดชบอร์ดของพี่เพื่อให้รันผ่านฉลุย
-                web3auth = new window.Modal.Web3Auth({
-                    clientId: WEB3AUTH_CLIENT_ID,
-                    web3AuthNetwork: "sapphire_devnet", 
-                    chainConfig: chainConfig,
-                });
-
-                await web3auth.initModal();
-                const web3authProvider = await web3auth.connect();
-                
-                provider = new ethers.BrowserProvider(web3authProvider);
-                signer = await provider.getSigner();
+                provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+                signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
-                document.getElementById('walletAddress').innerText = `กระเป๋าเทเลแกรม: ${walletAddr}`;
-                loginBtn.innerText = "🟢 ล็อกอินสำเร็จ";
+                document.getElementById('walletAddress').innerText = `เลขกระเป๋าขุดด่วนของพี่: ${walletAddr}`;
+                loginBtn.innerText = "🟢 เชื่อมต่อสำเร็จ";
                 loginBtn.style.background = "#10b981";
                 loginBtn.disabled = true;
 
@@ -127,8 +110,8 @@
                 await checkOnChainStatus();
             } catch (error) {
                 console.error(error);
-                alert("ล็อกอินไม่สำเร็จ: กรุณาตรวจสอบการตั้งค่าโดเมนในหน้าแดชบอร์ด Web3Auth");
-                loginBtn.innerText = "🔐 1. ล็อกอินด้วย Telegram";
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย Polygon");
+                loginBtn.innerText = "⚡ คลิกเพื่อเชื่อมต่อระบบด่วน";
             }
         }
 
@@ -166,7 +149,7 @@
                     statusDisp.style.color = "#34d399";
                     startUiSimulation();
                 } else {
-                    mineBtn.innerText = "🚀 2. เริ่มขุดเหมืองตรง (Start)";
+                    mineBtn.innerText = "🚀 เริ่มขุดเหมืองตรง (Start)";
                     mineBtn.className = "btn btn-primary";
                     statusDisp.innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
                     statusDisp.style.color = "#fbbf24";
@@ -180,7 +163,7 @@
         async function handleMiningAction() {
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ กำลังส่งธุรกรรมออนเชนผ่านระบบกระเป๋าออโต้...";
+                statusDisp.innerText = "⏳ กำลังส่งธุรกรรมออนเชนตรงสู่ Polygon Scan...";
                 if (!isMiningOnChain) {
                     const tx = await miningContract.startMining();
                     await tx.wait();
@@ -190,7 +173,7 @@
                 }
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ธุรกรรมล้มเหลว: ตรวจสอบว่ามีค่าแก๊ส POL ในกระเป๋าเพียงพอหรือไม่");
+                alert("ธุรกรรมปฏิเสธ: โปรดตรวจสอบว่ามีค่าแก๊ส POL ในกระเป๋าขุดด่วนใบนี้เพียงพอหรือไม่");
                 await checkOnChainStatus();
             }
         }
@@ -198,14 +181,14 @@
         async function claimMiningReward() {
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ ระบบกำลังสั่งเหมืองมินต์เหรียญใหม่ให้คุณ...";
+                statusDisp.innerText = "⏳ ระบบกำลังส่งคำสั่งผลิตเหรียญใหม่ให้คุณ...";
                 const tx = await miningContract.claimReward();
                 await tx.wait();
-                statusDisp.innerText = "🎉 ผลิตเหรียญใหม่เข้ากระเป๋าสำเร็จ!";
+                statusDisp.innerText = "🎉 ผลิตเหรียญใหม่สำเร็จ!";
                 statusDisp.style.color = "#34d399";
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ถอนไม่สำเร็จ: กรุณาเช็กสิทธิ์ setMiningContract ของตัวเหรียญหลังบ้าน");
+                alert("ถอนไม่สำเร็จ: ยอดขุดไม่ครบ หรือสิทธิ์หลังบ้านติดขัด");
                 await checkOnChainStatus();
             }
         }
@@ -216,16 +199,16 @@
             
             try {
                 const statusDisp = document.getElementById('miningStatus');
-                statusDisp.innerText = "📦 กำลังดึงยอดเงินคงเหลือเพื่อโอนข้ามกระเป๋า...";
+                statusDisp.innerText = "📦 กำลังดึงยอดเงินคงเหลือ...";
                 
                 const balanceRaw = await tokenContract.balanceOf(walletAddr);
-                if(balanceRaw === 0n) return alert("กระเป๋านี้ยังไม่มีเหรียญ TVE ที่เคลมเสร็จแล้วให้โอนครับ");
+                if(balanceRaw === 0n) return alert("กระเป๋านี้ยังไม่มีเหรียญ TVE ที่เคลมเสร็จให้โอนครับ");
                 
-                statusDisp.innerText = "⏳ กำลังส่งเหรียญ TVE ไปยังกระเป๋าปลายทาง...";
+                statusDisp.innerText = "⏳ กำลังส่งเหรียญ TVE ข้ามกระเป๋า...";
                 const tx = await tokenContract.transfer(target, balanceRaw);
                 await tx.wait();
                 
-                alert("🚀 โอนเหรียญ TVE ข้ามไปกระเป๋าหลักสำเร็จเรียบร้อยครับพี่!");
+                alert("🚀 โอนเหรียญ TVE ข้ามไปกระเป๋าหลัก (MetaMask) สำเร็จเรียบร้อยครับพี่!");
                 await checkOnChainStatus();
             } catch (error) {
                 alert("การโอนเหรียญล้มเหลว");
