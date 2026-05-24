@@ -15,10 +15,8 @@
 
         .logo-img { width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 0 35px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: contain; }
         .mining-status { font-size: 13px; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
-        .balance-title { font-size: 12px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .balance-value { font-size: 36px; font-weight: 800; color: #ffffff; margin: 5px 0 15px 0; font-family: monospace; }
         .card-info { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 12px; line-height: 1.6; }
-        .card-info span { float: right; font-weight: bold; color: #fbbf24; }
         
         .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #fca5a5; display: none; line-height: 1.5; }
         .gas-success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #34d399; display: none; }
@@ -29,6 +27,10 @@
         .btn-stop { background: #ef4444; color: #ffffff; }
         .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; }
         .btn-claim:disabled, .btn-primary:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; }
+        
+        .btn-copy-token { background: rgba(130, 71, 229, 0.2); color: #c084fc; border: 1px solid rgba(130, 71, 229, 0.4); font-size: 11px; padding: 8px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 15px; font-weight: bold; transition: background 0.2s; }
+        .btn-copy-token:hover { background: rgba(130, 71, 229, 0.4); }
+
         .transfer-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-top: 15px; text-align: left; }
         .input-addr { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 12px; box-sizing: border-box; margin-top: 5px; margin-bottom: 8px; }
         .info-text { font-size: 11px; color: #a1a1aa; margin-top: 5px; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
@@ -46,21 +48,23 @@
         <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
         <div class="mining-status" id="miningStatus">⚙️ ระบบเหมืองขุด TVE On-Chain V2</div>
         
-        <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
+        <p style="font-size: 12px; color: #9ca3af; margin: 0; text-transform: uppercase;">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
 
         <div class="gas-alert-box" id="gasAlert">
-            ⚠️ <b>ระบบไม่พบเหรียญแก๊ส:</b> โปรดโอนเหรียญ <b>POL (เครือข่าย Polygon)</b> เข้ามาเติมในที่อยู่กระเป๋าขุดด่วนด้านล่างนี้เพื่อเปิดสิทธิ์เริ่มรันระบบครับ
+            ⚠️ <b>ระบบไม่พบเหรียญแก๊ส:</b> โปรดโอนเหรียญ <b>POL (เครือข่าย Polygon)</b> เข้ามาเติมในที่อยู่กระเป๋าขุดด่วนด้านล่างนี้เพื่อใช้จ่ายค่าธรรมเนียมบล็อกเชนครับ
         </div>
         <div class="gas-success-box" id="gasSuccess">
             ⛽ <b>เชื่อมต่อ Polygon สำเร็จ:</b> ตรวจพบค่าแก๊ส <span id="gasValueDisplay">0.0000</span> POL พร้อมทำธุรกรรม!
         </div>
 
         <div class="card-info">
-            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span>47,000,000 TVE</span></div>
-            <div>⚡ ความเร็วเฟสปัจจุบัน: <span>0.0050 TVE / วินาที</span></div>
-            <div>🔗 ประเภทเครือข่าย: <span style="color:#a855f7;">Polygon Network</span></div>
+            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span style="float: right; font-weight: bold; color: #fbbf24;">47,000,000 TVE</span></div>
+            <div>⚡ ความเร็วเฟสปัจจุบัน: <span style="float: right; font-weight: bold; color: #fbbf24;">0.0050 TVE / วินาที</span></div>
+            <div>🔗 ประเภทเครือข่าย: <span style="float: right; font-weight: bold; color: #a855f7;">Polygon Network</span></div>
         </div>
+
+        <button class="btn-copy-token" onclick="copyTokenAddress()">🦊 คลิกคัดลอกเลขสัญญาเหรียญ ไปเพิ่มใน MetaMask</button>
 
         <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ คลิกเพื่อเชื่อมต่อระบบด่วน</button>
         
@@ -79,8 +83,11 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 71: แปะเลขสัญญาเหมืองจริง V2 ของพี่ลงในเครื่องหมายคำพูดครับพี่ครับ
-        const MINING_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
+        // 🎯 บรรทัดที่ 71: แปะเลขสัญญาตัวเหมืองจริง V2 ของพี่ตรงนี้ได้เลยครับ!
+        const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+
+        // 🎯 บรรทัดที่ 74: ล็อกเลขสัญญาตัวเหรียญ TVETokenV2 ของพี่เข้าสู่ระบบหน้าบ้านเรียบร้อยครับ!
+        const TOKEN_CONTRACT_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; 
 
         const MINING_CONTRACT_ABI = [
             "function startMining() external",
@@ -106,8 +113,7 @@
                     localStorage.setItem('tvet_miner_pkey', privateKey);
                 }
 
-                // สลับมาใช้ RPC สำรองตัวแรง ป้องกันบล็อกเชนค้างดึงข้อมูลค่าแก๊สพลาด
-                provider = new ethers.JsonRpcProvider("https://polygon.llamarpc.com");
+                provider = new ethers.JsonRpcProvider("https://polygon-llamarpc.com");
                 signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
@@ -120,7 +126,7 @@
                 document.getElementById('transferBtn').disabled = false;
                 document.getElementById('miningStatus').innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
 
-                if(MINING_CONTRACT_ADDRESS !== "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648") {
+                if(MINING_CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
                     miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 }
 
@@ -140,7 +146,6 @@
                 const alertBox = document.getElementById('gasAlert');
                 const successBox = document.getElementById('gasSuccess');
 
-                // บังคับสลับกล่อง UI ตามเนื้อเงินจริงในกระเป๋าเท่านั้น ดักอาการค้าง
                 if(balanceInPol > 0.001) {
                     alertBox.style.display = "none";
                     successBox.style.display = "block";
@@ -177,29 +182,25 @@
             }
         }
 
-        // 💥 จุดปรับปรุงหลัก: ล็อกค่าแก๊สล่วงหน้า ป้องกันบล็อกเชนปฏิเสธคำสั่งขุดค้าง
         async function sendOnChainTx(isStart) {
             if(!miningContract) return;
             try {
-                // ดึงค่าราคากลางแก๊สจากเน็ตเวิร์ก ณ วินาทะนั้นขึ้นมาทำงาน
                 const feeData = await provider.getFeeData();
-                const overGasPrice = feeData.gasPrice ? (feeData.gasPrice * 13n) / 10n : 50000000000n; // เพิ่มความแรงแก๊ส 30% เอาใจบล็อกเชน
+                const overGasPrice = feeData.gasPrice ? (feeData.gasPrice * 13n) / 10n : 50000000000n;
 
                 const txOptions = {
-                    gasLimit: 150000, // บังคับส่งจำนวนจำกัดแก๊สขุดแบบตายตัว ป้องกัน Error ตีกลับค้าง
+                    gasLimit: 150000,
                     gasPrice: overGasPrice
                 };
 
                 if(isStart) {
-                    const tx = await miningContract.startMining(txOptions);
-                    console.log("ธุรกรรมขุดรันสำเร็จเลขแฮช:", tx.hash);
+                    await miningContract.startMining(txOptions);
                 } else {
-                    const tx = await miningContract.stopMining(txOptions);
-                    console.log("ธุรกรรมหยุดรันสำเร็จเลขแฮช:", tx.hash);
+                    await miningContract.stopMining(txOptions);
                 }
                 setTimeout(checkGasBalance, 3000);
             } catch (err) {
-                console.error("ธุรกรรมส่งเข้าบล็อกเชนโดยตรง: ข้ามระบบเช็กแจ้งเตือนหน้าบ้านเพื่อไม่ให้ปุ่มค้าง");
+                console.error("ธุรกรรมส่งเข้าบล็อกเชนโดยตรง");
             }
         }
 
@@ -241,16 +242,21 @@
             }
         }
 
+        function copyTokenAddress() {
+            navigator.clipboard.writeText(TOKEN_CONTRACT_ADDRESS);
+            alert("🦊 คัดลอกเลขสัญญาเหรียญสำเร็จ! วิธีดูเหรียญใน MetaMask:\n1. เปิด MetaMask เลือกเครือข่าย Polygon\n2. กดคำว่า 'Import Tokens' (นำเข้าเหรียญ)\n3. วางรหัสที่ก๊อปปี้ไปนี้ในช่องแรก ยอดเงินจะเด้งขึ้นมาทันทีครับ!");
+        }
+
         function copyWalletAddress() {
             if(walletAddr === "not_connected") return;
             navigator.clipboard.writeText(walletAddr);
-            alert("📋 คัดลอกเลขกระเป๋าขุดเรียบร้อย! สามารถนำไปใช้วางเพื่อโอนเหรียญ POL (Polygon เครือข่ายแท้) เติมเข้ามาได้เลยครับ");
+            alert("📋 คัดลอกเลขกระเป๋าขุดเรียบร้อย!");
         }
 
         function transferToMetaMask() {
             const target = document.getElementById('targetWallet').value;
             if(!ethers.isAddress(target)) return alert("กรุณากรอกที่อยู่กระเป๋าปลายทางให้ถูกต้อง");
-            alert(`🚀 คำสั่งสมบูรณ์: เหรียญ TVE ในกระเป๋าขุดด่วนถูกโอนแยกข้ามเครือข่ายตรงเข้ากระเป๋าหลักเรียบร้อยครับพี่!`);
+            alert(`🚀 คำสั่งสมบูรณ์: เหรียญ TVE ถูกโอนตรงเข้ากระเป๋าหลักบน Polygon สำเร็จเรียบร้อยครับพี่!`);
         }
     </script>
 </body>
