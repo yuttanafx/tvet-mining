@@ -37,9 +37,9 @@
 
         <div>
             <div class="difficulty-card">
-                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">กำลังตรวจสอบเชน...</span></div>
+                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">ระบบออฟไลน์เริ่มต้น...</span></div>
                 <div>⚡ อัตราปั๊มเหรียญเฟสนี้: <span id="rateDisplay">0.0050 TVE / วินาที</span></div>
-                <div>🔥 ระดับความยากเฟสนี้: <span id="diffDisplay">เฟส 1 (ปกติ)</span></div>
+                <div>🔥 ระดับความยากเฟสนี้: <span id="diffDisplay">เฟส 1 (ความเร็วสูงสุด)</span></div>
                 <div>⛽ แก๊สสำรองในกระเป๋า: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
 
@@ -69,15 +69,19 @@
         let currentRatePerSec = 0.0050; 
         let accumulatedBalance = 0.0000;
 
+        // 🎯 ควบคุมระเบียบการรันเมื่อเปิดหน้าจอ: ดึงความจำขึ้นจอก่อน จากนั้นค่อยแอบส่องบล็อกเชนแบบปลอดภัย
         window.addEventListener('load', () => {
-            let savedBal = localStorage.getItem('tvet_free_mined_bal');
-            if(savedBal) {
-                accumulatedBalance = parseFloat(savedBal);
-                document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
-            }
-            document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
+            try {
+                let savedBal = localStorage.getItem('tvet_free_mined_bal');
+                if(savedBal) {
+                    accumulatedBalance = parseFloat(savedBal);
+                    document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
+                }
+                document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
+            } catch(e) { console.error(e); }
             
-            fetchChainDataSilent();
+            // สั่งรันดึงข้อมูลเชนแบบแยกท่ออิสระ (ครอบด้วย try-catch ป้องกันบั๊กล็อกปุ่มกดหน้าบ้าน)
+            setTimeout(fetchChainDataSilent, 500);
         });
 
         async function fetchChainDataSilent() {
@@ -91,11 +95,12 @@
                 const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
                 
                 document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-                
                 adjustMiningPhase(totalTokens);
             } catch(e) {
-                console.log("Silent fetch load:", e);
-                document.getElementById('totalSupplyDisplay').innerText = "0 / 47,000,000 TVE (ขุดระบบเริ่มต้น)";
+                console.log("RPC Delay or Offline:", e);
+                // ในกรณีเน็ตหน่วง ล็อกค่าเริ่มต้นเป็นเฟส 1 ให้คนใช้งานสามารถกดกดขุดได้ตามปกติ
+                document.getElementById('totalSupplyDisplay').innerText = "0 / 47,000,000 TVE";
+                adjustMiningPhase(0);
             }
         }
 
@@ -122,4 +127,81 @@
         }
 
         function handleMiningAction() {
-            isMiningActive = !isMiningActive
+            isMiningActive = !isMiningActive;
+            const mineBtn = document.getElementById('mineBtn');
+            const statusDisp = document.getElementById('miningStatus');
+
+            if(isMiningActive) {
+                mineBtn.innerText = "🛑 หยุดขุด (Stop Mining)";
+                mineBtn.className = "btn btn-stop";
+                statusDisp.innerText = "⛏️ พลังงานขับเคลื่อนกำลังผลิตเหรียญสะสมตามเฟสปัจจุบัน...";
+                statusDisp.style.color = "#34d399";
+                startUiSimulation();
+            } else {
+                mineBtn.innerText = "เริ่มขุดเหมืองตรง (Start)";
+                mineBtn.className = "btn btn-primary";
+                statusDisp.innerText = "🟢 เหมืองหยุดทำงานชั่วคราว พร้อมรับคำสั่งขุดต่อ";
+                statusDisp.style.color = "#fbbf24";
+                clearInterval(uiInterval);
+            }
+        }
+
+        function startUiSimulation() {
+            clearInterval(uiInterval);
+            uiInterval = setInterval(() => {
+                accumulatedBalance += currentRatePerSec; 
+                document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
+                localStorage.setItem('tvet_free_mined_bal', accumulatedBalance);
+                document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
+            }, 1000);
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) { return alert("กรุณาเปิดในแอปกระเป๋า Web3 ครับ"); }
+            const statusDisp = document.getElementById('miningStatus');
+            try {
+                statusDisp.innerText = "⏳ กำลังตรวจสอบเครือข่าย Polygon...";
+                
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x89' }], 
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x89',
+                                chainName: 'Polygon Mainnet',
+                                rpcUrls: ['https://polygon-rpc.com'],
+                                nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                                blockExplorerUrls: ['https://polygonscan.com/']
+                            }]
+                        });
+                    }
+                }
+
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                walletAddr = accounts[0];
+
+                document.getElementById('walletAddress').innerText = `กระเป๋า: ${walletAddr.substring(0,6)}...${walletAddr.substring(walletAddr.length-4)}`;
+                document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
+                document.getElementById('walletBtn').style.background = "#10b981";
+                document.getElementById('walletBtn').style.color = "#ffffff";
+                
+                miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
+                statusDisp.innerText = "🟢 เชื่อมกระเป๋าเสร็จสิ้น พร้อมตรวจสอบ POL";
+                
+                const gasBalRaw = await provider.getBalance(walletAddr);
+                const gasBal = parseFloat(ethers.formatUnits(gasBalRaw, 18));
+                document.getElementById('gasDisplay').innerText = `${gasBal.toFixed(4)} POL`;
+
+                const tokenAddr = await miningContract.tveToken();
+                tokenContract = new ethers.Contract(tokenAddr, TOKEN_ABI, provider);
+                const totalTokensRaw = await tokenContract.totalSupply();
+                const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
+                document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,0
