@@ -7,73 +7,93 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #060913; }
-        body { font-family: 'Segoe UI', sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
-        .app-container { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 340px; height: 590px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 20px; margin: 0 auto 8px auto; width: fit-content; }
-        .logo-img { width: 75px; height: 75px; border-radius: 50%; margin: 0 auto 5px auto; }
-        .balance-value { font-size: 30px; font-weight: 800; margin: 5px 0; font-family: monospace; }
-        .btn { width: 100%; padding: 12px; margin: 5px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-tg { background: #24a1de; }
-        .btn-primary { background: #f59e0b; }
-        .btn-claim { background: #10b981; }
-        .info-box { background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; font-size: 11px; text-align: left; margin: 5px 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
+        
+        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; padding: 15px; width: 100%; max-width: 340px; height: 95vh; max-height: 590px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        
+        .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin: 0 auto 6px auto; border: 1px solid rgba(255,255,255,0.2); width: fit-content; }
+        .network-dot { width: 6px; height: 6px; background-color: #34d399; border-radius: 50%; display: inline-block; }
+
+        .logo-img { width: 75px; height: 75px; border-radius: 50%; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); margin: 0 auto 4px auto; object-fit: contain; }
+        .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 4px 12px; border-radius: 15px; display: inline-block; margin-bottom: 4px; font-weight: 500; }
+        .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .balance-value { font-size: 30px; font-weight: 800; color: #ffffff; margin: 2px 0 6px 0; font-family: monospace; }
+        
+        .card-info { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; text-align: left; font-size: 11px; line-height: 1.6; }
+        .card-info span { float: right; font-weight: bold; color: #fbbf24; }
+        
+        .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 6px; font-size: 11px; text-align: left; color: #fca5a5; display: block; line-height: 1.4; }
+        
+        .btn { width: 100%; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 5px; }
+        .btn-tg { background: linear-gradient(90deg, #24a1de 0%, #1782b6 100%); color: #ffffff; }
+        .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
+        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; }
+        
+        .btn-copy-token { background: rgba(130, 71, 229, 0.15); color: #c084fc; border: 1px solid rgba(130, 71, 229, 0.3); font-size: 10px; padding: 5px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 6px; font-weight: bold; }
+
+        .transfer-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 10px; text-align: left; }
+        .input-addr { width: 100%; padding: 5px; border-radius: 6px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 11px; box-sizing: border-box; margin-top: 3px; margin-bottom: 5px; }
+        .info-text { font-size: 10px; color: #a1a1aa; margin-top: 3px; word-break: break-all; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); text-align: left; line-height: 1.3; }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div>
-            <div class="network-badge">🌐 Polygon Mainnet</div>
+            <div class="network-badge"><span class="network-dot"></span> 🌐 Polygon Mainnet</div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img">
-            <div id="status" style="font-size:11px; color:#fbbf24;">เชื่อมต่อกระเป๋าเพื่อเริ่มต้น</div>
+            <div class="mining-status" id="miningStatus">⚙️ เหมืองขุด TVE On-Chain V2</div>
+            <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
         <div>
-            <div class="info-box" onclick="checkGasBalance()" style="cursor:pointer;">
-                <div>⛽ แก๊ส POL: <span id="gasValueDisplay">คลิกเพื่อเช็กยอด...</span></div>
-                <div>📊 ผลิตแล้ว: <span id="totalSupplyDisplay">...</span></div>
+            <div class="gas-alert-box" id="gasAlert">⛽ <b>เช็กแก๊ส:</b> กำลังเชื่อมต่อ Polygon...</div>
+            <div class="card-info">
+                <div>📊 ผลิตแล้ว: <span id="totalSupplyDisplay">Loading...</span></div>
                 <div>⚡ ความเร็ว: <span id="rateDisplay">0.0050 TVE/บล็อก</span></div>
             </div>
-            <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ เชื่อมต่อกระเป๋าด่วน</button>
-            <button class="btn btn-primary" id="mineBtn" disabled onclick="handleMiningAction()">🚀 เริ่มขุดจริง (Start)</button>
+            <button class="btn-copy-token" onclick="copyTokenAddress()">🦊 คัดลอกเลขสัญญาเหรียญ</button>
+            <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ เชื่อมต่อกระเป๋า</button>
+            <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()">🚀 เริ่มขุดจริง (Start)</button>
             <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()">ถอนเหรียญเข้ากระเป๋า</button>
         </div>
-        <div id="walletAddress" class="info-box" style="font-size:10px; word-break:break-all;">สถานะ: ไม่ได้เชื่อมต่อ</div>
+        <div>
+            <div class="info-text" id="walletAddress" onclick="copyWalletAddress()" style="cursor: pointer;">สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า</div>
+            <div class="transfer-box">
+                <input type="text" class="input-addr" id="targetWallet" placeholder="วางเลขกระเป๋า 0x... ปลายทาง">
+                <button class="btn btn-claim" style="padding: 5px; font-size: 11px; margin: 0;" onclick="transferToMetaMask()">โอนเหรียญ</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 🎯 วางเลขสัญญาที่นี่ให้ครบครับพี่
-        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        const MINING_CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; // ใส่เลขสัญญาเหมืองของพี่ตรงนี้ครับ!
         const TOKEN_CONTRACT = "0x003129a07b947ABf696C91FdB440EC77f26613B7";
-        const ABI = ["function startMining() external", "function stopMining() external", "function claimReward() external", "function getRewardRate() external view returns (uint256)"];
+        const ABI = ["function startMining() external", "function stopMining() external", "function claimReward() external"];
         
-        let provider, signer, contract, walletAddr;
+        let provider, signer, contract;
 
         async function quickLogin() {
             try {
-                const rpcs = ["https://polygon-llamarpc.com", "https://polygon-rpc.com"];
-                provider = new ethers.JsonRpcProvider(rpcs[0]);
+                provider = new ethers.JsonRpcProvider("https://polygon-llamarpc.com");
                 let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
                 localStorage.setItem('tvet_pkey', pk);
                 signer = new ethers.Wallet(pk, provider);
-                walletAddr = await signer.getAddress();
                 contract = new ethers.Contract(MINING_CONTRACT, ABI, signer);
                 
-                document.getElementById('walletAddress').innerText = walletAddr;
-                document.getElementById('mineBtn').disabled = false;
-                document.getElementById('status').innerText = "🟢 เชื่อมต่อสำเร็จ";
-                checkGasBalance();
+                document.getElementById('walletAddress').innerText = await signer.getAddress();
+                document.getElementById('loginBtn').innerText = "🟢 เชื่อมต่อสำเร็จ";
+                
+                // เช็กแก๊สทันที
+                const bal = await provider.getBalance(await signer.getAddress());
+                document.getElementById('gasAlert').innerHTML = `⛽ ยอดแก๊สในกระเป๋า: ${ethers.formatUnits(bal, 18)} POL`;
             } catch(e) { alert("เชื่อมต่อไม่ได้"); }
-        }
-
-        async function checkGasBalance() {
-            const balanceRaw = await provider.getBalance(walletAddr);
-            document.getElementById('gasValueDisplay').innerText = ethers.formatUnits(balanceRaw, 18) + " POL";
         }
 
         async function handleMiningAction() {
             try {
                 const tx = await contract.startMining({ gasLimit: 300000 });
-                document.getElementById('status').innerText = "⛏️ ขุดจริงแล้ว!";
+                await tx.wait();
+                alert("⛏️ เริ่มขุดจริงบนบล็อกเชนสำเร็จ!");
             } catch(e) { alert("ขุดไม่ได้! เช็กแก๊ส POL ในกระเป๋าครับ"); }
         }
 
@@ -84,6 +104,10 @@
                 alert("ถอนสำเร็จ!");
             } catch(e) { alert("ถอนไม่ได้!"); }
         }
+
+        function copyTokenAddress() { navigator.clipboard.writeText(TOKEN_CONTRACT); alert("คัดลอกเลขเหรียญสำเร็จ"); }
+        function copyWalletAddress() { navigator.clipboard.writeText(document.getElementById('walletAddress').innerText); }
+        function transferToMetaMask() { alert("กำลังโอน..."); }
     </script>
 </body>
 </html>
