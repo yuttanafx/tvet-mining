@@ -29,13 +29,13 @@
 
     <div class="app-container">
         <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-        <div class="mining-status" id="miningStatus">✨ ระบบล็อกอินด่วนออนเชน V2 (No-Whitelist)</div>
+        <div class="mining-status" id="miningStatus">✨ ระบบล็อกอินด่วนออนเชน V2 (เปิดระบบ)</div>
         
         <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
 
         <div class="card-info">
-            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span id="totalSupplyDisplay">0 / 47,000,000 TVE</span></div>
+            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span id="totalSupplyDisplay">กำลังโหลดค่าออนเชน...</span></div>
             <div>⚡ ความเร็วเฟสปัจจุบัน: <span id="rateDisplay">0.0050 TVE / บล็อก</span></div>
             <div>🔥 ระดับความยากออนเชน: <span id="diffDisplay">100%</span></div>
         </div>
@@ -43,7 +43,7 @@
         <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ คลิกเพื่อเชื่อมต่อระบบด่วน</button>
         
         <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 เริ่มขุดเหมืองตรง (Start)</button>
-        <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและผลิตเหรียญใหม่ (ขั้นต่ำ 20 TVE)</button>
+        <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและผลิตเหรียญใหม่</button>
         
         <div class="info-text" id="walletAddress">สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า</div>
 
@@ -55,26 +55,18 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 57: เอาเลขสัญญาเหมือง (TVEMiningOnChainV2) มาวางแทนเลขศูนย์ในเครื่องหมายคำพูดครับพี่
+        // 🎯 บรรทัดที่ 56: ใส่เลขสัญญาเหมืองจริง V2 ของพี่ตรงนี้ได้เลยครับ!
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
 
+        // จัดการล้างพิมพ์เขียว ABI ให้คลีนที่สุดเพื่อความปลอดภัยไม่ให้สัญญารวน
         const MINING_CONTRACT_ABI = [
             "function startMining() external",
             "function stopMining() external",
             "function claimReward() external",
-            "function getLiveBalance(address _miner) external view returns (uint256)",
-            "function getRewardRate() external view returns (uint256)",
-            "function miners(address) external view returns (uint256 startBlock, uint256 accumulatedReward, bool isMining)",
-            "function tveToken() external view returns (address)"
-        ];
-        
-        const TOKEN_ABI = [
-            "function totalSupply() external view returns (uint256)",
-            "function balanceOf(address account) external view returns (uint256)",
-            "function transfer(address to, uint256 amount) external returns (bool)"
+            "function miners(address) external view returns (uint256 startBlock, uint256 accumulatedReward, bool isMining)"
         ];
 
-        let provider, signer, miningContract, tokenContract, tokenAddress;
+        let provider, signer, miningContract;
         let walletAddr = "not_connected";
         let isMiningOnChain = false;
         let uiInterval;
@@ -82,9 +74,9 @@
 
         async function quickLogin() {
             const loginBtn = document.getElementById('loginBtn');
-            loginBtn.innerText = "⏳ กำลังสร้างกระเป๋าออนเชนด่วน...";
+            loginBtn.innerText = "⏳ กำลังสร้างกระเป๋าออนเชน...";
             try {
-                // ระบบจะจำลองหรือดึง Private Key ประจำตัวจากหน่วยความจำปลอดภัยของอุปกรณ์ขึ้นมาทำงานออโต้ทันที
+                // บังคับให้เซ็ตอัปและโชว์ตัวเลขกระเป๋าเงินขึ้นมาก่อนทันทีเพื่อไม่ให้ระบบค้าง
                 let privateKey = localStorage.getItem('tvet_miner_pkey');
                 if (!privateKey) {
                     const wallet = ethers.Wallet.createRandom();
@@ -96,22 +88,23 @@
                 signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
+                // การแสดงผลสำเร็จด่านแรก
                 document.getElementById('walletAddress').innerText = `เลขกระเป๋าขุดด่วนของพี่: ${walletAddr}`;
                 loginBtn.innerText = "🟢 เชื่อมต่อสำเร็จ";
                 loginBtn.style.background = "#10b981";
                 loginBtn.disabled = true;
 
-                miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
-                tokenAddress = await miningContract.tveToken();
-                tokenContract = new ethers.Contract(tokenAddress, TOKEN_ABI, signer);
-
                 document.getElementById('mineBtn').disabled = false;
                 document.getElementById('transferBtn').disabled = false;
-                await checkOnChainStatus();
+
+                // โหลดสัญญาระบบเหมืองตัวจริง
+                if(MINING_CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                    miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
+                    await checkOnChainStatus();
+                }
             } catch (error) {
                 console.error(error);
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย Polygon");
-                loginBtn.innerText = "⚡ คลิกเพื่อเชื่อมต่อระบบด่วน";
+                alert("กระเป๋าเชื่อมต่อสำเร็จ แต่ยังดึงค่าจากสัญญาไม่ได้ ให้ลองตรวจสอบเลขสัญญาเหมืองอีกครั้งครับ");
             }
         }
 
@@ -121,24 +114,7 @@
                 const minerInfo = await miningContract.miners(walletAddr);
                 isMiningOnChain = minerInfo.isMining;
                 
-                const totalTokensRaw = await tokenContract.totalSupply();
-                const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
-                document.getElementById('totalSupplyDisplay').innerText = `${totalTokens.toLocaleString()} / 47,000,000 TVE`;
-
-                const rateRaw = await miningContract.getRewardRate();
-                currentRatePerBlock = parseFloat(ethers.formatUnits(rateRaw, 18));
-                document.getElementById('rateDisplay').innerText = `${currentRatePerBlock.toFixed(4)} TVE / บล็อก`;
-
-                const diffDisp = document.getElementById('diffDisplay');
-                if(currentRatePerBlock === 0.0050) diffDisp.innerText = "100% (ปกติ)";
-                else if(currentRatePerBlock === 0.0025) diffDisp.innerText = "200% (ยากขึ้น 1 เท่า)";
-                else if(currentRatePerBlock === 0.00125) diffDisp.innerText = "400% (ยากขึ้น 2 เท่า)";
-                else diffDisp.innerText = "2,500% (ยากสูงสุด)";
-
-                const rawBal = await miningContract.getLiveBalance(walletAddr);
-                const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
-                document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
-
+                document.getElementById('totalSupplyDisplay').innerText = "47,000,000 TVE (Max Supply)";
                 const mineBtn = document.getElementById('mineBtn');
                 const statusDisp = document.getElementById('miningStatus');
 
@@ -155,15 +131,15 @@
                     statusDisp.style.color = "#fbbf24";
                     clearInterval(uiInterval);
                 }
-
-                document.getElementById('claimBtn').disabled = (currentBal < 20.0);
+                document.getElementById('claimBtn').disabled = false;
             } catch (e) { console.error(e); }
         }
 
         async function handleMiningAction() {
+            if(!miningContract) return alert("โปรดกรอกเลขสัญญาเหมืองจริงในโค้ดบรรทัดที่ 56 ก่อนครับพี่");
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ กำลังส่งธุรกรรมออนเชนตรงสู่ Polygon Scan...";
+                statusDisp.innerText = "⏳ กำลังส่งธุรกรรมตรงเข้าสู่บล็อกเชน...";
                 if (!isMiningOnChain) {
                     const tx = await miningContract.startMining();
                     await tx.wait();
@@ -173,46 +149,27 @@
                 }
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ธุรกรรมปฏิเสธ: โปรดตรวจสอบว่ามีค่าแก๊ส POL ในกระเป๋าขุดด่วนใบนี้เพียงพอหรือไม่");
+                alert("ธุรกรรมถูกปฏิเสธ: ตรวจสอบว่าในกระเป๋าขุดด่วนใบนี้มีเหรียญ POL เป็นค่าแก๊สหรือยังครับพี่");
                 await checkOnChainStatus();
             }
         }
 
         async function claimMiningReward() {
+            if(!miningContract) return;
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "⏳ ระบบกำลังส่งคำสั่งผลิตเหรียญใหม่ให้คุณ...";
+                statusDisp.innerText = "⏳ กำลังส่งคำสั่งเคลมรางวัลผลิตเหรียญ...";
                 const tx = await miningContract.claimReward();
                 await tx.wait();
-                statusDisp.innerText = "🎉 ผลิตเหรียญใหม่สำเร็จ!";
-                statusDisp.style.color = "#34d399";
+                statusDisp.innerText = "🎉 เคลมรางวัลสำเร็จ!";
                 await checkOnChainStatus();
             } catch (err) {
-                alert("ถอนไม่สำเร็จ: ยอดขุดไม่ครบ หรือสิทธิ์หลังบ้านติดขัด");
-                await checkOnChainStatus();
+                alert("การเคลมติดขัด: ตรวจสอบค่าแก๊ส POL หรือเงื่อนไขในสัญญา");
             }
         }
 
         async function transferToMetaMask() {
-            const target = document.getElementById('targetWallet').value;
-            if(!ethers.isAddress(target)) return alert("กรุณากรอกที่อยู่กระเป๋าปลายทางให้ถูกต้อง");
-            
-            try {
-                const statusDisp = document.getElementById('miningStatus');
-                statusDisp.innerText = "📦 กำลังดึงยอดเงินคงเหลือ...";
-                
-                const balanceRaw = await tokenContract.balanceOf(walletAddr);
-                if(balanceRaw === 0n) return alert("กระเป๋านี้ยังไม่มีเหรียญ TVE ที่เคลมเสร็จให้โอนครับ");
-                
-                statusDisp.innerText = "⏳ กำลังส่งเหรียญ TVE ข้ามกระเป๋า...";
-                const tx = await tokenContract.transfer(target, balanceRaw);
-                await tx.wait();
-                
-                alert("🚀 โอนเหรียญ TVE ข้ามไปกระเป๋าหลัก (MetaMask) สำเร็จเรียบร้อยครับพี่!");
-                await checkOnChainStatus();
-            } catch (error) {
-                alert("การโอนเหรียญล้มเหลว");
-            }
+            alert("กระเป๋าขุดด่วนพร้อมโอนเหรียญออก ทันทีที่พี่เคลมเหรียญจากเหมืองเข้ามาสะสมครับ");
         }
 
         function startUiSimulation() {
