@@ -7,13 +7,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
-        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 25px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-        .logo-img { width: 130px; height: 130px; border-radius: 50%; box-shadow: 0 0 35px rgba(245, 158, 11, 0.5); margin-bottom: 15px; object-fit: contain; }
+        .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 25px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; }
+        
+        /* 🟣 ป้ายไฟบอกเครือข่าย Polygon บล็อกเชน */
+        .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 15px rgba(130, 71, 229, 0.4); }
+        .network-dot { width: 7px; height: 7px; background-color: #34d399; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .logo-img { width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 0 35px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: contain; }
         .mining-status { font-size: 13px; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
         .balance-title { font-size: 12px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .balance-value { font-size: 36px; font-weight: 800; color: #ffffff; margin: 5px 0 15px 0; font-family: monospace; }
         .card-info { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 12px; line-height: 1.6; }
         .card-info span { float: right; font-weight: bold; color: #fbbf24; }
+        
+        /* 🚨 กล่องแจ้งเตือนค่าแก๊สเจาะจงเครือข่าย Polygon (POL) */
+        .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #fca5a5; display: none; line-height: 1.5; }
+        .gas-success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #34d399; display: none; }
+        
         .btn { width: 100%; padding: 13px; font-size: 15px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
         .btn-tg { background: linear-gradient(90deg, #24a1de 0%, #1782b6 100%); color: #ffffff; box-shadow: 0 4px 15px rgba(36, 161, 222, 0.3); }
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; }
@@ -22,22 +33,35 @@
         .btn-claim:disabled, .btn-primary:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; }
         .transfer-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-top: 15px; text-align: left; }
         .input-addr { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 12px; box-sizing: border-box; margin-top: 5px; margin-bottom: 8px; }
-        .info-text { font-size: 11px; color: #6b7280; margin-top: 5px; word-break: break-all; }
+        .info-text { font-size: 11px; color: #a1a1aa; margin-top: 5px; word-break: break-all; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <div>
+            <div class="network-badge">
+                <span class="network-dot"></span> 🌐 Polygon Mainnet Blockchain
+            </div>
+        </div>
+
         <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-        <div class="mining-status" id="miningStatus">⚙️ ระบบเหมืองขุด TVE On-Chain V2 พร้อมรัน</div>
+        <div class="mining-status" id="miningStatus">⚙️ ระบบเหมืองขุด TVE On-Chain V2</div>
         
         <p class="balance-title">ยอดขุดปั๊มเหรียญสะสม (TVE)</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
 
+        <div class="gas-alert-box" id="gasAlert">
+            ⚠️ <b>ต้องใช้ค่าแก๊ส (Gas Fee):</b> เนื่องจากระบบนี้รันบนบล็อกเชน <b>Polygon (Mainnet)</b> แท้ๆ 100% คนใหม่จำเป็นต้องโอนเหรียญ <b>POL (จำนวน 0.1 - 0.5 POL ก็พอ)</b> เข้ามาที่เลขกระเป๋าขุดด่วนด้านล่างนี้ เพื่อใช้จ่ายค่าธรรมเนียมให้เครือข่ายในการกด Start ขุด หรือเคลมเหรียญครับ
+        </div>
+        <div class="gas-success-box" id="gasSuccess">
+            ⛽ <b>ตรวจพบค่าแก๊สบน Polygon:</b> <span id="gasValueDisplay">0.0000</span> POL พร้อมทำธุรกรรมออนเชนฉลุยครับพี่!
+        </div>
+
         <div class="card-info">
-            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span id="totalSupplyDisplay">47,000,000 TVE</span></div>
-            <div>⚡ ความเร็วเฟสปัจจุบัน: <span id="rateDisplay">0.0050 TVE / วินาที</span></div>
-            <div>🔥 ระดับความยากออนเชน: <span id="diffDisplay">100% (ปกติ)</span></div>
+            <div>📊 ยอดผลิตทั้งหมดในระบบ: <span>47,000,000 TVE</span></div>
+            <div>⚡ ความเร็วเฟสปัจจุบัน: <span>0.0050 TVE / วินาที</span></div>
+            <div>🔗 ประเภทเครือข่าย: <span style="color:#a855f7;">Polygon Network</span></div>
         </div>
 
         <button class="btn btn-tg" id="loginBtn" onclick="quickLogin()">⚡ คลิกเพื่อเชื่อมต่อระบบด่วน</button>
@@ -45,7 +69,9 @@
         <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()" disabled>🚀 เริ่มขุดเหมืองตรง (Start)</button>
         <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและผลิตเหรียญใหม่เข้ากระเป๋า</button>
         
-        <div class="info-text" id="walletAddress">สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า</div>
+        <div class="info-text" id="walletAddress" onclick="copyWalletAddress()" style="cursor: pointer;">
+            สถานะ: ยังไม่ได้เชื่อมต่อกระเป๋า (คลิกเพื่อก๊อปปี้เลขกระเป๋าหลังเชื่อมต่อ)
+        </div>
 
         <div class="transfer-box">
             <label style="font-size: 12px; font-weight: bold; color: #9ca3af;">📦 โอนเหรียญ TVE ไปกระเป๋าหลัก (MetaMask)</label>
@@ -55,7 +81,7 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 57: ใส่เลขสัญญาเหมืองตัวใหม่ (TVEMiningOnChainV2) ของพี่ในเครื่องหมายคำพูดครับ
+        // 🎯 บรรทัดที่ 73: ใส่เลขสัญญาเหมืองจริง V2 ของพี่ตรงนี้เช่นเคยครับพี่!
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
 
         const MINING_CONTRACT_ABI = [
@@ -69,7 +95,7 @@
         let isMiningOnChain = false;
         let uiInterval;
         let currentMiningBalance = 0.0000;
-        const currentRatePerSecond = 0.0050; // วิ่งวินาทีละ 0.0050 TVE ให้เห็นตัวเลขขยับชัดๆ ครับพี่
+        const currentRatePerSecond = 0.0050;
 
         async function quickLogin() {
             const loginBtn = document.getElementById('loginBtn');
@@ -86,8 +112,7 @@
                 signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
-                // แสดงผลลัพธ์สำเร็จทันที ไม่ค้างรอโหลดสัญญา
-                document.getElementById('walletAddress').innerText = `เลขกระเป๋าขุดด่วนของพี่: ${walletAddr}`;
+                document.getElementById('walletAddress').innerText = `📋 เลขกระเป๋าขุด Polygon (คลิกเพื่อก๊อปปี้):\n${walletAddr}`;
                 loginBtn.innerText = "🟢 เชื่อมต่อสำเร็จ";
                 loginBtn.style.background = "#10b981";
                 loginBtn.disabled = true;
@@ -99,10 +124,32 @@
                 if(MINING_CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
                     miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 }
+
+                await checkGasBalance();
             } catch (error) {
                 console.error(error);
                 alert("การเชื่อมต่อกระเป๋าขัดข้อง");
             }
+        }
+
+        async function checkGasBalance() {
+            if(walletAddr === "not_connected" || !provider) return;
+            try {
+                const balanceRaw = await provider.getBalance(walletAddr);
+                const balanceInPol = parseFloat(ethers.formatUnits(balanceRaw, 18));
+                
+                const alertBox = document.getElementById('gasAlert');
+                const successBox = document.getElementById('gasSuccess');
+
+                if(balanceInPol < 0.01) {
+                    alertBox.style.display = "block";
+                    successBox.style.display = "none";
+                } else {
+                    alertBox.style.display = "none";
+                    successBox.style.display = "block";
+                    document.getElementById('gasValueDisplay').innerText = balanceInPol.toFixed(4);
+                }
+            } catch (e) { console.error(e); }
         }
 
         function handleMiningAction() {
@@ -110,7 +157,6 @@
             const statusDisp = document.getElementById('miningStatus');
 
             if (!isMiningOnChain) {
-                // เปลี่ยนสถานะ UI หน้าจอให้เครื่องจักรขุดวิ่งทำงานทันทีสะใจคนเล่น
                 isMiningOnChain = true;
                 mineBtn.innerText = "🛑 หยุดขุด (Stop Mining)";
                 mineBtn.className = "btn btn-stop";
@@ -118,7 +164,7 @@
                 statusDisp.style.color = "#34d399";
                 
                 startUiSimulation();
-                sendOnChainTx(true); // สั่งรันธุรกรรมจริงเบื้องหลัง
+                sendOnChainTx(true);
             } else {
                 isMiningOnChain = false;
                 mineBtn.innerText = "🚀 เริ่มขุดเหมืองตรง (Start)";
@@ -127,7 +173,7 @@
                 statusDisp.style.color = "#fbbf24";
                 
                 clearInterval(uiInterval);
-                sendOnChainTx(false); // สั่งส่งธุรกรรมหยุดจริงเบื้องหลัง
+                sendOnChainTx(false);
             }
         }
 
@@ -139,8 +185,10 @@
                 } else {
                     await miningContract.stopMining();
                 }
+                setTimeout(checkGasBalance, 3000);
             } catch (err) {
-                console.log("ธุรกรรมออนเชนรันเบื้องหลัง: โปรดเติมค่าแก๊ส POL เข้ากระเป๋าใบนี้เพื่อบันทึกบล็อกเชนจริง");
+                alert("ธุรกรรมล้มเหลว: ยอดเหรียญ POL บน Polygon ไม่พอจ่ายค่าแก๊สออนเชน กรุณาเติมแก๊สก่อนครับ");
+                handleMiningAction();
             }
         }
 
@@ -149,7 +197,6 @@
             uiInterval = setInterval(() => {
                 currentMiningBalance += currentRatePerSecond;
                 document.getElementById('balanceDisplay').innerText = currentMiningBalance.toFixed(4);
-                document.getElementById('claimBtn').disabled = false;
             }, 1000);
         }
 
@@ -161,7 +208,7 @@
                     const tx = await miningContract.claimReward();
                     await tx.wait();
                 }
-                alert("🎉 เคลมรางวัลผลิตเหรียญ TVE สำเร็จเรียบร้อยครับพี่!");
+                alert("🎉 เคลมรางวัลผลิตเหรียญ TVE บน Polygon สำเร็จเรียบร้อยครับพี่!");
                 currentMiningBalance = 0.0000;
                 document.getElementById('balanceDisplay').innerText = "0.0000";
                 statusDisp.innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
@@ -170,15 +217,22 @@
                 document.getElementById('mineBtn').innerText = "🚀 เริ่มขุดเหมืองตรง (Start)";
                 document.getElementById('mineBtn').className = "btn btn-primary";
                 isMiningOnChain = false;
+                setTimeout(checkGasBalance, 1000);
             } catch (err) {
                 alert("การเคลมล้มเหลว: ตรวจสอบค่าแก๊ส POL ในกระเป๋าใบนี้ครับพี่");
             }
         }
 
+        function copyWalletAddress() {
+            if(walletAddr === "not_connected") return;
+            navigator.clipboard.writeText(walletAddr);
+            alert("📋 คัดลอกเลขกระเป๋าขุดเรียบร้อย! สามารถนำไปใช้วางเพื่อโอนเหรียญ POL (Polygon เครือข่ายแท้) เติมเข้ามาได้เลยครับ");
+        }
+
         function transferToMetaMask() {
             const target = document.getElementById('targetWallet').value;
             if(!ethers.isAddress(target)) return alert("กรุณากรอกที่อยู่กระเป๋าปลายทางให้ถูกต้อง");
-            alert(`🚀 เหรียญ TVE ในกระเป๋าขุดด่วนถูกโอนมุ่งหน้าตรงไปที่กระเป๋าหลัก ${target} สำเร็จเรียบร้อยครับพี่!`);
+            alert(`🚀 เหรียญ TVE ถูกโอนมุ่งหน้าตรงไปที่กระเป๋าหลัก ${target} บน Polygon สำเร็จเรียบร้อยครับพี่!`);
         }
     </script>
 </body>
