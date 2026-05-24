@@ -9,8 +9,14 @@
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .logo-img { width: 85px; height: 85px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
+        .logo-img { width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
         .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 5px; font-weight: 500; width: 100%; box-sizing: border-box; }
+        
+        /* 🎫 กล่องโชว์เลขสัญญาเหรียญและปุ่มลัด Add Token */
+        .token-address-badge { background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 6px 10px; margin-bottom: 8px; font-size: 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; }
+        .token-info-text { color: #9ca3af; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; font-family: monospace; }
+        .btn-add-token { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 4px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s; }
+        
         .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .balance-value { font-size: 32px; font-weight: 800; color: #ffffff; margin: 2px 0 5px 0; font-family: monospace; }
         .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 5px; text-align: left; font-size: 11px; line-height: 1.5; }
@@ -30,13 +36,22 @@
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
             <div class="mining-status" id="miningStatus">⛏️ เหมืองขุด TVE มหาชน (เปิดขุดอิสระแบ่งตามเฟส)</div>
+            
+            <div class="token-address-badge">
+                <div>
+                    <div style="font-weight: bold; color: #fbbf24; font-size: 9px;">CONTRACT เหรียญหลัก TVE:</div>
+                    <div class="token-info-text" id="tokenContractText">0x003129a07b947ABf696C91FdB440EC77f26613B7</div>
+                </div>
+                <button class="btn-add-token" onclick="watchAssetTVE()">+ เพิ่มเข้ากระเป๋า</button>
+            </div>
+
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
 
         <div>
             <div class="difficulty-card">
-                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">432,500 / 47,000,000 TVE</span></div>
+                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">กำลังตรวจสอบเชน...</span></div>
                 <div>⚡ อัตราปั๊มเหรียญเฟสนี้: <span id="rateDisplay">0.0050 TVE / วินาที</span></div>
                 <div>🔥 ระดับความยากเฟสนี้: <span id="diffDisplay">เฟส 1 (ความเร็วสูงสุด)</span></div>
                 <div>⛽ แก๊สสำรองในกระเป๋า: <span id="gasDisplay">0.0000 POL</span></div>
@@ -52,6 +67,7 @@
 
     <script>
         const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        const REAL_TOKEN_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; // เลขเหรียญหลักของพี่
 
         const MINING_CONTRACT_ABI = [
             "function claimReward() external", 
@@ -68,7 +84,6 @@
         let currentRatePerSec = 0.0050; 
         let accumulatedBalance = 0.0000;
 
-        // ดึงความจำเครื่องขึ้นจอทันที ไม่รอโค้ดเน็ตเวิร์กภายนอก
         window.addEventListener('DOMContentLoaded', () => {
             const savedBal = localStorage.getItem('tvet_free_mined_bal');
             if(savedBal) {
@@ -77,9 +92,27 @@
             }
             document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
             
-            // แอบส่องบล็อกเชนห่างๆ แบบไม่กวนหน้าเว็บหลัก
             setTimeout(fetchChainDataSilent, 1000);
         });
+
+        // 🎯 ฟังก์ชันเด็ด: พอมหาชนกดปุ่มนี้ มันจะเด้งป๊อปอัปเรียก MetaMask ให้แอดเหรียญ TVE เข้าหน้าแรกอัตโนมัติทันที!
+        async function watchAssetTVE() {
+            if (!window.ethereum) { return alert("กรุณาเปิดในแอปกระเป๋า Web3 หรือกดเชื่อมต่อกระเป๋าก่อนครับพี่"); }
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: REAL_TOKEN_ADDRESS, 
+                            symbol: 'TVE', 
+                            decimals: 18, 
+                            image: 'https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png', 
+                        },
+                    },
+                });
+            } catch (error) { console.error(error); }
+        }
 
         function handleMiningAction() {
             isMiningActive = !isMiningActive;
@@ -125,6 +158,8 @@
                 adjustMiningPhase(totalTokens);
             } catch(e) {
                 console.log("RPC Offline:", e);
+                document.getElementById('totalSupplyDisplay').innerText = "0 / 47,000,000 TVE";
+                adjustMiningPhase(0);
             }
         }
 
