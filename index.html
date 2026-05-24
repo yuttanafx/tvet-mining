@@ -1,31 +1,44 @@
-<script>
-    // 1. เปลี่ยนมาใช้ URL Gateway ที่ผ่านได้ทุก Gateway ครับพี่
-    async function quickLogin() {
-        try {
-            // ปรับเปลี่ยน RPC มาใช้ตัว Public ที่เสถียรที่สุด
-            const rpcs = [
-                "https://polygon.llamarpc.com",
-                "https://rpc-mainnet.maticvigil.com",
-                "https://polygon-mainnet.public.blastapi.io"
-            ];
-            
-            let provider;
-            for(let url of rpcs) {
-                try {
-                    provider = new ethers.JsonRpcProvider(url);
-                    await provider.getNetwork(); // ถ้าเข้าได้จะข้ามไป
-                    break;
-                } catch(e) { continue; }
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVET Mining V2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { background: #060913; color: white; text-align: center; font-family: sans-serif; margin: 0; padding: 20px; }
+        .box { background: #1f2937; padding: 20px; border-radius: 20px; max-width: 340px; margin: auto; }
+        .btn { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; background: #24a1de; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>TVET Mining</h1>
+        <div id="status">รอเชื่อมต่อ...</div>
+        <button class="btn" onclick="start()">เชื่อมต่อและขุด</button>
+        <div id="info" style="font-size:10px; margin-top:10px;"></div>
+    </div>
+
+    <script>
+        const CONTRACT = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648";
+        const ABI = ["function startMining() external"];
+        
+        async function start() {
+            try {
+                const provider = new ethers.JsonRpcProvider("https://polygon.llamarpc.com");
+                let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
+                localStorage.setItem('tvet_pkey', pk);
+                const signer = new ethers.Wallet(pk, provider);
+                const contract = new ethers.Contract(CONTRACT, ABI, signer);
+                
+                document.getElementById('status').innerText = "กำลังขุด...";
+                const tx = await contract.startMining({ gasLimit: 300000 });
+                await tx.wait();
+                alert("ขุดสำเร็จ!");
+            } catch(e) {
+                alert("เกิด Error: " + e.message);
             }
-            
-            // ... (ส่วนที่เหลือของฟังก์ชัน quickLogin คงเดิมครับ)
-            let pk = localStorage.getItem('tvet_pkey') || ethers.Wallet.createRandom().privateKey;
-            localStorage.setItem('tvet_pkey', pk);
-            signer = new ethers.Wallet(pk, provider);
-            contract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
-            // ...
-        } catch(e) { 
-            document.getElementById('status').innerText = "❌ ติดปัญหา: " + e.message;
         }
-    }
-</script>
+    </script>
+</body>
+</html>
