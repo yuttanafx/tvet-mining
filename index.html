@@ -7,19 +7,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; position: relative; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
+        .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: none; }
         
-        /* สไตล์หน้าจอล็อกอิน (Login Overlay) */
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; transition: all 0.5s ease; }
-        .login-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 30px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
-        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(31, 41, 55, 0.8); color: #ffffff; font-size: 15px; box-sizing: border-box; text-align: center; }
-        .login-input:focus { border-color: #f59e0b; outline: none; }
-        .error-msg { color: #f87171; font-size: 13px; margin-bottom: 10px; display: none; font-weight: 500; }
-
-        /* สไตล์หน้าจอแอปหลัก */
-        .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: block; }
+        /* สไตล์หน้าจอล็อกสิทธิ์ (Lock Screen) */
+        .lock-container { background: rgba(31, 41, 55, 0.7); backdrop-filter: blur(12px); border: 1px solid #ef4444; border-radius: 25px; padding: 40px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: none; }
+        
         .logo-img { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); margin-bottom: 15px; object-fit: cover; }
         .mining-status { font-size: 13px; color: #34d399; background: rgba(52, 211, 153, 0.15); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
+        .promotion-badge { font-size: 11px; color: #34d399; background: rgba(52, 211, 153, 0.2); padding: 3px 8px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
         .balance-title { font-size: 13px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .balance-value { font-size: 38px; font-weight: 800; color: #ffffff; margin: 5px 0 15px 0; }
         .difficulty-card { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 10px; margin-bottom: 20px; text-align: left; font-size: 12px; }
@@ -34,32 +30,25 @@
 </head>
 <body>
 
-    <div class="login-overlay" id="loginOverlay">
-        <div class="login-container">
-            <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=150&h=150&fit=crop" style="width:80px; height:80px; border-radius:50%; margin-bottom:15px; border:2px solid #f59e0b;" alt="TVET Lock">
-            <h3 style="margin-top:0; color:#f59e0b;">ระบบขุดเหรียญ TVET</h3>
-            <p style="font-size:12px; color:#9ca3af; margin-bottom:20px;">กรุณากรอกสิทธิ์เข้าใช้งานเพื่อปลดล็อกเครื่องขุด</p>
-            
-            <div id="errorMsg" class="error-msg">⚠️ ยูเซอร์หรือรหัสผ่านไม่ถูกต้อง!</div>
-            
-            <input type="text" id="userInput" class="login-input" placeholder="ชื่อผู้ใช้งาน (Username)">
-            <input type="password" id="passInput" class="login-input" placeholder="รหัสผ่าน (Password)">
-            
-            <button class="btn btn-primary" style="margin-top:10px; margin-bottom:0;" onclick="checkLogin()">ยืนยันเข้าสู่ระบบ</button>
-        </div>
+    <div class="lock-container" id="lockScreen">
+        <h1 style="font-size: 50px; margin: 0;">🔒</h1>
+        <h3 style="color: #f87171; margin-top: 10px;">หมดช่วงโปรโมชั่นขุดฟรี</h3>
+        <p style="font-size: 13px; color: #d1d5db; line-height: 1.6;">ขณะนี้ระบบซัพพลายรวมทะลุ 100,000 TVET แล้ว สิทธิ์ขุดของท่านต้องได้รับการอนุมัติจากผู้ดูแลระบบ</p>
+        <div id="myIdBadge" class="user-id-badge" style="color: #f87171; background: rgba(248, 113, 113, 0.1);">ID: กำลังตรวจสอบ...</div>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 15px;">*กรุณาส่งเลขไอดีด้านบนให้เจ้าหน้าที่เพื่อขอปลดล็อกสิทธิ์ Whitelist</p>
     </div>
 
-    <div class="app-container">
+    <div class="app-container" id="mainApp">
         <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=300&h=300&fit=crop" class="logo-img" alt="TVET Logo">
         <div id="userBadge" class="user-id-badge">ผู้ใช้งาน: Guest_User</div>
-        <div class="mining-status" id="miningStatus">🟢 ยืนยันสิทธิ์สำเร็จ พร้อมรันระบบ</div>
+        <div class="mining-status" id="miningStatus">🟢 กำลังตรวจสอบสิทธิ์เครือข่าย...</div>
         
         <p class="balance-title">ยอด TVET สะสมของพี่</p>
         <div class="balance-value" id="balanceDisplay">0.0000</div>
 
         <div class="difficulty-card">
             <div>📊 ซัพพลายรวมทั้งระบบ: <span id="totalGlobalSupply">0.00 TVET</span></div>
-            <div>⚡ ช่วงการขุดปัจจุบัน: <span id="currentPhaseDisplay">ช่วงที่ 1</span></div>
+            <div>⚡ ช่วงการขุดปัจจุบัน: <span id="currentPhaseDisplay">ช่วงที่ 1</span><span id="promoBadge" class="promotion-badge" style="display:none;">PROMO</span></div>
             <div>⛏️ อัตราปล่อยเหรียญ: <span id="miningRateDisplay">0.0025 / วินาที</span></div>
             <div>🔥 ระดับความยาก: <span id="difficultyPercentDisplay">100%</span></div>
         </div>
@@ -70,10 +59,6 @@
     </div>
 
     <script>
-        // 🔐 ส่วนตั้งรหัสผ่านคุมระบบ (พี่สามารถเปลี่ยน Username และ Password ในเครื่องหมายคำพูดตรงนี้ได้ตามใจชอบเลยครับ)
-        const MASTER_USER = "admin";
-        const MASTER_PASS = "123456";
-
         const FIREBASE_URL = "https://tvet-mining-default-rtdb.asia-southeast1.firebasedatabase.app";
 
         let tgUser = { id: "12345678" }; 
@@ -84,81 +69,97 @@
         let miningInterval;
         let walletAddr = "not_connected";
 
-        // ฟังก์ชันตรวจเช็ครหัสผ่าน
-        function checkLogin() {
-            const u = document.getElementById('userInput').value;
-            const p = document.getElementById('passInput').value;
-            const err = document.getElementById('errorMsg');
-
-            if (u === MASTER_USER && p === MASTER_PASS) {
-                // ถ้ารหัสผ่านถูก ให้ซ่อนหน้าจอล็อกอินออกไปทันที
-                document.getElementById('loginOverlay').style.opacity = "0";
-                setTimeout(() => {
-                    document.getElementById('loginOverlay').style.display = "none";
-                }, 500);
-                
-                // เริ่มรันระบบดึงข้อมูลจากคลาวด์
-                loadUserData();
-            } else {
-                // ถ้ารหัสผ่านผิด พ่นไฟแดงฟ้อง
-                err.style.display = "block";
-            }
-        }
-
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
             const initData = window.Telegram.WebApp.initDataUnsafe;
             if (initData && initData.user) {
                 tgUser = initData.user;
-                document.getElementById('userBadge').innerText = `ผู้ใช้งาน: ${tgUser.username || tgUser.first_name} (ID: ${tgUser.id})`;
             }
         }
 
-        async function calculateSystemDifficulty() {
+        // 🔍 ฟังก์ชันหลัก: คำนวณซัพพลายและประเมินสิทธิ์ล็อกเว็บออโต้ตามโจทย์พี่
+        async function runSystemSecurityCheck() {
             try {
-                const res = await fetch(`${FIREBASE_URL}/users.json`);
-                const allUsers = await res.json();
-                
+                // 1. ดึงยอดสะสมรวมของทุกคนมาคำนวณก่อน
+                const resSupply = await fetch(`${FIREBASE_URL}/users.json`);
+                const allUsers = await resSupply.json();
                 globalTotalSupply = 0;
                 if (allUsers) {
                     Object.keys(allUsers).forEach(key => {
-                        if (allUsers[key].balance) {
-                            globalTotalSupply += parseFloat(allUsers[key].balance);
-                        }
+                        if (allUsers[key].balance) globalTotalSupply += parseFloat(allUsers[key].balance);
                     });
                 }
-                
                 document.getElementById('totalGlobalSupply').innerText = `${globalTotalSupply.toFixed(2)} TVET`;
                 
+                // 2. ตั้งค่าระดับความยากตามขั้นบันได
+                let phase = 1;
                 if (globalTotalSupply <= 100000) {
+                    phase = 1;
                     currentMiningRate = 0.0025;
                     document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 1";
                     document.getElementById('miningRateDisplay').innerText = "0.0025 / วินาที";
                     document.getElementById('difficultyPercentDisplay').innerText = "100% (ปกติ)";
+                    document.getElementById('promoBadge').style.display = "inline-block"; // เปิดป้ายโปรโมชั่น
                 } else if (globalTotalSupply > 100000 && globalTotalSupply <= 500000) {
+                    phase = 2;
                     currentMiningRate = 0.00125;
                     document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 2";
                     document.getElementById('miningRateDisplay').innerText = "0.00125 / วินาที";
                     document.getElementById('difficultyPercentDisplay').innerText = "200% (ยากขึ้น 1 เท่า)";
+                    document.getElementById('promoBadge').style.display = "none";
                 } else if (globalTotalSupply > 500000 && globalTotalSupply <= 1000000) {
+                    phase = 3;
                     currentMiningRate = 0.000625;
                     document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 3";
                     document.getElementById('miningRateDisplay').innerText = "0.000625 / วินาที";
                     document.getElementById('difficultyPercentDisplay').innerText = "400% (ยากขึ้น 2 เท่า)";
+                    document.getElementById('promoBadge').style.display = "none";
                 } else {
+                    phase = 4;
                     currentMiningRate = 0.0001;
                     document.getElementById('currentPhaseDisplay').innerText = "ช่วงที่ 4";
                     document.getElementById('miningRateDisplay').innerText = "0.000100 / วินาที";
                     document.getElementById('difficultyPercentDisplay').innerText = "2,500% (ยากสูงสุด)";
+                    document.getElementById('promoBadge').style.display = "none";
+                }
+
+                // 3. 🛡️ เช็กเงื่อนไขการล็อกหน้าเว็บอัจฉริยะ
+                if (phase === 1 || tgUser.id.toString() === "12345678") {
+                    // 🎉 ช่วงที่ 1: โหมดโปรโมชั่น ปล่อยผ่านให้ขุดได้ทุกไอดีฟรีๆ เลย!
+                    document.getElementById('mainApp').style.display = "block";
+                    document.getElementById('lockScreen').style.display = "none";
+                    document.getElementById('miningStatus').innerText = "🎁 โหมดโปรโมชั่น: เปิดให้ทดสอบขุดอิสระ";
+                    document.getElementById('miningStatus').style.color = "#34d399";
+                    document.getElementById('userBadge').innerText = `ผู้ใช้งาน: ${tgUser.username || tgUser.first_name} (ID: ${tgUser.id})`;
+                    await loadUserData();
+                } else {
+                    // 🔒 ช่วงที่ 2 เป็นต้นไป: ตรวจสอบสิทธิ์ Whitelist รายไอดีจริงในคลาวด์
+                    const resWL = await fetch(`${FIREBASE_URL}/whitelist/${tgUser.id}.json`);
+                    const hasAccess = await resWL.json();
+
+                    if (hasAccess === true) {
+                        // ถ้าพี่อนุมัติในคลาวด์แล้ว -> ให้ผ่าน
+                        document.getElementById('mainApp').style.display = "block";
+                        document.getElementById('lockScreen').style.display = "none";
+                        document.getElementById('miningStatus').innerText = "🔒 ยืนยันสิทธิ์สมาชิกระดับ Exclusive";
+                        document.getElementById('miningStatus').style.color = "#fbbf24";
+                        document.getElementById('userBadge').innerText = `ผู้ใช้งาน: ${tgUser.username || tgUser.first_name} (ID: ${tgUser.id})`;
+                        await loadUserData();
+                    } else {
+                        // ไม่มีชื่อในคลาวด์ -> บล็อกหน้าจอทันที!
+                        document.getElementById('mainApp').style.display = "none";
+                        document.getElementById('lockScreen').style.display = "block";
+                        document.getElementById('myIdBadge').innerText = `ID ของคุณคือ: ${tgUser.id}`;
+                    }
                 }
             } catch (err) {
-                console.log("Error คำนวณความยากระบบ:", err);
+                // เซฟโซนกรณีระบบเอ๋อ ให้เปิดหน้าหลักไว้ก่อน
+                document.getElementById('mainApp').style.display = "block";
             }
         }
 
         async function loadUserData() {
-            await calculateSystemDifficulty(); 
             try {
                 const res = await fetch(`${FIREBASE_URL}/users/${tgUser.id}.json`);
                 const data = await res.json();
@@ -173,17 +174,18 @@
                         document.getElementById('walletBtn').style.color = "#ffffff";
                     }
                 }
-            } catch (err) {
-                console.log("สมาชิกล็อกอินเข้าใหม่");
-            }
+            } catch (err) {}
         }
+
+        // รันคำสั่งตรวจสอบระบบทั้งหมดทันทีเมื่อเปิดหน้าเว็บ
+        runSystemSecurityCheck();
 
         function toggleMining() {
             const mineBtn = document.getElementById('mineBtn'); 
             const statusDisp = document.getElementById('miningStatus');
             
             if (!isMining) {
-                calculateSystemDifficulty();
+                runSystemSecurityCheck();
                 isMining = true; 
                 mineBtn.innerText = "กำลังขุดระบบ... กดหยุดเพื่อเซฟแต้ม"; 
                 mineBtn.style.background = "#ef4444"; 
@@ -226,11 +228,8 @@
 
                 document.getElementById('miningStatus').innerText = "✅ บันทึกข้อมูลลงเซิร์ฟเวอร์เสร็จสิ้น!";
                 document.getElementById('miningStatus').style.color = "#34d399";
-                calculateSystemDifficulty();
-            } catch (e) {
-                document.getElementById('miningStatus').innerText = "⚠️ ระบบติดต่อฐานข้อมูลขัดข้อง";
-                document.getElementById('miningStatus').style.color = "#f87171";
-            }
+                runSystemSecurityCheck();
+            } catch (e) {}
         }
 
         async function connectWallet() {
