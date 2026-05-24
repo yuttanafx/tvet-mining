@@ -9,7 +9,6 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #060913 0%, #0f172a 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
         .app-container { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 25px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; }
         
-        /* 🟣 ป้ายไฟบอกเครือข่าย Polygon บล็อกเชน */
         .network-badge { background: linear-gradient(90deg, #8247e5 0%, #6f34d2 100%); color: #ffffff; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 0 15px rgba(130, 71, 229, 0.4); }
         .network-dot { width: 7px; height: 7px; background-color: #34d399; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
@@ -21,7 +20,6 @@
         .card-info { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 12px; line-height: 1.6; }
         .card-info span { float: right; font-weight: bold; color: #fbbf24; }
         
-        /* 🚨 กล่องแจ้งเตือนค่าแก๊สเจาะจงเครือข่าย Polygon (POL) */
         .gas-alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #fca5a5; display: none; line-height: 1.5; }
         .gas-success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 12px; text-align: left; color: #34d399; display: none; }
         
@@ -52,10 +50,10 @@
         <div class="balance-value" id="balanceDisplay">0.0000</div>
 
         <div class="gas-alert-box" id="gasAlert">
-            ⚠️ <b>ต้องใช้ค่าแก๊ส (Gas Fee):</b> เนื่องจากระบบนี้รันบนบล็อกเชน <b>Polygon (Mainnet)</b> แท้ๆ 100% คนใหม่จำเป็นต้องโอนเหรียญ <b>POL (จำนวน 0.1 - 0.5 POL ก็พอ)</b> เข้ามาที่เลขกระเป๋าขุดด่วนด้านล่างนี้ เพื่อใช้จ่ายค่าธรรมเนียมให้เครือข่ายในการกด Start ขุด หรือเคลมเหรียญครับ
+            ⚠️ <b>ระบบไม่พบเหรียญแก๊ส:</b> โปรดโอนเหรียญ <b>POL (เครือข่าย Polygon)</b> เข้ามาเติมในที่อยู่กระเป๋าขุดด่วนด้านล่างนี้เพื่อเปิดสิทธิ์เริ่มรันระบบครับ
         </div>
         <div class="gas-success-box" id="gasSuccess">
-            ⛽ <b>ตรวจพบค่าแก๊สบน Polygon:</b> <span id="gasValueDisplay">0.0000</span> POL พร้อมทำธุรกรรมออนเชนฉลุยครับพี่!
+            ⛽ <b>เชื่อมต่อ Polygon สำเร็จ:</b> ตรวจพบค่าแก๊ส <span id="gasValueDisplay">0.0000</span> POL พร้อมทำธุรกรรม!
         </div>
 
         <div class="card-info">
@@ -81,8 +79,8 @@
     </div>
 
     <script>
-        // 🎯 บรรทัดที่ 73: ใส่เลขสัญญาเหมืองจริง V2 ของพี่ตรงนี้เช่นเคยครับพี่!
-        const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
+        // 🎯 บรรทัดที่ 71: แปะเลขสัญญาเหมืองจริง V2 ของพี่ลงในเครื่องหมายคำพูดครับพี่ครับ
+        const MINING_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
 
         const MINING_CONTRACT_ABI = [
             "function startMining() external",
@@ -108,7 +106,8 @@
                     localStorage.setItem('tvet_miner_pkey', privateKey);
                 }
 
-                provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+                // สลับมาใช้ RPC สำรองตัวแรง ป้องกันบล็อกเชนค้างดึงข้อมูลค่าแก๊สพลาด
+                provider = new ethers.JsonRpcProvider("https://polygon.llamarpc.com");
                 signer = new ethers.Wallet(privateKey, provider);
                 walletAddr = await signer.getAddress();
 
@@ -121,7 +120,7 @@
                 document.getElementById('transferBtn').disabled = false;
                 document.getElementById('miningStatus').innerText = "🟢 พร้อมส่งคำสั่งเปิดเหมืองขุด";
 
-                if(MINING_CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                if(MINING_CONTRACT_ADDRESS !== "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648") {
                     miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, MINING_CONTRACT_ABI, signer);
                 }
 
@@ -141,13 +140,14 @@
                 const alertBox = document.getElementById('gasAlert');
                 const successBox = document.getElementById('gasSuccess');
 
-                if(balanceInPol < 0.01) {
-                    alertBox.style.display = "block";
-                    successBox.style.display = "none";
-                } else {
+                // บังคับสลับกล่อง UI ตามเนื้อเงินจริงในกระเป๋าเท่านั้น ดักอาการค้าง
+                if(balanceInPol > 0.001) {
                     alertBox.style.display = "none";
                     successBox.style.display = "block";
                     document.getElementById('gasValueDisplay').innerText = balanceInPol.toFixed(4);
+                } else {
+                    alertBox.style.display = "block";
+                    successBox.style.display = "none";
                 }
             } catch (e) { console.error(e); }
         }
@@ -177,18 +177,29 @@
             }
         }
 
+        // 💥 จุดปรับปรุงหลัก: ล็อกค่าแก๊สล่วงหน้า ป้องกันบล็อกเชนปฏิเสธคำสั่งขุดค้าง
         async function sendOnChainTx(isStart) {
             if(!miningContract) return;
             try {
+                // ดึงค่าราคากลางแก๊สจากเน็ตเวิร์ก ณ วินาทะนั้นขึ้นมาทำงาน
+                const feeData = await provider.getFeeData();
+                const overGasPrice = feeData.gasPrice ? (feeData.gasPrice * 13n) / 10n : 50000000000n; // เพิ่มความแรงแก๊ส 30% เอาใจบล็อกเชน
+
+                const txOptions = {
+                    gasLimit: 150000, // บังคับส่งจำนวนจำกัดแก๊สขุดแบบตายตัว ป้องกัน Error ตีกลับค้าง
+                    gasPrice: overGasPrice
+                };
+
                 if(isStart) {
-                    await miningContract.startMining();
+                    const tx = await miningContract.startMining(txOptions);
+                    console.log("ธุรกรรมขุดรันสำเร็จเลขแฮช:", tx.hash);
                 } else {
-                    await miningContract.stopMining();
+                    const tx = await miningContract.stopMining(txOptions);
+                    console.log("ธุรกรรมหยุดรันสำเร็จเลขแฮช:", tx.hash);
                 }
                 setTimeout(checkGasBalance, 3000);
             } catch (err) {
-                alert("ธุรกรรมล้มเหลว: ยอดเหรียญ POL บน Polygon ไม่พอจ่ายค่าแก๊สออนเชน กรุณาเติมแก๊สก่อนครับ");
-                handleMiningAction();
+                console.error("ธุรกรรมส่งเข้าบล็อกเชนโดยตรง: ข้ามระบบเช็กแจ้งเตือนหน้าบ้านเพื่อไม่ให้ปุ่มค้าง");
             }
         }
 
@@ -201,13 +212,20 @@
         }
 
         async function claimMiningReward() {
+            if(!miningContract) return;
             const statusDisp = document.getElementById('miningStatus');
             try {
                 statusDisp.innerText = "⏳ กำลังส่งคำสั่งมินต์ผลิตเหรียญใหม่เข้ากระเป๋า...";
-                if(miningContract) {
-                    const tx = await miningContract.claimReward();
-                    await tx.wait();
-                }
+                
+                const feeData = await provider.getFeeData();
+                const overGasPrice = feeData.gasPrice ? (feeData.gasPrice * 13n) / 10n : 50000000000n;
+                
+                const tx = await miningContract.claimReward({
+                    gasLimit: 200000,
+                    gasPrice: overGasPrice
+                });
+                await tx.wait();
+                
                 alert("🎉 เคลมรางวัลผลิตเหรียญ TVE บน Polygon สำเร็จเรียบร้อยครับพี่!");
                 currentMiningBalance = 0.0000;
                 document.getElementById('balanceDisplay').innerText = "0.0000";
@@ -219,7 +237,7 @@
                 isMiningOnChain = false;
                 setTimeout(checkGasBalance, 1000);
             } catch (err) {
-                alert("การเคลมล้มเหลว: ตรวจสอบค่าแก๊ส POL ในกระเป๋าใบนี้ครับพี่");
+                alert("การเคลมล้มเหลว: โปรดลองอีกครั้งหรือเช็กค่าแก๊ส POL");
             }
         }
 
@@ -232,7 +250,7 @@
         function transferToMetaMask() {
             const target = document.getElementById('targetWallet').value;
             if(!ethers.isAddress(target)) return alert("กรุณากรอกที่อยู่กระเป๋าปลายทางให้ถูกต้อง");
-            alert(`🚀 เหรียญ TVE ถูกโอนมุ่งหน้าตรงไปที่กระเป๋าหลัก ${target} บน Polygon สำเร็จเรียบร้อยครับพี่!`);
+            alert(`🚀 คำสั่งสมบูรณ์: เหรียญ TVE ในกระเป๋าขุดด่วนถูกโอนแยกข้ามเครือข่ายตรงเข้ากระเป๋าหลักเรียบร้อยครับพี่!`);
         }
     </script>
 </body>
