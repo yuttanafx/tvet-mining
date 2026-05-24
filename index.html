@@ -141,13 +141,12 @@
                 else if(currentRatePerBlock === 0.00125) diffDisp.innerText = "400% (ยากขึ้น 2 เท่า)";
                 else diffDisp.innerText = "2,500% (ยากสูงสุด)";
 
-                // 🎯 ดึงยอดจริงจากสัญญาออนเชนตรงๆ
                 const rawBal = await miningContract.getLiveBalance(walletAddr);
                 const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
                 document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
                 
-                // ปุ่มถอนจะเปิดใช้งานเมื่อยอดสะสมบนเชนจริงถึง 20 TVE เท่านั้น
-                document.getElementById('claimBtn').disabled = (currentBal < 20.0);
+                // 🛡️ [FORCE UNLOCK] ปลดล็อกปุ่มถอนให้กดส่งธุรกรียืนยันผ่าน MetaMask ได้เสมอ ไม่ล็อกสีเทาขวางทางพี่
+                document.getElementById('claimBtn').disabled = false;
 
                 try {
                     const tokenAddr = await miningContract.tveToken();
@@ -163,9 +162,9 @@
                 if(isMiningOnChain) {
                     mineBtn.innerText = "🛑 หยุดขุด (Stop Mining)";
                     mineBtn.className = "btn btn-stop";
-                    statusDisp.innerText = "⛏️ บล็อกเชนกำลังปั๊มเหรียญจริงตามจำนวนบล็อก...";
+                    statusDisp.innerText = "⛏️ บล็อกเชนกำลังบันทึกด้วยสมการออนเชน...";
                     statusDisp.style.color = "#34d399";
-                    startUiRealFetch(); // สั่งให้เริ่มดึงค่าจริงจากเชน
+                    startUiRealFetch();
                 } else {
                     mineBtn.innerText = "🚀 เริ่มขุดเหมืองตรง (Start)";
                     mineBtn.className = "btn btn-primary";
@@ -200,19 +199,22 @@
         async function claimMiningReward() {
             const statusDisp = document.getElementById('miningStatus');
             try {
-                statusDisp.innerText = "🦊 กรุณากดอนุมัติถอนเหรียญบนหน้าต่าง MetaMask...";
+                statusDisp.innerText = "🦊 กำลังส่งคำสั่งถอนไปที่ MetaMask...";
+                // 🚀 ยิงคำสั่งตรงทะลุไปที่ฟังก์ชันของกระเป๋าให้หน้าต่างเด้งตัดแก๊สทันที
                 const tx = await miningContract.claimReward();
+                statusDisp.innerText = "⛓️ รอการบันทึกบล็อกถอนสำเร็จบน Polygon...";
                 await tx.wait();
                 statusDisp.innerText = "🎉 ผลิตเหรียญใหม่เข้ากระเป๋าพี่สำเร็จเสร็จสิ้น!";
                 statusDisp.style.color = "#34d399";
                 await checkOnChainStatus();
             } catch (err) {
                 console.error(err);
-                statusDisp.innerText = "❌ ถอนไม่สำเร็จ: ยอดออนเชนจริงอาจยังไม่ถึงขั้นต่ำ";
+                // แสดงสาเหตุของสัญญาลงมาที่หน้าเว็บให้เห็นชัดๆ
+                statusDisp.innerText = "❌ สัญญารีดเจก: ยอดออนเชนจริงสุทธิหลังลบค่าบล็อกสะสมอาจจะยังไม่พ้นเกณฑ์";
+                alert("สัญญาปฏิเสธธุรกรรม: โปรดปล่อยเครื่องขุดรันต่ออีกสักระยะให้จำนวนบล็อกจริงบนเครือข่าย Polygon ขยับเพิ่มขึ้นครับพี่!");
             }
         }
 
-        // 🎯 ฟังก์ชันดึงค่ายอดจริงออนเชนทุกๆ 3 วินาที (ไม่ใช้ระบบเดาตัวเลขวิ่งอีกต่อไป)
         function startUiRealFetch() {
             clearInterval(uiInterval);
             uiInterval = setInterval(async () => {
@@ -221,10 +223,7 @@
                     const rawBal = await miningContract.getLiveBalance(walletAddr);
                     const currentBal = parseFloat(ethers.formatUnits(rawBal, 18));
                     document.getElementById('balanceDisplay').innerText = currentBal.toFixed(4);
-                    
-                    // ปลดล็อกปุ่มถอนทันทีเมื่อถึงเกณฑ์จริง
-                    document.getElementById('claimBtn').disabled = (currentBal < 20.0);
-                } catch(e) { console.error("โหลดข้อมูลหลุดช่วง:", e); }
+                } catch(e) { console.error(e); }
             }, 3000); 
         }
     </script>
