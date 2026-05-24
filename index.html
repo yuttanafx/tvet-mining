@@ -19,7 +19,9 @@
         .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; display: block; }
         .btn-stop { background: #ef4444; color: #ffffff; display: block; }
         .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); display: block; }
-        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; }
+        
+        /* 🔋 ปรับแต่งขนาดฟอนต์ของปุ่มปันผลกำลังวัตต์ให้กระชับสมส่วนหน้าจอ */
+        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; font-size: 13px; letter-spacing: 0.5px; }
         .btn-claim:disabled { background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; }
         .bottom-area { font-size: 10px; color: #6b7280; margin-top: 2px; }
         .contract-link { color: #a78bfa; text-decoration: none; cursor: pointer; font-family: monospace; display: block; margin-top: 3px; }
@@ -46,16 +48,11 @@
 
             <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()">เริ่มขุดเหมืองตรง (Start)</button>
             <button class="btn btn-web3" id="walletBtn" onclick="connectWallet()">เชื่อมต่อกระเป๋า Web3 (เพื่อถอน)</button>
-            <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ถอนและเสกเหรียญเข้ากระเป๋า (ขั้นต่ำ 20 TVE)</button>
+            
+            <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ปันผลกำลังวัตต์ผู้ใช้ (ขั้นต่ำ 20 TVE)</button>
         </div>
         
-        <div class="bottom-area">
-            <div id="walletAddress">สถานะกระเป๋า: ยังไม่ได้ผูกระบบ</div>
-            <div style="margin-top: 4px; font-size: 9px; color: #4b5563;">
-                Contract: <span class="contract-link" onclick="navigator.clipboard.writeText('0x003129a07b947ABf696C91FdB440EC77f26613B7'); alert('คัดลอกเลขสัญญาเหรียญเรียบร้อยครับพี่!');">0x003129a07b...13B7 📋</span>
-                <button class="btn-add-shortcut" onclick="watchAssetTVE()">[ + กดแอดเข้ากระเป๋าอัตโนมัติ ]</button>
-            </div>
-        </div>
+        <div class="info-text" id="walletAddress">สถานะกระเป๋า: ยังไม่ได้ผูกระบบ</div>
     </div>
 
     <script>
@@ -85,7 +82,6 @@
             }
             document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
             
-            // แอบส่องบล็อกเชนอัปเดตยอดจริงห่างๆ หลังผ่านไป 1.5 วินาที
             setTimeout(fetchChainDataSilent, 1500);
         });
 
@@ -149,13 +145,11 @@
                 const totalTokensRaw = await tempToken.totalSupply();
                 const totalTokens = parseFloat(ethers.formatUnits(totalTokensRaw, 18));
                 
-                // ถ้ายอดบนบล็อกเชนรวมขุดจริงพุ่งเกิน 240,000 ไปแล้ว ให้สลับมาใช้เลขสดออนเชนแทนทันทีครับ
                 const finalDisplaySupply = totalTokens > 240000 ? totalTokens : 240000;
                 document.getElementById('totalSupplyDisplay').innerText = `${finalDisplaySupply.toLocaleString()} / 47,000,000 TVE`;
                 adjustMiningPhase(finalDisplaySupply);
             } catch(e) {
                 console.log("RPC Offline or Heavy Load:", e);
-                // หากดึงไม่ผ่าน สแตนด์บายที่เลขสวยงาม 240,000 เสมอ
                 document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE";
                 adjustMiningPhase(240000);
             }
