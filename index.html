@@ -97,6 +97,10 @@
                 baseRate = MEMBER_DATABASE[user].rate;
                 document.getElementById('loginSection').style.display = "none";
                 document.getElementById('currentLoggedUser').innerText = user;
+                
+                // 🎯 บรรทัดนี้ทำให้เลขความเร็วขึ้นทันทีครับ!
+                document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
+                
                 fetchChainDataSilent();
                 loadUserBalance();
             } else { alert("รหัสผ่านไม่ถูกต้อง"); }
@@ -112,7 +116,6 @@
         function startUiSimulation() {
             clearInterval(uiInterval);
             uiInterval = setInterval(() => {
-                // คำนวณความเร็วหักลบกับระดับความยาก
                 const currentActualRate = baseRate / difficultyMultiplier;
                 accumulatedBalance += currentActualRate;
                 document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
@@ -135,6 +138,7 @@
                 else if (supply < 25000000) { difficultyMultiplier = 2.0; document.getElementById('diffDisplay').innerText = "เฟส 2 (ยากขึ้น)"; }
                 else { difficultyMultiplier = 4.0; document.getElementById('diffDisplay').innerText = "เฟส 3 (ยากสูงสุด)"; }
                 
+                // อัปเดตเลขความเร็วทันทีที่ได้รับข้อมูล On-chain
                 document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
             } catch(e) { document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE"; }
         }
