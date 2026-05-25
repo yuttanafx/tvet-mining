@@ -47,7 +47,7 @@
     <div class="app-container">
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span></div>
+            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (ออนไลน์)</div>
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
@@ -82,7 +82,7 @@
             "vip01": { "pass": "tvet7777", "rate": 0.0050 }
         };
 
-        let currentRatePerSec = 0.0000;
+        let baseRate = 0;
         let accumulatedBalance = 0.0000;
         let loggedInUser = "";
         let uiInterval = null;
@@ -92,10 +92,10 @@
             const pass = document.getElementById('passInput').value.trim();
             if (MEMBER_DATABASE[user] && MEMBER_DATABASE[user].pass === pass) {
                 loggedInUser = user;
-                currentRatePerSec = MEMBER_DATABASE[user].rate;
+                baseRate = MEMBER_DATABASE[user].rate;
                 document.getElementById('loginSection').style.display = "none";
                 document.getElementById('currentLoggedUser').innerText = user;
-                document.getElementById('rateDisplay').innerText = currentRatePerSec.toFixed(4) + " TVE / วินาที";
+                document.getElementById('rateDisplay').innerText = baseRate.toFixed(4) + " TVE / วินาที";
                 loadUserBalance();
             } else { alert("รหัสผ่านไม่ถูกต้อง"); }
         }
@@ -114,7 +114,7 @@
                 document.getElementById('mineBtn').className = "btn btn-primary";
             } else {
                 uiInterval = setInterval(() => {
-                    accumulatedBalance += currentRatePerSec;
+                    accumulatedBalance += baseRate;
                     document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
                     localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
                     document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
@@ -130,8 +130,8 @@
             const addr = await signer.getAddress();
             document.getElementById('walletAddress').innerText = "กระเป๋า: " + addr.substring(0,6) + "..." + addr.substring(38);
             document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
-            const balance = await provider.getBalance(addr);
-            document.getElementById('gasDisplay').innerText = ethers.formatUnits(balance, 18).substring(0,6) + " POL";
+            const gas = await provider.getBalance(addr);
+            document.getElementById('gasDisplay').innerText = ethers.formatUnits(gas, 18).substring(0,6) + " POL";
         }
 
         async function claimMiningReward() {
@@ -139,7 +139,7 @@
             localStorage.setItem('tvet_user_bal_' + loggedInUser, 0);
             document.getElementById('balanceDisplay').innerText = "0.0000";
             document.getElementById('claimBtn').disabled = true;
-            alert("ปันผลเข้ากระเป๋าเรียบร้อย!");
+            alert("ประมวลผลค่าคาร์บอนเครดิตเรียบร้อย!");
         }
 
         function copyContractAddress() { navigator.clipboard.writeText("0x003129a07b947ABf696C91FdB440EC77f26613B7"); alert("คัดลอกสัญญาแล้ว!"); }
