@@ -56,6 +56,7 @@
             <div class="difficulty-card">
                 <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
                 <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
+                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1 (ความเร็วปกติ)</span></div>
                 <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
             <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()">เริ่มขุดเหมืองตรง (Start)</button>
@@ -83,6 +84,7 @@
         };
 
         let baseRate = 0;
+        let difficultyMultiplier = 1.0;
         let accumulatedBalance = 0.0000;
         let loggedInUser = "";
         let uiInterval = null;
@@ -95,7 +97,7 @@
                 baseRate = MEMBER_DATABASE[user].rate;
                 document.getElementById('loginSection').style.display = "none";
                 document.getElementById('currentLoggedUser').innerText = user;
-                document.getElementById('rateDisplay').innerText = baseRate.toFixed(4) + " TVE / วินาที";
+                fetchChainDataSilent();
                 loadUserBalance();
             } else { alert("รหัสผ่านไม่ถูกต้อง"); }
         }
@@ -107,21 +109,39 @@
             document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
         }
 
+        function startUiSimulation() {
+            clearInterval(uiInterval);
+            uiInterval = setInterval(() => {
+                // คำนวณความเร็วหักลบกับระดับความยาก
+                const currentActualRate = baseRate / difficultyMultiplier;
+                accumulatedBalance += currentActualRate;
+                document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
+                localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
+                document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
+            }, 1000);
+        }
+
+        async function fetchChainDataSilent() {
+            try {
+                const provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+                const miningContract = new ethers.Contract("0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], provider);
+                const tokenContract = new ethers.Contract(await miningContract.tveToken(), ["function totalSupply() external view returns (uint256)"], provider);
+                const totalTokens = parseFloat(ethers.formatUnits(await tokenContract.totalSupply(), 18));
+                
+                const supply = totalTokens > 240000 ? totalTokens : 240000;
+                document.getElementById('totalSupplyDisplay').innerText = `${supply.toLocaleString()} / 47,000,000 TVE`;
+                
+                if (supply < 10000000) { difficultyMultiplier = 1.0; document.getElementById('diffDisplay').innerText = "เฟส 1 (ความเร็วปกติ)"; }
+                else if (supply < 25000000) { difficultyMultiplier = 2.0; document.getElementById('diffDisplay').innerText = "เฟส 2 (ยากขึ้น)"; }
+                else { difficultyMultiplier = 4.0; document.getElementById('diffDisplay').innerText = "เฟส 3 (ยากสูงสุด)"; }
+                
+                document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
+            } catch(e) { document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE"; }
+        }
+
         function handleMiningAction() {
-            if (uiInterval) {
-                clearInterval(uiInterval); uiInterval = null;
-                document.getElementById('mineBtn').innerText = "เริ่มขุดเหมืองตรง (Start)";
-                document.getElementById('mineBtn').className = "btn btn-primary";
-            } else {
-                uiInterval = setInterval(() => {
-                    accumulatedBalance += baseRate;
-                    document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
-                    localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
-                    document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
-                }, 1000);
-                document.getElementById('mineBtn').innerText = "🛑 หยุดขุด (Stop Mining)";
-                document.getElementById('mineBtn').className = "btn btn-stop";
-            }
+            if (uiInterval) { clearInterval(uiInterval); uiInterval = null; document.getElementById('mineBtn').innerText = "เริ่มขุดเหมืองตรง (Start)"; document.getElementById('mineBtn').className = "btn btn-primary"; }
+            else { startUiSimulation(); document.getElementById('mineBtn').innerText = "🛑 หยุดขุด (Stop Mining)"; document.getElementById('mineBtn').className = "btn btn-stop"; }
         }
 
         async function connectWallet() {
