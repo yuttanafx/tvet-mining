@@ -29,31 +29,25 @@
         .btn-add-token-bottom { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 5px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s; white-space: nowrap; }
         .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
         .login-box { background: rgba(17, 24, 39, 0.95); border: 1px solid #f59e0b; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
-        .login-title { font-size: 16px; font-weight: bold; color: #f59e0b; margin-bottom: 5px; }
-        .login-subtitle { font-size: 11px; color: #9ca3af; margin-bottom: 20px; }
-        .input-group { text-align: left; margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 11px; color: #fbbf24; margin-bottom: 5px; font-weight: 500; }
-        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ffffff; font-size: 14px; box-sizing: border-box; }
-        .btn-login { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; font-weight: bold; margin-top: 10px; }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ffffff; font-size: 14px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-login { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; font-weight: bold; width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="loginSection" class="login-overlay">
         <div class="login-box">
-            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" style="width:70px; height:70px; margin-bottom:10px;" alt="Logo">
-            <div class="login-title">TVET ENERGY MINING</div>
-            <div class="login-subtitle">ระบบเฉพาะสมาชิกผู้ได้รับสิทธิ์กำลังวัตต์ร่วมโครงการ</div>
-            <div class="input-group"><label>Username</label><input type="text" id="userInput" class="input-field"></div>
-            <div class="input-group"><label>Password</label><input type="password" id="passInput" class="input-field"></div>
-            <button class="btn btn-login" onclick="handleLogin()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
+            <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
+            <input type="text" id="userInput" class="input-field" placeholder="Username">
+            <input type="password" id="passInput" class="input-field" placeholder="Password">
+            <button class="btn-login" onclick="handleLogin()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
         </div>
     </div>
 
     <div class="app-container">
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (ออนไลน์)</div>
+            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span></div>
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
@@ -62,7 +56,6 @@
             <div class="difficulty-card">
                 <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
                 <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
-                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1 (ความเร็วปกติ)</span></div>
                 <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
             <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()">เริ่มขุดเหมืองตรง (Start)</button>
@@ -71,28 +64,25 @@
         </div>
         
         <div class="bottom-area">
+            <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
             <div class="token-address-badge-bottom">
                 <div class="contract-info-box" onclick="copyContractAddress()">
                     <div class="contract-label">📋 CONTRACT (แตะเพื่อก๊อปปี้):</div>
                     <div class="token-info-text">0x003129a07b947ABf696C91FdB440EC77f26613B7</div>
                 </div>
-                <button class="btn-add-token-bottom" onclick="watchAssetTVE()">+ เพิ่มเข้ากระเป๋า</button>
+                <button class="btn-add-token-bottom" onclick="watchAssetTVE()">+ เพิ่ม</button>
             </div>
         </div>
     </div>
 
     <script>
-        const MINING_CONTRACT_ADDRESS = "0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648"; 
-        const REAL_TOKEN_ADDRESS = "0x003129a07b947ABf696C91FdB440EC77f26613B7"; 
-
         const MEMBER_DATABASE = {
             "terravolteco": { "pass": "tve2026", "rate": 0.0100 }, 
             "tve001": { "pass": "power999", "rate": 0.0020 },     
             "vip01": { "pass": "tvet7777", "rate": 0.0050 }
         };
 
-        let baseRate = 0;
-        let difficultyMultiplier = 1.0;
+        let currentRatePerSec = 0.0000;
         let accumulatedBalance = 0.0000;
         let loggedInUser = "";
         let uiInterval = null;
@@ -102,10 +92,10 @@
             const pass = document.getElementById('passInput').value.trim();
             if (MEMBER_DATABASE[user] && MEMBER_DATABASE[user].pass === pass) {
                 loggedInUser = user;
-                baseRate = MEMBER_DATABASE[user].rate;
+                currentRatePerSec = MEMBER_DATABASE[user].rate;
                 document.getElementById('loginSection').style.display = "none";
                 document.getElementById('currentLoggedUser').innerText = user;
-                fetchChainDataSilent();
+                document.getElementById('rateDisplay').innerText = currentRatePerSec.toFixed(4) + " TVE / วินาที";
                 loadUserBalance();
             } else { alert("รหัสผ่านไม่ถูกต้อง"); }
         }
@@ -117,46 +107,31 @@
             document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
         }
 
-        function startUiSimulation() {
-            clearInterval(uiInterval);
-            uiInterval = setInterval(() => {
-                const currentActualRate = baseRate / difficultyMultiplier;
-                accumulatedBalance += currentActualRate;
-                document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
-                localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
-                document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
-            }, 1000);
-        }
-
-        async function fetchChainDataSilent() {
-            try {
-                const provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
-                const miningContract = new ethers.Contract(MINING_CONTRACT_ADDRESS, ["function tveToken() external view returns (address)"], provider);
-                const tokenContract = new ethers.Contract(await miningContract.tveToken(), ["function totalSupply() external view returns (uint256)"], provider);
-                const totalTokens = parseFloat(ethers.formatUnits(await tokenContract.totalSupply(), 18));
-                
-                const supply = totalTokens > 240000 ? totalTokens : 240000;
-                document.getElementById('totalSupplyDisplay').innerText = `${supply.toLocaleString()} / 47,000,000 TVE`;
-                
-                if (supply < 10000000) { difficultyMultiplier = 1.0; document.getElementById('diffDisplay').innerText = "เฟส 1 (ปกติ)"; }
-                else if (supply < 25000000) { difficultyMultiplier = 2.0; document.getElementById('diffDisplay').innerText = "เฟส 2 (ยากขึ้น)"; }
-                else { difficultyMultiplier = 4.0; document.getElementById('diffDisplay').innerText = "เฟส 3 (ยากสูงสุด)"; }
-                
-                document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
-            } catch(e) { document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE"; }
-        }
-
         function handleMiningAction() {
-            if (uiInterval) { clearInterval(uiInterval); uiInterval = null; document.getElementById('mineBtn').innerText = "เริ่มขุดเหมืองตรง (Start)"; document.getElementById('mineBtn').className = "btn btn-primary"; }
-            else { startUiSimulation(); document.getElementById('mineBtn').innerText = "🛑 หยุดขุด (Stop Mining)"; document.getElementById('mineBtn').className = "btn btn-stop"; }
+            if (uiInterval) {
+                clearInterval(uiInterval); uiInterval = null;
+                document.getElementById('mineBtn').innerText = "เริ่มขุดเหมืองตรง (Start)";
+                document.getElementById('mineBtn').className = "btn btn-primary";
+            } else {
+                uiInterval = setInterval(() => {
+                    accumulatedBalance += currentRatePerSec;
+                    document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
+                    localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
+                    document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
+                }, 1000);
+                document.getElementById('mineBtn').innerText = "🛑 หยุดขุด (Stop Mining)";
+                document.getElementById('mineBtn').className = "btn btn-stop";
+            }
         }
 
         async function connectWallet() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
+            const addr = await signer.getAddress();
+            document.getElementById('walletAddress').innerText = "กระเป๋า: " + addr.substring(0,6) + "..." + addr.substring(38);
             document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
-            const gas = await provider.getBalance(await signer.getAddress());
-            document.getElementById('gasDisplay').innerText = ethers.formatUnits(gas, 18).substring(0,6) + " POL";
+            const balance = await provider.getBalance(addr);
+            document.getElementById('gasDisplay').innerText = ethers.formatUnits(balance, 18).substring(0,6) + " POL";
         }
 
         async function claimMiningReward() {
@@ -164,11 +139,11 @@
             localStorage.setItem('tvet_user_bal_' + loggedInUser, 0);
             document.getElementById('balanceDisplay').innerText = "0.0000";
             document.getElementById('claimBtn').disabled = true;
-            alert("ปันผลกำลังวัตต์เรียบร้อยครับ!");
+            alert("ปันผลเข้ากระเป๋าเรียบร้อย!");
         }
 
-        function copyContractAddress() { navigator.clipboard.writeText(REAL_TOKEN_ADDRESS); alert("คัดลอกเลขสัญญาเรียบร้อย!"); }
-        async function watchAssetTVE() { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: REAL_TOKEN_ADDRESS, symbol: 'TVE', decimals: 18 } } }); }
+        function copyContractAddress() { navigator.clipboard.writeText("0x003129a07b947ABf696C91FdB440EC77f26613B7"); alert("คัดลอกสัญญาแล้ว!"); }
+        async function watchAssetTVE() { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: "0x003129a07b947ABf696C91FdB440EC77f26613B7", symbol: 'TVE', decimals: 18 } } }); }
     </script>
 </body>
 </html>
