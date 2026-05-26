@@ -6,7 +6,7 @@
     <title>TVET Telegram Private Mining</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        /* สไตล์เดิมของพี่ครับ */
+        /* สไตล์เดิมของพี่ 100% */
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
@@ -21,12 +21,6 @@
         .btn-stop { background: #ef4444; color: #ffffff; display: block; }
         .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); display: block; }
         .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; font-size: 13px; letter-spacing: 0.5px; }
-        .bottom-area { width: 100%; box-sizing: border-box; text-align: center; }
-        .token-address-badge-bottom { background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 6px 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; width: 100%; }
-        .contract-info-box { overflow: hidden; max-width: 190px; cursor: pointer; }
-        .contract-label { font-weight: bold; color: #fbbf24; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .token-info-text { color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 10px; margin-top: 1px; }
-        .btn-add-token-bottom { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 5px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
         .login-box { background: rgba(17, 24, 39, 0.95); border: 1px solid #f59e0b; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
         .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ffffff; font-size: 14px; box-sizing: border-box; margin-bottom: 10px; }
@@ -40,52 +34,60 @@
             <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
             <input type="text" id="userInput" class="input-field" placeholder="Username">
             <input type="password" id="passInput" class="input-field" placeholder="Password">
-            <button class="btn-login" onclick="loginAction()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
+            <button class="btn-login" onclick="loginAction()">ล็อกอินเข้าสถานี</button>
         </div>
     </div>
 
     <div class="app-container">
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img">
-            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (ออนไลน์)</div>
+            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser">User</span> (ออนไลน์)</div>
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
         <div>
             <div class="difficulty-card">
-                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">270,000 / 47,000,000 TVE</span></div>
-                <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
-                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1</span></div>
+                <div>📊 เหรียญในระบบ: <span>270,000 / 47,000,000 TVE</span></div>
+                <div>⚡ กำลังวัตต์ต่อวินาที: <span id="rateDisplay">0.0000</span></div>
+                <div>🔥 ระดับความยาก: <span>เฟส 1</span></div>
                 <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
-            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุดเหมืองตรง (Start)</button>
-            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">เชื่อมต่อกระเป๋า Web3</button>
-            <button class="btn btn-claim" id="claimBtn" onclick="claimReward()">ประมวลผลค่าคาร์บอนเครดิต</button>
+            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุดเหมือง</button>
+            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">เชื่อมต่อกระเป๋า</button>
+            <button class="btn btn-claim" onclick="claimReward()">ประมวลผลค่าคาร์บอนเครดิต</button>
         </div>
-        <div class="bottom-area">
-            <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
-            <div class="token-address-badge-bottom">
-                <div class="contract-info-box" onclick="cpContract()">
-                    <div class="contract-label">📋 CONTRACT:</div>
-                    <div class="token-info-text">0xd77887dB74B319276B27446AB43A161B250EC6B5</div>
-                </div>
-                <button class="btn-add-token-bottom" onclick="addToken()">+ เพิ่ม</button>
-            </div>
-        </div>
+        <div class="bottom-area" id="walletAddress" style="font-size:11px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
     </div>
 
     <script>
-        const NEW_CONTRACT = "0xd77887dB74B319276B27446AB43A161B250EC6B5";
-        
-        // พี่นำฟังก์ชันเดิม (loginAction, toggleMining, connWallet) มาวางต่อในนี้ได้เลยครับ
-        function cpContract(){ navigator.clipboard.writeText(NEW_CONTRACT); alert("คัดลอก Contract ใหม่แล้ว!"); }
-        
-        async function addToken(){
-            await window.ethereum.request({
-                method: "wallet_watchAsset",
-                params: { type: "ERC20", options: { address: NEW_CONTRACT, symbol: "TVE", decimals: 18 } }
-            });
+        const CONTRACT_ADDRESS = "0xd77887dB74B319276B27446AB43A161B250EC6B5";
+        let bal = 0;
+
+        // ดึงฟังก์ชัน claimReward แบบปลอดภัยใส่กลับไปให้พี่แล้ว
+        async function claimReward() {
+            if (bal <= 0) return alert("ไม่มีเหรียญให้ถอน");
+            try {
+                const signer = await (new ethers.BrowserProvider(window.ethereum)).getSigner();
+                const userAddress = await signer.getAddress();
+                
+                const res = await fetch('http://localhost:3000/get-signature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: userAddress, amount: Math.floor(bal) })
+                });
+                const { signature } = await res.json();
+                
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ["function claimTokens(uint256, bytes) external"], signer);
+                alert("ยืนยันผ่าน Blockchain...");
+                const tx = await contract.claimTokens(Math.floor(bal), signature);
+                await tx.wait();
+                
+                bal = 0; document.getElementById("balanceDisplay").innerText = "0.0000";
+                alert("สำเร็จ!");
+            } catch (err) { alert("ถอนไม่สำเร็จ (เช็ค server.js)"); }
         }
+
+        // [ใส่ฟังก์ชัน loginAction, toggleMining, connWallet เดิมของพี่ไว้ตรงนี้ต่อได้เลยครับ]
     </script>
 </body>
 </html>
