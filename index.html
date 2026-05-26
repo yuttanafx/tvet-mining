@@ -1,17 +1,14 @@
-# TVET Deep Tech Mining — Advanced UI Upgrade
-
-```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TVET Deep Tech Mining</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVET AI Mining System</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 *{
     margin:0;
     padding:0;
@@ -23,118 +20,176 @@ html,body{
     height:100%;
     overflow:hidden;
     background:#050816;
-    font-family:'Segoe UI',sans-serif;
+    font-family:Segoe UI,sans-serif;
     color:#fff;
 }
+
+/* BACKGROUND */
 
 body::before{
     content:'';
     position:fixed;
-    width:200%;
-    height:200%;
+    inset:0;
     background:
-    radial-gradient(circle at center, rgba(251,191,36,0.12), transparent 20%),
-    radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(16,185,129,0.08), transparent 20%);
-    animation:bgMove 20s linear infinite;
+    radial-gradient(circle at center, rgba(251,191,36,0.15), transparent 25%),
+    radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 30%);
+    animation:bgRotate 25s linear infinite;
 }
 
-@keyframes bgMove{
-    0%{ transform:translate(-10%,-10%) rotate(0deg); }
-    100%{ transform:translate(-10%,-10%) rotate(360deg); }
+@keyframes bgRotate{
+    from{transform:rotate(0deg) scale(1.2);}
+    to{transform:rotate(360deg) scale(1.2);}
 }
 
-canvas#particles{
+/* LOGIN */
+
+.login-overlay{
     position:fixed;
     inset:0;
-    z-index:0;
+    z-index:99999;
+    background:#050816;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
+
+.login-card{
+    width:90%;
+    max-width:320px;
+    background:rgba(15,23,42,0.9);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:30px;
+    padding:25px;
+    position:relative;
+    z-index:100000;
+    backdrop-filter:blur(20px);
+    box-shadow:0 0 40px rgba(251,191,36,0.12);
+}
+
+.login-title{
+    text-align:center;
+    font-size:22px;
+    color:#fbbf24;
+    margin-bottom:20px;
+    font-weight:bold;
+}
+
+.input-field{
+    width:100%;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    background:#020617;
+    color:#fff;
+    margin-bottom:12px;
+}
+
+.btn{
+    width:100%;
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.btn-login{
+    background:#fbbf24;
+    color:#000;
+}
+
+/* MAIN */
 
 .app-container{
     position:relative;
-    z-index:2;
+    z-index:5;
     width:95%;
-    max-width:380px;
+    max-width:390px;
     height:95vh;
     margin:10px auto;
-    border-radius:32px;
-    background:rgba(15,23,42,0.85);
-    border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(20px);
     padding:20px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+    border-radius:35px;
+    background:rgba(15,23,42,0.82);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
     box-shadow:
     0 0 40px rgba(251,191,36,0.08),
     inset 0 0 20px rgba(255,255,255,0.03);
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
 }
 
 .top-bar{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:10px;
 }
 
-.signal-dot{
+.signal{
     width:10px;
     height:10px;
     border-radius:50%;
     background:#10b981;
-    box-shadow:0 0 10px #10b981;
+    box-shadow:0 0 15px #10b981;
     animation:pulse 1s infinite;
 }
 
 @keyframes pulse{
-    0%{opacity:0.4; transform:scale(0.8);}
+    0%{opacity:0.5; transform:scale(0.8);}
     50%{opacity:1; transform:scale(1.2);}
-    100%{opacity:0.4; transform:scale(0.8);}
+    100%{opacity:0.5; transform:scale(0.8);}
 }
 
 .logo-box{
     text-align:center;
+    margin-top:10px;
 }
 
-.logo-img{
+.logo{
     width:80px;
     height:80px;
     border-radius:50%;
     border:2px solid #fbbf24;
-    box-shadow:0 0 25px rgba(251,191,36,0.4);
+    box-shadow:0 0 30px rgba(251,191,36,0.4);
 }
 
 .system-title{
     margin-top:10px;
-    font-size:14px;
-    letter-spacing:2px;
     color:#fbbf24;
+    letter-spacing:2px;
+    font-size:14px;
 }
 
 .user-line{
-    font-size:11px;
     color:#9ca3af;
-    margin-top:4px;
+    font-size:11px;
+    margin-top:5px;
 }
 
 .balance-section{
     text-align:center;
-    margin:15px 0;
+    margin-top:20px;
 }
 
 .balance-label{
-    font-size:11px;
     color:#94a3b8;
-    letter-spacing:1px;
+    font-size:11px;
 }
 
 .balance-value{
     font-size:42px;
-    font-weight:800;
-    color:#fff;
-    margin-top:5px;
-    text-shadow:0 0 20px rgba(251,191,36,0.3);
     font-family:monospace;
+    font-weight:800;
+    margin-top:8px;
+    text-shadow:0 0 25px rgba(251,191,36,0.3);
 }
 
 .balance-unit{
@@ -142,7 +197,7 @@ canvas#particles{
     font-size:14px;
 }
 
-.live-mining{
+.live-status{
     margin-top:8px;
     color:#10b981;
     font-size:12px;
@@ -152,293 +207,284 @@ canvas#particles{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
-    margin-top:15px;
+    margin-top:20px;
 }
 
-.stat-card{
+.card{
     background:rgba(17,24,39,0.8);
-    border:1px solid rgba(255,255,255,0.08);
     border-radius:18px;
     padding:14px;
-    box-shadow:0 0 12px rgba(0,0,0,0.3);
-}
-
-.stat-label{
-    font-size:9px;
-    color:#94a3b8;
-    letter-spacing:1px;
-}
-
-.stat-value{
-    margin-top:8px;
-    font-size:16px;
-    color:#fbbf24;
-    font-weight:bold;
-}
-
-.chart-container{
-    margin-top:15px;
-    padding:10px;
-    border-radius:20px;
-    background:rgba(15,23,42,0.7);
     border:1px solid rgba(255,255,255,0.05);
 }
 
-.hash-stream{
-    margin-top:10px;
+.card-label{
+    font-size:9px;
+    color:#94a3b8;
+}
+
+.card-value{
+    margin-top:8px;
+    font-size:16px;
+    font-weight:bold;
+    color:#fbbf24;
+}
+
+.chart-box{
+    margin-top:15px;
+    background:rgba(2,6,23,0.7);
+    border-radius:20px;
+    padding:10px;
+}
+
+.hash-box{
+    margin-top:12px;
     height:70px;
     overflow:hidden;
+    border-radius:14px;
     background:#020617;
-    border-radius:12px;
-    padding:8px;
+    padding:10px;
     font-size:9px;
-    color:#10b981;
     font-family:monospace;
-    line-height:1.6;
-}
-
-.hash-line{
-    animation:scrollText 8s linear infinite;
-}
-
-@keyframes scrollText{
-    from{ transform:translateY(100%); }
-    to{ transform:translateY(-100%); }
+    color:#10b981;
 }
 
 .bottom-panel{
     margin-top:15px;
 }
 
-.btn{
-    width:100%;
-    border:none;
-    border-radius:18px;
-    padding:15px;
-    font-size:14px;
-    font-weight:bold;
-    margin-bottom:10px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.btn:hover{
-    transform:translateY(-2px);
-}
-
-.btn-stop{
+.btn-red{
     background:#ef4444;
     color:#fff;
-    box-shadow:0 0 20px rgba(239,68,68,0.25);
+    margin-bottom:10px;
 }
 
-.btn-claim{
+.btn-green{
     background:#10b981;
     color:#fff;
-    box-shadow:0 0 20px rgba(16,185,129,0.25);
+    margin-bottom:10px;
 }
 
-.btn-add{
+.btn-dark{
     background:#1e293b;
     color:#fff;
 }
 
-.btn-wallet{
-    background:#fbbf24;
-    color:#000;
-}
+/* PARTICLES */
 
-.network-row{
-    display:flex;
-    justify-content:space-between;
-    margin-top:10px;
-    font-size:11px;
-    color:#9ca3af;
-}
-
-.login-overlay{
+#particles{
     position:fixed;
     inset:0;
-    background:#050816;
-    z-index:9999;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
+    z-index:0;
 }
 
-.login-card{
-    width:100%;
-    max-width:320px;
-    background:rgba(15,23,42,0.9);
-    border-radius:28px;
-    padding:25px;
-    border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(20px);
-}
-
-.login-title{
-    text-align:center;
-    margin-bottom:20px;
-    color:#fbbf24;
-    font-weight:bold;
-    font-size:20px;
-}
-
-.input-field{
-    width:100%;
-    padding:14px;
-    margin-bottom:12px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.08);
-    background:#020617;
-    color:#fff;
-}
-
-.scan-line{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(to bottom, transparent, rgba(255,255,255,0.03), transparent);
-    animation:scan 4s linear infinite;
-    pointer-events:none;
-}
-
-@keyframes scan{
-    from{transform:translateY(-100%)}
-    to{transform:translateY(100%)}
-}
 </style>
 </head>
+
 <body>
 
 <canvas id="particles"></canvas>
 
+<!-- LOGIN -->
+
 <div class="login-overlay" id="loginSection">
+
     <div class="login-card">
-        <div class="login-title">TVET SECURE ACCESS</div>
 
-        <input type="text" class="input-field" id="userInput" placeholder="Username">
-        <input type="password" class="input-field" id="passInput" placeholder="Password">
+        <div class="login-title">
+            TVET AI ACCESS
+        </div>
 
-        <button class="btn btn-wallet" onclick="loginAction()">ENTER SYSTEM</button>
+        <input
+        type="text"
+        id="userInput"
+        class="input-field"
+        placeholder="Username">
+
+        <input
+        type="password"
+        id="passInput"
+        class="input-field"
+        placeholder="Password">
+
+        <button
+        class="btn btn-login"
+        onclick="loginAction()">
+        ENTER SYSTEM
+        </button>
+
     </div>
+
 </div>
 
-<div class="app-container">
+<!-- APP -->
 
-    <div class="scan-line"></div>
+<div class="app-container">
 
     <div>
 
         <div class="top-bar">
             <div>TVET NODE-07</div>
-            <div class="signal-dot"></div>
+            <div class="signal"></div>
         </div>
 
         <div class="logo-box">
-            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img">
 
-            <div class="system-title">DEEP TECH MINING</div>
-            <div class="user-line" id="currentLoggedUser">USER : tve001</div>
+            <img
+            src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png"
+            class="logo">
+
+            <div class="system-title">
+                DEEP TECH MINING
+            </div>
+
+            <div class="user-line" id="currentLoggedUser">
+                USER : tve001
+            </div>
+
         </div>
 
         <div class="balance-section">
-            <div class="balance-label">LIVE TVE BALANCE</div>
-            <div class="balance-value" id="balanceDisplay">0.2040 <span class="balance-unit">TVE</span></div>
-            <div class="live-mining">● MINING ACTIVE</div>
+
+            <div class="balance-label">
+                LIVE TVE BALANCE
+            </div>
+
+            <div class="balance-value" id="balanceDisplay">
+                0.2040
+                <span class="balance-unit">TVE</span>
+            </div>
+
+            <div class="live-status">
+                ● MINING ACTIVE
+            </div>
+
         </div>
 
         <div class="dashboard-grid">
 
-            <div class="stat-card">
-                <div class="stat-label">EFFICIENCY</div>
-                <div class="stat-value" id="efficiency">98.5%</div>
+            <div class="card">
+                <div class="card-label">EFFICIENCY</div>
+                <div class="card-value" id="efficiency">
+                    98.5%
+                </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">CARBON OFFSET</div>
-                <div class="stat-value">0.34 tCO2</div>
+            <div class="card">
+                <div class="card-label">HASH RATE</div>
+                <div class="card-value" id="hashrate">
+                    142 TH/s
+                </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">HASH RATE</div>
-                <div class="stat-value" id="hashrate">142 TH/s</div>
+            <div class="card">
+                <div class="card-label">NETWORK</div>
+                <div class="card-value">
+                    ONLINE
+                </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">NETWORK</div>
-                <div class="stat-value">ONLINE</div>
+            <div class="card">
+                <div class="card-label">LATENCY</div>
+                <div class="card-value">
+                    12ms
+                </div>
             </div>
 
         </div>
 
-        <div class="chart-container">
+        <div class="chart-box">
             <canvas id="miningChart"></canvas>
         </div>
 
-        <div class="hash-stream">
-            <div class="hash-line" id="hashLines"></div>
-        </div>
-
-        <div class="network-row">
-            <span>LATENCY : 12ms</span>
-            <span>BLOCK : #9238471</span>
-        </div>
+        <div class="hash-box" id="hashBox"></div>
 
     </div>
 
     <div class="bottom-panel">
-        <button class="btn btn-stop" onclick="toggleMining()">STOP MINING</button>
-        <button class="btn btn-claim" onclick="claimReward()">CLAIM CREDIT</button>
-        <button class="btn btn-add" onclick="addTokenManual()">+ ADD TVE TOKEN</button>
-        <button class="btn btn-wallet" onclick="connectWallet()">CONNECT WALLET</button>
+
+        <button class="btn btn-red">
+            STOP MINING
+        </button>
+
+        <button class="btn btn-green">
+            CLAIM CREDIT
+        </button>
+
+        <button class="btn btn-dark">
+            CONNECT WALLET
+        </button>
+
     </div>
 
 </div>
 
 <script>
 
-// LOGIN
+/* LOGIN */
+
 function loginAction(){
-    const user = document.getElementById('userInput').value || 'tve001';
 
-    document.getElementById('currentLoggedUser').innerText = 'USER : ' + user;
+    const user =
+    document.getElementById('userInput').value || 'tve001';
 
-    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('currentLoggedUser').innerText =
+    'USER : ' + user;
+
+    document.getElementById('loginSection').style.display =
+    'none';
 }
 
-// BALANCE ANIMATION
+/* BALANCE */
+
 let balance = 0.2040;
 
 setInterval(()=>{
-    balance += Math.random() * 0.0005;
+
+    balance += Math.random()*0.0005;
 
     document.getElementById('balanceDisplay').innerHTML =
-        balance.toFixed(4) + ' <span class="balance-unit">TVE</span>';
+    balance.toFixed(4) +
+    ' <span class="balance-unit">TVE</span>';
 
 },1500);
 
-// HASH RATE
+/* HASHRATE */
+
 setInterval(()=>{
-    const randomHash = (120 + Math.random()*30).toFixed(0);
-    document.getElementById('hashrate').innerText = randomHash + ' TH/s';
+
+    const h =
+    (120 + Math.random()*40).toFixed(0);
+
+    document.getElementById('hashrate').innerText =
+    h + ' TH/s';
+
 },2000);
 
-// EFFICIENCY
+/* EFFICIENCY */
+
 setInterval(()=>{
-    const randomEff = (97 + Math.random()*2).toFixed(1);
-    document.getElementById('efficiency').innerText = randomEff + '%';
-},2500);
 
-// CHART
-const ctx = document.getElementById('miningChart').getContext('2d');
+    const e =
+    (97 + Math.random()*2).toFixed(1);
 
-const miningChart = new Chart(ctx, {
+    document.getElementById('efficiency').innerText =
+    e + '%';
+
+},1800);
+
+/* CHART */
+
+const ctx =
+document.getElementById('miningChart');
+
+const chart = new Chart(ctx,{
+
     type:'line',
+
     data:{
         labels:['1','2','3','4','5','6','7'],
         datasets:[{
-            data:[0.2,0.4,0.35,0.6,0.5,0.7,0.8],
+            data:[0.2,0.4,0.3,0.5,0.45,0.7,0.8],
             borderColor:'#fbbf24',
             borderWidth:3,
             tension:0.5,
@@ -446,30 +492,42 @@ const miningChart = new Chart(ctx, {
             backgroundColor:'rgba(251,191,36,0.08)'
         }]
     },
+
     options:{
-        plugins:{ legend:{ display:false } },
+        plugins:{
+            legend:{display:false}
+        },
+
         scales:{
-            x:{ display:false },
-            y:{ display:false }
+            x:{display:false},
+            y:{display:false}
         }
     }
+
 });
 
 setInterval(()=>{
 
-    const dataset = miningChart.data.datasets[0].data;
+    const data =
+    chart.data.datasets[0].data;
 
-    dataset.shift();
+    data.shift();
 
-    dataset.push((Math.random()*0.8)+0.2);
+    data.push(
+    Math.random()*0.8 + 0.2
+    );
 
-    miningChart.update();
+    chart.update();
 
 },1200);
 
-// HASH STREAM
-function generateHash(){
-    return '0x' + Math.random().toString(16).substring(2,18);
+/* HASH STREAM */
+
+function randomHash(){
+    return '0x' +
+    Math.random()
+    .toString(16)
+    .substring(2,18);
 }
 
 setInterval(()=>{
@@ -477,70 +535,67 @@ setInterval(()=>{
     let html = '';
 
     for(let i=0;i<8;i++){
-        html += generateHash() + '<br>';
+
+        html +=
+        randomHash() + '<br>';
     }
 
-    document.getElementById('hashLines').innerHTML = html;
+    document.getElementById('hashBox').innerHTML =
+    html;
 
 },1000);
 
-// BUTTONS
-function toggleMining(){
-    alert('Mining Engine Stopped');
-}
+/* PARTICLES */
 
-async function claimReward(){
-    alert('Claim Transaction Sent');
-}
+const canvas =
+document.getElementById('particles');
 
-async function addTokenManual(){
-    alert('TVE Token Added');
-}
+const pctx =
+canvas.getContext('2d');
 
-async function connectWallet(){
+canvas.width =
+window.innerWidth;
 
-    if(window.ethereum){
-
-        try{
-            await window.ethereum.request({ method:'eth_requestAccounts' });
-            alert('Wallet Connected');
-        }
-        catch(err){
-            alert('Connection Rejected');
-        }
-
-    }else{
-        alert('MetaMask Not Found');
-    }
-}
-
-// PARTICLES
-const canvas = document.getElementById('particles');
-const pctx = canvas.getContext('2d');
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.height =
+window.innerHeight;
 
 const particles = [];
 
-for(let i=0;i<80;i++){
+for(let i=0;i<70;i++){
+
     particles.push({
+
         x:Math.random()*canvas.width,
         y:Math.random()*canvas.height,
         r:Math.random()*2,
         d:Math.random()*1
+
     });
 }
 
 function drawParticles(){
 
-    pctx.clearRect(0,0,canvas.width,canvas.height);
+    pctx.clearRect(
+    0,0,
+    canvas.width,
+    canvas.height
+    );
 
-    pctx.fillStyle = 'rgba(251,191,36,0.4)';
+    pctx.fillStyle =
+    'rgba(251,191,36,0.35)';
 
     particles.forEach(p=>{
+
         pctx.beginPath();
-        pctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+
+        pctx.arc(
+        p.x,
+        p.y,
+        p.r,
+        0,
+        Math.PI*2
+        );
+
         pctx.fill();
 
         p.y += p.d;
@@ -548,6 +603,7 @@ function drawParticles(){
         if(p.y > canvas.height){
             p.y = 0;
         }
+
     });
 
     requestAnimationFrame(drawParticles);
@@ -555,330 +611,7 @@ function drawParticles(){
 
 drawParticles();
 
-
-// ADVANCED HUD EFFECTS
-const networkCanvas = document.createElement('canvas');
-networkCanvas.id = 'networkCanvas';
-networkCanvas.style.position = 'fixed';
-networkCanvas.style.inset = '0';
-networkCanvas.style.zIndex = '1';
-networkCanvas.style.pointerEvents = 'none';
-document.body.appendChild(networkCanvas);
-
-const nctx = networkCanvas.getContext('2d');
-networkCanvas.width = window.innerWidth;
-networkCanvas.height = window.innerHeight;
-
-const nodes = [];
-
-for(let i=0;i<35;i++){
-    nodes.push({
-        x:Math.random()*networkCanvas.width,
-        y:Math.random()*networkCanvas.height,
-        vx:(Math.random()-0.5)*0.5,
-        vy:(Math.random()-0.5)*0.5
-    });
-}
-
-function drawNetwork(){
-
-    nctx.clearRect(0,0,networkCanvas.width,networkCanvas.height);
-
-    for(let i=0;i<nodes.length;i++){
-
-        const a = nodes[i];
-
-        a.x += a.vx;
-        a.y += a.vy;
-
-        if(a.x < 0 || a.x > networkCanvas.width) a.vx *= -1;
-        if(a.y < 0 || a.y > networkCanvas.height) a.vy *= -1;
-
-        nctx.beginPath();
-        nctx.arc(a.x,a.y,2,0,Math.PI*2);
-        nctx.fillStyle = 'rgba(251,191,36,0.6)';
-        nctx.fill();
-
-        for(let j=i+1;j<nodes.length;j++){
-
-            const b = nodes[j];
-
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-
-            if(dist < 120){
-                nctx.beginPath();
-                nctx.moveTo(a.x,a.y);
-                nctx.lineTo(b.x,b.y);
-                nctx.strokeStyle = 'rgba(251,191,36,' + (1 - dist/120) * 0.2 + ')';
-                nctx.stroke();
-            }
-        }
-    }
-
-    requestAnimationFrame(drawNetwork);
-}
-
-drawNetwork();
-
-// LIVE TERMINAL DATA
-const terminal = document.createElement('div');
-terminal.style.position = 'fixed';
-terminal.style.bottom = '10px';
-terminal.style.right = '10px';
-terminal.style.width = '180px';
-terminal.style.height = '120px';
-terminal.style.background = 'rgba(0,0,0,0.55)';
-terminal.style.border = '1px solid rgba(16,185,129,0.2)';
-terminal.style.borderRadius = '14px';
-terminal.style.padding = '10px';
-terminal.style.fontSize = '9px';
-terminal.style.fontFamily = 'monospace';
-terminal.style.color = '#10b981';
-terminal.style.zIndex = '3';
-terminal.style.overflow = 'hidden';
-terminal.innerHTML = 'INITIALIZING NODE...';
-
-document.body.appendChild(terminal);
-
-setInterval(()=>{
-
-    const logs = [
-        'GPU CORE STABLE',
-        'NODE CONNECTED',
-        'BLOCK VERIFIED',
-        'TVE HASH ACCEPTED',
-        'AI ENGINE ACTIVE',
-        'LATENCY NORMAL',
-        'MINING LOOP OK',
-        'REWARD SIGNAL FOUND'
-    ];
-
-    let html = '';
-
-    for(let i=0;i<7;i++){
-        html += '> ' + logs[Math.floor(Math.random()*logs.length)] + '<br>';
-    }
-
-    terminal.innerHTML = html;
-
-},1200);
-
-// ENERGY RING
-const ring = document.createElement('div');
-ring.style.position = 'fixed';
-ring.style.top = '50%';
-ring.style.left = '50%';
-ring.style.width = '500px';
-ring.style.height = '500px';
-ring.style.marginLeft = '-250px';
-ring.style.marginTop = '-250px';
-ring.style.border = '1px solid rgba(251,191,36,0.06)';
-ring.style.borderRadius = '50%';
-ring.style.zIndex = '0';
-ring.style.animation = 'spinRing 30s linear infinite';
-
-document.body.appendChild(ring);
-
-const style = document.createElement('style');
-style.innerHTML = `
-@keyframes spinRing{
-    from{transform:rotate(0deg)}
-    to{transform:rotate(360deg)}
-}
-`;
-document.head.appendChild(style);
-
-// AUDIO REACTOR SIMULATION
-setInterval(()=>{
-
-    const glow = 0.08 + Math.random()*0.2;
-
-    document.querySelector('.app-container').style.boxShadow =
-    '0 0 40px rgba(251,191,36,'+glow+'), inset 0 0 20px rgba(255,255,255,0.03)';
-
-},400);
-
-// CLOCK
-const clock = document.createElement('div');
-clock.style.position = 'fixed';
-clock.style.top = '12px';
-clock.style.right = '15px';
-clock.style.zIndex = '5';
-clock.style.color = '#fbbf24';
-clock.style.fontFamily = 'monospace';
-clock.style.fontSize = '12px';
-
-document.body.appendChild(clock);
-
-setInterval(()=>{
-    clock.innerHTML = new Date().toLocaleTimeString();
-},1000);
-
-// HEX GRID OVERLAY
-const hexLayer = document.createElement('div');
-hexLayer.style.position = 'fixed';
-hexLayer.style.inset = '0';
-hexLayer.style.backgroundImage = `
-linear-gradient(rgba(251,191,36,0.03) 1px, transparent 1px),
-linear-gradient(90deg, rgba(251,191,36,0.03) 1px, transparent 1px)`;
-hexLayer.style.backgroundSize = '40px 40px';
-hexLayer.style.pointerEvents = 'none';
-hexLayer.style.zIndex = '1';
-hexLayer.style.maskImage = 'radial-gradient(circle at center, black 40%, transparent 90%)';
-
-document.body.appendChild(hexLayer);
-
-// RADAR SCANNER
-const radar = document.createElement('div');
-radar.style.position = 'fixed';
-radar.style.left = '20px';
-radar.style.bottom = '20px';
-radar.style.width = '160px';
-radar.style.height = '160px';
-radar.style.border = '1px solid rgba(16,185,129,0.2)';
-radar.style.borderRadius = '50%';
-radar.style.zIndex = '3';
-radar.style.overflow = 'hidden';
-radar.style.background = 'rgba(0,0,0,0.25)';
-
-document.body.appendChild(radar);
-
-const sweep = document.createElement('div');
-sweep.style.position = 'absolute';
-sweep.style.width = '50%';
-sweep.style.height = '2px';
-sweep.style.background = 'linear-gradient(to right,#10b981,transparent)';
-sweep.style.top = '50%';
-sweep.style.left = '50%';
-sweep.style.transformOrigin = 'left center';
-sweep.style.animation = 'radarSweep 3s linear infinite';
-radar.appendChild(sweep);
-
-const radarStyle = document.createElement('style');
-radarStyle.innerHTML = `
-@keyframes radarSweep{
-from{transform:rotate(0deg)}
-to{transform:rotate(360deg)}
-}
-`;
-document.head.appendChild(radarStyle);
-
-// AI CORE
-const core = document.createElement('div');
-core.style.position = 'fixed';
-core.style.top = '50%';
-core.style.left = '50%';
-core.style.width = '120px';
-core.style.height = '120px';
-core.style.marginLeft = '-60px';
-core.style.marginTop = '-60px';
-core.style.borderRadius = '50%';
-core.style.background = 'radial-gradient(circle, rgba(251,191,36,0.4), rgba(251,191,36,0.02))';
-core.style.boxShadow = '0 0 50px rgba(251,191,36,0.35)';
-core.style.zIndex = '0';
-core.style.animation = 'corePulse 2s infinite ease-in-out';
-
-document.body.appendChild(core);
-
-const coreStyle = document.createElement('style');
-coreStyle.innerHTML = `
-@keyframes corePulse{
-0%{transform:scale(0.9);opacity:0.6}
-50%{transform:scale(1.05);opacity:1}
-100%{transform:scale(0.9);opacity:0.6}
-}
-`;
-document.head.appendChild(coreStyle);
-
-// TRANSACTION RAIN
-const txLayer = document.createElement('div');
-txLayer.style.position = 'fixed';
-txLayer.style.inset = '0';
-txLayer.style.pointerEvents = 'none';
-txLayer.style.zIndex = '1';
-document.body.appendChild(txLayer);
-
-function createTx(){
-
-    const tx = document.createElement('div');
-
-    tx.innerText = 'TX-' + Math.random().toString(16).substring(2,10);
-
-    tx.style.position = 'absolute';
-    tx.style.left = Math.random()*window.innerWidth + 'px';
-    tx.style.top = '-20px';
-    tx.style.fontSize = '9px';
-    tx.style.fontFamily = 'monospace';
-    tx.style.color = 'rgba(16,185,129,0.5)';
-    tx.style.animation = 'txFall linear forwards';
-    tx.style.animationDuration = (4 + Math.random()*4) + 's';
-
-    txLayer.appendChild(tx);
-
-    setTimeout(()=>{
-        tx.remove();
-    },8000);
-}
-
-const txStyle = document.createElement('style');
-txStyle.innerHTML = `
-@keyframes txFall{
-from{transform:translateY(0px);opacity:0}
-10%{opacity:1}
-to{transform:translateY(120vh);opacity:0}
-}
-`;
-document.head.appendChild(txStyle);
-
-setInterval(createTx,250);
-
-// BIOMETRIC PANEL
-const bio = document.createElement('div');
-bio.style.position = 'fixed';
-bio.style.top = '90px';
-bio.style.right = '12px';
-bio.style.width = '130px';
-bio.style.height = '130px';
-bio.style.border = '1px solid rgba(59,130,246,0.2)';
-bio.style.borderRadius = '18px';
-bio.style.background = 'rgba(0,0,0,0.25)';
-bio.style.backdropFilter = 'blur(8px)';
-bio.style.zIndex = '3';
-bio.style.display = 'flex';
-bio.style.alignItems = 'center';
-bio.style.justifyContent = 'center';
-bio.style.color = '#60a5fa';
-bio.style.fontSize = '11px';
-bio.style.fontFamily = 'monospace';
-bio.innerHTML = 'BIOMETRIC
-SCAN';
-
-document.body.appendChild(bio);
-
-// ORBITING DATA RINGS
-for(let i=0;i<3;i++){
-
-    const orbit = document.createElement('div');
-
-    orbit.style.position = 'fixed';
-    orbit.style.top = '50%';
-    orbit.style.left = '50%';
-    orbit.style.width = (250 + i*120) + 'px';
-    orbit.style.height = (250 + i*120) + 'px';
-    orbit.style.marginLeft = -(125 + i*60) + 'px';
-    orbit.style.marginTop = -(125 + i*60) + 'px';
-    orbit.style.border = '1px dashed rgba(251,191,36,0.08)';
-    orbit.style.borderRadius = '50%';
-    orbit.style.zIndex = '0';
-    orbit.style.animation = `spinRing ${20 + i*10}s linear infinite`;
-
-    document.body.appendChild(orbit);
-}
-
 </script>
 
 </body>
 </html>
-```
