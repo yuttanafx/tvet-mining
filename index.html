@@ -109,7 +109,7 @@
         if (!data.signature) throw new Error(data.error || "ไม่ได้ลายเซ็น");
 
         // 2. เรียกฟังก์ชัน claimTokens ของ Contract
-        const contractAddress = "0x003129a07b947ABf696C91FdB440EC77f26613B7";
+        const contractAddress = "0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7";
         const abi = ["function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"];
         const contract = new ethers.Contract(contractAddress, abi, signer);
 
