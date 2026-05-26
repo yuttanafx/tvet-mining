@@ -2,12 +2,56 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Test Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVET Energy Mining</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        body { background: #090d16; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        body { margin: 0; padding: 0; background-color: #090d16; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { background: #111827; padding: 30px; border-radius: 25px; text-align: center; width: 300px; border: 1px solid #f59e0b; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .balance-value { font-size: 34px; font-weight: bold; margin: 20px 0; color: #ffffff; }
+        .btn-claim { background: linear-gradient(90deg, #10b981, #059669); color: white; padding: 15px; border-radius: 10px; border: none; width: 100%; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>ถ้าหน้านี้สว่าง แสดงว่าโค้ดที่พี่ก๊อปไปก่อนหน้ามีปัญหาที่ตัวแท็กครับ</h1>
+
+    <div class="app-container">
+        <h3>ยอดขุดสะสม (TVE)</h3>
+        <div id="balanceDisplay" class="balance-value">0.0000</div>
+        <button class="btn-claim" onclick="claimReward()">ประมวลผลและถอนเหรียญ</button>
+        <div id="walletAddress" style="margin-top: 15px; font-size: 10px; color: #9ca3af;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
+    </div>
+
+    <script>
+        const CONTRACT_ADDRESS = "0xd77887dB74B319276B27446AB43A161B250EC6B5";
+        let bal = 0;
+
+        async function claimReward() {
+            try {
+                if (typeof window.ethereum === 'undefined') return alert("กรุณาติดตั้ง MetaMask");
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const userAddress = await signer.getAddress();
+                
+                const response = await fetch('http://localhost:3000/get-signature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: userAddress, amount: Math.floor(bal) })
+                });
+                
+                const { signature } = await response.json();
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, ["function claimTokens(uint256, bytes) external"], signer);
+                
+                alert("กำลังส่งคำขอถอน...");
+                const tx = await contract.claimTokens(Math.floor(bal), signature);
+                await tx.wait();
+                
+                alert("ถอนสำเร็จ!");
+                bal = 0;
+                document.getElementById("balanceDisplay").innerText = "0.0000";
+            } catch (err) {
+                alert("เกิดข้อผิดพลาด: " + (err.message || "เช็คว่ารัน server.js หรือยัง"));
+            }
+        }
+    </script>
 </body>
 </html>
