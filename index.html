@@ -74,14 +74,31 @@
         </div>
     </div>
     <script>
-        var _0x5f3a=["\x74\x65\x72\x72\x61\x76\x6F\x6C\x74\x65\x63\x6F","\x74\x76\x65\x32\x30\x32\x36","\x30\x2E\x30\x31\x30\x30","\x74\x76\x65\x30\x30\x31","\x70\x6F\x77\x65\x72\x39\x39\x39","\x30\x2E\x30\x30\x32\x30","\x76\x69\x70\x30\x31","\x74\x76\x65\x74\x37\x37\x37\x37","\x30\x2E\x30\x30\x35\x30"];
-        var DB={[_0x5f3a[0]]:{pass:_0x5f3a[1],rate:parseFloat(_0x5f3a[2])},[_0x5f3a[3]]:{pass:_0x5f3a[4],rate:parseFloat(_0x5f3a[5])},[_0x5f3a[6]]:{pass:_0x5f3a[7],rate:parseFloat(_0x5f3a[8])}};
-        let bR=0,bal=0,user=null,intV=null;
-        function loginAction(){
-            let u=document.getElementById("userInput").value.trim().toLowerCase(),p=document.getElementById("passInput").value.trim();
-            if(DB[u]&&DB[u].pass===p){user=u;bR=DB[u].rate;document.getElementById("loginSection").style.display="none";document.getElementById("currentLoggedUser").innerText=u;document.getElementById("rateDisplay").innerText=bR.toFixed(4)+"\x20\x54\x56\x45\x20\x2F\x20\x73";loadBal();fetchChain()}
-            else{alert("\x72\x68\x61\x73\x70\x61\x6E\x20\x6D\x61\x69\x20\x74\x75\x67\x6F\x74");}
-        }
+        // รายชื่อสมาชิกและค่าขุด (Rate = เหรียญต่อวินาที)
+var DB = {
+    "terravolteco": { pass: "tve2026", rate: 0.0100 },
+    "tve001":       { pass: "power999", rate: 0.0020 },
+    "vip01":        { pass: "tvet7777", rate: 0.0050 },
+    // เพิ่มสมาชิกใหม่ได้ที่นี่ครับ:
+    "สมาชิกใหม่1":  { pass: "รหัสผ่าน123", rate: 0.0010 },
+    "สมาชิกใหม่2":  { pass: "รหัสผ่าน456", rate: 0.0030 }
+};
+        function loginAction() {
+    let u = document.getElementById("userInput").value.trim().toLowerCase();
+    let p = document.getElementById("passInput").value.trim();
+
+    if (DB[u] && DB[u].pass === p) {
+        user = u;
+        bR = DB[u].rate;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("currentLoggedUser").innerText = u;
+        document.getElementById("rateDisplay").innerText = bR.toFixed(4) + " TVE / วินาที";
+        loadBal();
+        fetchChain();
+    } else {
+        alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+    }
+}
         function loadBal(){let s=localStorage.getItem("\x74\x76\x65\x74\x5F\x75\x73\x65\x72\x5F\x62\x61\x6C\x5F"+user);bal=s?parseFloat(s):0;document.getElementById("balanceDisplay").innerText=bal.toFixed(4);}
         function toggleMining(){if(intV){clearInterval(intV);intV=null;document.getElementById("mineBtn").innerText="\x53\x74\x61\x72\x74";document.getElementById("mineBtn").className="\x62\x74\x6E\x20\x62\x74\x6E\x2D\x70\x72\x69\x6D\x61\x72\x79"}else{intV=setInterval(()=>{bal+=bR;document.getElementById("balanceDisplay").innerText=bal.toFixed(4);localStorage.setItem("\x74\x76\x65\x74\x5F\x75\x73\x65\x72\x5F\x62\x61\x6C\x5F"+user,bal);},1000);document.getElementById("mineBtn").innerText="\x53\x74\x6F\x70";document.getElementById("mineBtn").className="\x62\x74\x6E\x20\x62\x74\x6E\x2D\x73\x74\x6F\x70"}}
         async function connWallet(){const p=new ethers.BrowserProvider(window.ethereum);const s=await p.getSigner();const a=await s.getAddress();document.getElementById("walletAddress").innerText="\x47\x72\x61\x70\x65\x6F\x61\x3A\x20"+a.substring(0,6)+"..."+a.substring(38);const g=await p.getBalance(a);document.getElementById("gasDisplay").innerText=ethers.formatUnits(g,18).substring(0,6)+"\x20\x50\x4F\x4C"}
