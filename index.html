@@ -67,7 +67,9 @@
                     <div class="contract-label">📋 CONTRACT:</div>
                     <div class="token-info-text">0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7</div>
                 </div>
-                <button class="btn-add-token-bottom" onclick="addToken()">+ เพิ่ม</button>
+                <button class="btn-add-token-bottom" onclick="window.ethereum.request({method:'wallet_watchAsset',params:{type:'ERC20',options:{address:'0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7',symbol:'TVE',decimals:18}}})">
+    + เพิ่มเหรียญ TVE
+</button>
             </div>
         </div>
     </div>
