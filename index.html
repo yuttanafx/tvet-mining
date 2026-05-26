@@ -85,10 +85,16 @@
         async function connWallet(){const p=new ethers.BrowserProvider(window.ethereum);const s=await p.getSigner();const a=await s.getAddress();document.getElementById("walletAddress").innerText="\x47\x72\x61\x70\x65\x6F\x61\x3A\x20"+a.substring(0,6)+"..."+a.substring(38);const g=await p.getBalance(a);document.getElementById("gasDisplay").innerText=ethers.formatUnits(g,18).substring(0,6)+"\x20\x50\x4F\x4C"}
         async function claimReward() {
             if (bal <= 0) { alert("ไม่มีเหรียญให้เคลม"); return; }
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const userAddress = accounts[0];
+            
+            // เชื่อมต่อกระเป๋า
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const userAddress = await signer.getAddress();
+
             try {
                 alert("กำลังขอลายเซ็นอนุมัติ...");
+                
+                // 1. ส่งข้อมูลไปที่ Vercel เพื่อขอลายเซ็น
                 const response = await fetch("https://tvet-mining.vercel.app/api/get-signature", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
@@ -97,15 +103,36 @@
                         amount: ethers.parseUnits(bal.toFixed(18), 18).toString() 
                     })
                 });
+
                 const data = await response.json();
+
                 if (data.signature) {
-                    console.log("ได้ลายเซ็นแล้ว:", data.signature);
-                    alert("ได้รับลายเซ็นอนุมัติแล้ว! ขั้นตอนต่อไปคือส่งค่านี้ไปที่ Smart Contract");
+                    alert("ได้รับลายเซ็นแล้ว! กำลังโอนเหรียญเข้ากระเป๋า...");
+
+                    // 2. เรียก Smart Contract เพื่อทำการโอนเหรียญจริง
+                    // แก้ไขชื่อฟังก์ชัน "claim" ให้ตรงกับใน Contract ของคุณ
+                    const contractAddress = "0x003129a07b947ABf696C91FdB440EC77f26613B7";
+                    const abi = ["function claim(uint256 amount, bytes signature) external"]; 
+                    const contract = new ethers.Contract(contractAddress, abi, signer);
+
+                    const tx = await contract.claim(
+                        ethers.parseUnits(bal.toFixed(18), 18), 
+                        data.signature
+                    );
+
+                    await tx.wait(); // รอจนกว่าบล็อกเชนจะยืนยัน
+                    alert("โอนเหรียญสำเร็จ! เงินเข้ากระเป๋าแล้ว");
+                    
+                    // รีเซ็ตยอดหลังโอนสำเร็จ
+                    bal = 0;
+                    localStorage.setItem("tvet_user_bal_" + user, 0);
+                    document.getElementById("balanceDisplay").innerText = "0.0000";
                 } else {
-                    alert("Error: " + (data.error || "ไม่สามารถขอลายเซ็นได้"));
+                    alert("เกิดข้อผิดพลาด: " + (data.error || "ไม่สามารถขอลายเซ็นได้"));
                 }
             } catch (err) {
-                alert("ไม่สามารถติดต่อระบบเซ็นลายเซ็นได้");
+                console.error(err);
+                alert("โอนล้มเหลว: " + err.message);
             }
         }
         function cpContract(){navigator.clipboard.writeText("\x30\x78\x30\x30\x33\x31\x32\x39\x61\x30\x37\x62\x39\x34\x37\x41\x42\x66\x36\x39\x36\x43\x39\x31\x46\x64\x62\x34\x34\x30\x45\x43\x37\x37\x66\x32\x36\x36\x31\x33\x42\x37");alert("\x43\x6F\x70\x69\x65\x64\x21")}
