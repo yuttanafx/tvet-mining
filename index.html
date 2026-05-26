@@ -115,11 +115,17 @@
                     const abi = ["function claim(uint256 amount, bytes signature) external"]; 
                     const contract = new ethers.Contract(contractAddress, abi, signer);
 
-                    const tx = await contract.claim(
-                        ethers.parseUnits(bal.toFixed(18), 18), 
-                        data.signature
-                    );
+                    // แก้ไขบรรทัดเรียก contract.claim เป็นแบบนี้ครับ:
+const amountParsed = BigInt(ethers.parseUnits(bal.toFixed(18), 18).toString());
 
+// ตรวจสอบข้อมูลใน Console ก่อนส่งจริง
+console.log("Sending to Contract:", {
+    address: userAddress,
+    amount: amountParsed.toString(),
+    signature: data.signature
+});
+
+const tx = await contract.claim(amountParsed, data.signature);
                     await tx.wait(); // รอจนกว่าบล็อกเชนจะยืนยัน
                     alert("โอนเหรียญสำเร็จ! เงินเข้ากระเป๋าแล้ว");
                     
