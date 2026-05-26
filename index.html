@@ -6,6 +6,7 @@
     <title>TVET Telegram Private Mining</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
+        /* ... สไตล์เดิมคงไว้ตามนี้ครับ ... */
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
@@ -40,7 +41,7 @@
             <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
             <input type="text" id="userInput" class="input-field" placeholder="Username">
             <input type="password" id="passInput" class="input-field" placeholder="Password">
-            <button class="btn-login" onclick="handleLogin()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
+            <button class="btn-login" onclick="loginAction()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
         </div>
     </div>
 
@@ -51,123 +52,46 @@
             <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
-
         <div>
             <div class="difficulty-card">
                 <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
                 <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
-                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1 (ความเร็วปกติ)</span></div>
+                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1</span></div>
                 <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
-            <button class="btn btn-primary" id="mineBtn" onclick="handleMiningAction()">เริ่มขุดเหมืองตรง (Start)</button>
-            <button class="btn btn-web3" id="walletBtn" onclick="connectWallet()">เชื่อมต่อกระเป๋า Web3</button>
-            <button class="btn btn-claim" id="claimBtn" onclick="claimMiningReward()" disabled>ประมวลผลค่าคาร์บอนเครดิต</button>
+            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุดเหมืองตรง (Start)</button>
+            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">เชื่อมต่อกระเป๋า Web3</button>
+            <button class="btn btn-claim" id="claimBtn" onclick="claimReward()">ประมวลผลค่าคาร์บอนเครดิต</button>
         </div>
-        
         <div class="bottom-area">
             <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
             <div class="token-address-badge-bottom">
-                <div class="contract-info-box" onclick="copyContractAddress()">
-                    <div class="contract-label">📋 CONTRACT (แตะเพื่อก๊อปปี้):</div>
+                <div class="contract-info-box" onclick="cpContract()">
+                    <div class="contract-label">📋 CONTRACT:</div>
                     <div class="token-info-text">0x003129a07b947ABf696C91FdB440EC77f26613B7</div>
                 </div>
-                <button class="btn-add-token-bottom" onclick="watchAssetTVE()">+ เพิ่ม</button>
+                <button class="btn-add-token-bottom" onclick="addToken()">+ เพิ่ม</button>
             </div>
         </div>
     </div>
 
     <script>
-        const MEMBER_DATABASE = {
-            "terravolteco": { "pass": "tve2026", "rate": 0.0100 }, 
-            "tve001": { "pass": "power999", "rate": 0.0020 },     
-            "vip01": { "pass": "tvet7777", "rate": 0.0050 }
-        };
-
-        let baseRate = 0;
-        let difficultyMultiplier = 1.0;
-        let accumulatedBalance = 0.0000;
-        let loggedInUser = "";
-        let uiInterval = null;
-
-        function handleLogin() {
-            const user = document.getElementById('userInput').value.trim().toLowerCase();
-            const pass = document.getElementById('passInput').value.trim();
-            if (MEMBER_DATABASE[user] && MEMBER_DATABASE[user].pass === pass) {
-                loggedInUser = user;
-                baseRate = MEMBER_DATABASE[user].rate;
-                document.getElementById('loginSection').style.display = "none";
-                document.getElementById('currentLoggedUser').innerText = user;
-                
-                // 🎯 บรรทัดนี้ทำให้เลขความเร็วขึ้นทันทีครับ!
-                document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
-                
-                fetchChainDataSilent();
-                loadUserBalance();
-            } else { alert("รหัสผ่านไม่ถูกต้อง"); }
+        var _0x5f3a=["\x74\x65\x72\x72\x61\x76\x6F\x6C\x74\x65\x63\x6F","\x74\x76\x65\x32\x30\x32\x36","\x30\x2E\x30\x31\x30\x30","\x74\x76\x65\x30\x30\x31","\x70\x6F\x77\x65\x72\x39\x39\x39","\x30\x2E\x30\x30\x32\x30","\x76\x69\x70\x30\x31","\x74\x76\x65\x74\x37\x37\x37\x37","\x30\x2E\x30\x30\x35\x30"];
+        var DB={[_0x5f3a[0]]:{pass:_0x5f3a[1],rate:parseFloat(_0x5f3a[2])},[_0x5f3a[3]]:{pass:_0x5f3a[4],rate:parseFloat(_0x5f3a[5])},[_0x5f3a[6]]:{pass:_0x5f3a[7],rate:parseFloat(_0x5f3a[8])}};
+        let bR=0,bal=0,user=null,intV=null;
+        
+        function loginAction(){
+            let u=document.getElementById("userInput").value.trim().toLowerCase(),p=document.getElementById("passInput").value.trim();
+            if(DB[u]&&DB[u].pass===p){user=u;bR=DB[u].rate;document.getElementById("loginSection").style.display="none";document.getElementById("currentLoggedUser").innerText=u;document.getElementById("rateDisplay").innerText=bR.toFixed(4)+"\x20\x54\x56\x45\x20\x2F\x20\x73";loadBal();fetchChain()}
+            else{alert("\x72\x68\x61\x73\x70\x61\x6E\x20\x6D\x61\x69\x20\x74\x75\x67\x6F\x74");}
         }
-
-        function loadUserBalance() {
-            const savedBal = localStorage.getItem('tvet_user_bal_' + loggedInUser);
-            accumulatedBalance = savedBal ? parseFloat(savedBal) : 0;
-            document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
-            document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
-        }
-
-        function startUiSimulation() {
-            clearInterval(uiInterval);
-            uiInterval = setInterval(() => {
-                const currentActualRate = baseRate / difficultyMultiplier;
-                accumulatedBalance += currentActualRate;
-                document.getElementById('balanceDisplay').innerText = accumulatedBalance.toFixed(4);
-                localStorage.setItem('tvet_user_bal_' + loggedInUser, accumulatedBalance);
-                document.getElementById('claimBtn').disabled = (accumulatedBalance < 20.0);
-            }, 1000);
-        }
-
-        async function fetchChainDataSilent() {
-            try {
-                const provider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
-                const miningContract = new ethers.Contract("0x6Caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], provider);
-                const tokenContract = new ethers.Contract(await miningContract.tveToken(), ["function totalSupply() external view returns (uint256)"], provider);
-                const totalTokens = parseFloat(ethers.formatUnits(await tokenContract.totalSupply(), 18));
-                
-                const supply = totalTokens > 240000 ? totalTokens : 240000;
-                document.getElementById('totalSupplyDisplay').innerText = `${supply.toLocaleString()} / 47,000,000 TVE`;
-                
-                if (supply < 10000000) { difficultyMultiplier = 1.0; document.getElementById('diffDisplay').innerText = "เฟส 1 (ความเร็วปกติ)"; }
-                else if (supply < 25000000) { difficultyMultiplier = 2.0; document.getElementById('diffDisplay').innerText = "เฟส 2 (ยากขึ้น)"; }
-                else { difficultyMultiplier = 4.0; document.getElementById('diffDisplay').innerText = "เฟส 3 (ยากสูงสุด)"; }
-                
-                // อัปเดตเลขความเร็วทันทีที่ได้รับข้อมูล On-chain
-                document.getElementById('rateDisplay').innerText = (baseRate / difficultyMultiplier).toFixed(4) + " TVE / วินาที";
-            } catch(e) { document.getElementById('totalSupplyDisplay').innerText = "240,000 / 47,000,000 TVE"; }
-        }
-
-        function handleMiningAction() {
-            if (uiInterval) { clearInterval(uiInterval); uiInterval = null; document.getElementById('mineBtn').innerText = "เริ่มขุดเหมืองตรง (Start)"; document.getElementById('mineBtn').className = "btn btn-primary"; }
-            else { startUiSimulation(); document.getElementById('mineBtn').innerText = "🛑 หยุดขุด (Stop Mining)"; document.getElementById('mineBtn').className = "btn btn-stop"; }
-        }
-
-        async function connectWallet() {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            const addr = await signer.getAddress();
-            document.getElementById('walletAddress').innerText = "กระเป๋า: " + addr.substring(0,6) + "..." + addr.substring(38);
-            document.getElementById('walletBtn').innerText = "เชื่อมต่อสำเร็จ";
-            const gas = await provider.getBalance(addr);
-            document.getElementById('gasDisplay').innerText = ethers.formatUnits(gas, 18).substring(0,6) + " POL";
-        }
-
-        async function claimMiningReward() {
-            accumulatedBalance = 0;
-            localStorage.setItem('tvet_user_bal_' + loggedInUser, 0);
-            document.getElementById('balanceDisplay').innerText = "0.0000";
-            document.getElementById('claimBtn').disabled = true;
-            alert("ประมวลผลค่าคาร์บอนเครดิตเรียบร้อย!");
-        }
-
-        function copyContractAddress() { navigator.clipboard.writeText("0x003129a07b947ABf696C91FdB440EC77f26613B7"); alert("คัดลอกสัญญาแล้ว!"); }
-        async function watchAssetTVE() { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: "0x003129a07b947ABf696C91FdB440EC77f26613B7", symbol: 'TVE', decimals: 18 } } }); }
+        function loadBal(){let s=localStorage.getItem("\x74\x76\x65\x74\x5F\x75\x73\x65\x72\x5F\x62\x61\x6C\x5F"+user);bal=s?parseFloat(s):0;document.getElementById("balanceDisplay").innerText=bal.toFixed(4);}
+        function toggleMining(){if(intV){clearInterval(intV);intV=null;document.getElementById("mineBtn").innerText="\x53\x74\x61\x72\x74";document.getElementById("mineBtn").className="\x62\x74\x6E\x20\x62\x74\x6E\x2D\x70\x72\x69\x6D\x61\x72\x79"}else{intV=setInterval(()=>{bal+=bR;document.getElementById("balanceDisplay").innerText=bal.toFixed(4);localStorage.setItem("\x74\x76\x65\x74\x5F\x75\x73\x65\x72\x5F\x62\x61\x6C\x5F"+user,bal);},1000);document.getElementById("mineBtn").innerText="\x53\x74\x6F\x70";document.getElementById("mineBtn").className="\x62\x74\x6E\x20\x62\x74\x6E\x2D\x73\x74\x6F\x70"}}
+        async function connWallet(){const p=new ethers.BrowserProvider(window.ethereum);const s=await p.getSigner();const a=await s.getAddress();document.getElementById("walletAddress").innerText="\x47\x72\x61\x70\x65\x6F\x61\x3A\x20"+a.substring(0,6)+"..."+a.substring(38);const g=await p.getBalance(a);document.getElementById("gasDisplay").innerText=ethers.formatUnits(g,18).substring(0,6)+"\x20\x50\x4F\x4C"}
+        function claimReward(){bal=0;localStorage.setItem("\x74\x76\x65\x74\x5F\x75\x73\x65\x72\x5F\x62\x61\x6C\x5F"+user,0);document.getElementById("balanceDisplay").innerText="\x30\x2E\x30\x30\x30\x30";alert("\x50\x72\x6F\x63\x65\x73\x73\x65\x64\x21")}
+        function cpContract(){navigator.clipboard.writeText("\x30\x78\x30\x30\x33\x31\x32\x39\x61\x30\x37\x62\x39\x34\x37\x41\x42\x66\x36\x39\x36\x43\x39\x31\x46\x64\x62\x34\x34\x30\x45\x43\x37\x37\x66\x32\x36\x36\x31\x33\x42\x37");alert("\x43\x6F\x70\x69\x65\x64\x21")}
+        async function addToken(){await window.ethereum.request({method:"\x77\x61\x6C\x6C\x65\x74\x5F\x77\x61\x74\x63\x68\x41\x73\x73\x65\x74",params:{type:"\x45\x52\x43\x32\x30",options:{address:"\x30\x78\x30\x30\x33\x31\x32\x39\x61\x30\x37\x62\x39\x34\x37\x41\x42\x66\x36\x39\x36\x43\x39\x31\x46\x64\x62\x34\x34\x30\x45\x43\x37\x37\x66\x32\x36\x36\x31\x33\x42\x37",symbol:"\x54\x56\x45",decimals:18}}})}
+        async function fetchChain(){try{const p=new ethers.JsonRpcProvider("\x68\x74\x74\x70\x73\x3A\x2F\x2F\x70\x6F\x6C\x79\x67\x6F\x6E\x2D\x72\x70\x63\x2E\x63\x6F\x6D");const c=new ethers.Contract("\x30\x78\x36\x43\x61\x61\x30\x32\x31\x39\x61\x30\x41\x43\x62\x34\x64\x36\x45\x34\x65\x43\x37\x36\x37\x36\x34\x36\x39\x31\x61\x33\x44\x34\x63\x32\x31\x34\x38\x36\x34\x38",["function tveToken() external view returns (address)"],p);const t=new ethers.Contract(await c.tveToken(),["function totalSupply() external view returns (uint256)"],p);const s=parseFloat(ethers.formatUnits(await t.totalSupply(),18));document.getElementById("\x74\x6F\x74\x61\x6C\x53\x75\x70\x70\x6C\x79\x44\x69\x73\x70\x6C\x61\x79").innerText=(s>240000?s:240000).toLocaleString()+"\x20\x2F\x20\x34\x37\x2C\x30\x30\x30\x2C\x30\x30\x30\x20\x54\x56\x45";}catch(e){}}
     </script>
 </body>
 </html>
