@@ -112,7 +112,7 @@
             try { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: '0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7', symbol: 'TVE', decimals: 18 } } }); }
             catch (error) { console.error(error); }
         }
-        async function fetchChain(){ try { const p = new ethers.JsonRpcProvider("https://polygon-rpc.com"); const c = new ethers.Contract("0x6caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], p); const t = new ethers.Contract(await c.tveToken(), ["function totalSupply() external view returns (uint256)"], p); const s = parseFloat(ethers.formatUnits(await t.totalSupply(), 18)); document.getElementById("totalSupplyDisplay").innerText = (s > 240000 ? s : 240000).toLocaleString() + " TVE"; } catch(e) {} }
+        async function fetchChain(){ try { const p = new ethers.JsonRpcProvider("https://polygon-rpc-mainnet.public.blastapi.io"); const c = new ethers.Contract("0x6caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], p); const t = new ethers.Contract(await c.tveToken(), ["function totalSupply() external view returns (uint256)"], p); const s = parseFloat(ethers.formatUnits(await t.totalSupply(), 18)); document.getElementById("totalSupplyDisplay").innerText = (s > 240000 ? s : 240000).toLocaleString() + " TVE"; } catch(e) {} }
     </script>
 </body>
 </html>
