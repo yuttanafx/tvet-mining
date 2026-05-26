@@ -3,53 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TVET Deep Tech Mining</title>
+    <title>TVET Telegram Private Mining</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; background: #090d16; font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff; }
-        .app-container { background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 30px; padding: 20px; width: 100%; max-width: 350px; margin: 20px auto; text-align: center; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(245, 158, 11, 0.2); padding: 10px; border-radius: 15px; }
-        .stat-value { font-size: 16px; font-weight: 800; color: #fbbf24; }
-        .stat-label { font-size: 8px; color: #9ca3af; text-transform: uppercase; }
-        .balance-value { font-size: 32px; font-weight: 800; margin: 10px 0; font-family: monospace; }
-        .btn { width: 100%; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; margin-bottom: 8px; }
-        .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000; }
-        .btn-stop { background: #ef4444; color: #fff; }
-        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
+        .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .logo-img { width: 85px; height: 85px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
+        .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 5px; font-weight: 500; width: 100%; box-sizing: border-box; }
+        .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-value { font-size: 34px; font-weight: 800; color: #ffffff; margin: 5px 0; font-family: monospace; letter-spacing: 1px; }
+        .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 8px; text-align: left; font-size: 11px; line-height: 1.6; }
+        .difficulty-card span { float: right; font-weight: bold; color: #fbbf24; }
+        .btn { width: 100%; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; box-sizing: border-box; }
+        .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; display: block; }
+        .btn-stop { background: #ef4444; color: #ffffff; display: block; }
+        .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); display: block; }
+        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; font-size: 13px; letter-spacing: 0.5px; }
+        .btn-claim:disabled { background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; }
+        .bottom-area { width: 100%; box-sizing: border-box; text-align: center; }
+        .token-address-badge-bottom { background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 6px 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; width: 100%; }
+        .contract-info-box { overflow: hidden; max-width: 190px; cursor: pointer; }
+        .contract-label { font-weight: bold; color: #fbbf24; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .token-info-text { color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 10px; margin-top: 1px; }
+        .btn-add-token-bottom { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 5px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s; white-space: nowrap; }
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .login-box { background: rgba(17, 24, 39, 0.95); border: 1px solid #f59e0b; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ffffff; font-size: 14px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-login { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; font-weight: bold; width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <p class="stat-label">TVET ENERGY STATION</p>
-        <div class="balance-value" id="balanceDisplay">0.0000</div>
-        
-        <div class="dashboard-grid">
-            <div class="stat-card">
-                <div class="stat-label">ประสิทธิภาพ</div>
-                <div class="stat-value">98.5%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">คาร์บอนที่ลดได้</div>
-                <div class="stat-value">0.34 tCO2</div>
-            </div>
-        </div>
-
-        <canvas id="miningChart" style="max-height: 120px; margin-bottom: 15px;"></canvas>
-
-        <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุดเหมืองตรง (Start)</button>
-        <button class="btn btn-claim" onclick="claimReward()">ประมวลผลค่าคาร์บอนเครดิต</button>
-    </div>
-
-    <script>
-        // โค้ด JavaScript เดิม (การทำงานต่างๆ)
-        // ... (ใส่ Logic เดิมที่ใช้งานได้ของคุณที่นี่)
-        const ctx = document.getElementById('miningChart').getContext('2d');
-        new Chart(ctx, { type: 'line', data: { labels: ['1m','2m','3m','4m','5m'], datasets: [{ data: [0.01, 0.012, 0.011, 0.015, 0.014], borderColor: '#fbbf24', tension: 0.4, fill: true, backgroundColor: 'rgba(251, 191, 36, 0.05)' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } } });
-    </script>
-</body>
-<div id="loginSection" class="login-overlay">
+    <div id="loginSection" class="login-overlay">
         <div class="login-box">
             <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
             <input type="text" id="userInput" class="input-field" placeholder="Username">
