@@ -1129,74 +1129,26 @@ balance.toFixed(4)
 /* ===================================== */
 
 function toggleMining(){
-
-const btn =
-document.getElementById(
-"mineBtn"
-);
-
-const active =
-document.querySelector(
-".active-status"
-);
-
-mining = !mining;
-
-if(mining){
-
-btn.innerText =
-"STOP MINING";
-
-btn.className =
-"action-btn stop-btn";
-
-active.innerHTML =
-"● CARBON CREDIT ACTIVE";
-
-active.style.color =
-"#00ff99";
-
-miningInterval =
-setInterval(()=>{
-
-balance += mininbalance = Number(
-(
-balance + miningRate
-).toFixed(4)
-);gRate;
-
-updateBalance();
-
-localStorage.setItem(
-
-"tvet_balance_" + user,
-
-balance
-
-);
-
-},1000);
-
-}else{
-
-btn.innerText =
-"START MINING";
-
-btn.className =
-"action-btn claim-btn";
-
-active.innerHTML =
-"● MINING PAUSED";
-
-active.style.color =
-"#ff5555";
-
-clearInterval(
-miningInterval
-);
-
-}
-
+    const btn = document.getElementById("mineBtn");
+    const active = document.querySelector(".active-status");
+    mining = !mining;
+    if(mining){
+        btn.innerText = "STOP MINING";
+        btn.className = "action-btn stop-btn";
+        active.innerHTML = "● CARBON CREDIT ACTIVE";
+        active.style.color = "#00ff99";
+        miningInterval = setInterval(()=>{
+            balance = Number((balance + miningRate).toFixed(4));
+            updateBalance();
+            localStorage.setItem("tvet_balance_" + user, balance);
+        },1000);
+    }else{
+        btn.innerText = "START MINING";
+        btn.className = "action-btn claim-btn";
+        active.innerHTML = "● MINING PAUSED";
+        active.style.color = "#ff5555";
+        clearInterval(miningInterval);
+    }
 }
 
 /* ===================================== */
