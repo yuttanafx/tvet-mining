@@ -1121,12 +1121,17 @@ address.substring(38);
 /* CLAIM REAL */
 /* ============================= */
 
+<script>
+
+/* ============================= */
+/* CLAIM REAL FIXED */
+/* ============================= */
+
 async function claimReward() {
 
     if (balance <= 0) {
 
         alert("ไม่มีเหรียญให้เคลม");
-
         return;
     }
 
@@ -1135,7 +1140,6 @@ async function claimReward() {
         if (!window.ethereum) {
 
             alert("ไม่พบ MetaMask");
-
             return;
         }
 
@@ -1153,24 +1157,54 @@ async function claimReward() {
         const network =
         await provider.getNetwork();
 
+        /* FORCE POLYGON */
+
         if (Number(network.chainId) !== 137) {
 
-            alert(
-            "กรุณาเปลี่ยนเป็น Polygon Mainnet"
-            );
+            try {
 
-            return;
+                await window.ethereum.request({
+
+                    method:
+                    "wallet_switchEthereumChain",
+
+                    params: [
+                        {
+                            chainId: "0x89"
+                        }
+                    ]
+
+                });
+
+            } catch(err){
+
+                alert(
+                "กรุณาเปิด Polygon Mainnet"
+                );
+
+                return;
+            }
         }
 
+        /* FIX OVERFLOW */
+
+        const safeBalance =
+
+        Number(balance)
+        .toFixed(4);
+
         const amountToClaim =
+
         ethers.parseUnits(
-            balance.toFixed(4),
+            safeBalance,
             18
         );
 
         alert(
-        "กำลังสร้างลายเซ็น..."
+        "กำลังสร้าง Signature..."
         );
+
+        /* GET SIGNATURE */
 
         const response =
         await fetch(
@@ -1188,6 +1222,7 @@ async function claimReward() {
 
             body:JSON.stringify({
 
+                userAddress:
                 userAddress,
 
                 amount:
@@ -1201,9 +1236,12 @@ async function claimReward() {
         if(!data.signature){
 
             throw new Error(
-            "ไม่ได้ Signature"
+            data.error ||
+            "Signature Error"
             );
         }
+
+        /* CONTRACT */
 
         const contract =
         new ethers.Contract(
@@ -1220,6 +1258,8 @@ async function claimReward() {
         alert(
         "กรุณากด Confirm ใน MetaMask"
         );
+
+        /* SEND TX */
 
         const tx =
         await contract.claimTokens(
@@ -1239,6 +1279,8 @@ async function claimReward() {
         "โอนเหรียญสำเร็จ"
         );
 
+        /* RESET BALANCE */
+
         balance = 0;
 
         updateBalance();
@@ -1255,12 +1297,13 @@ async function claimReward() {
         console.error(err);
 
         alert(
-        "ERROR:\n" +
+        "ERROR:\n\n" +
         err.message
         );
     }
 }
 
+</script>
 /* ============================= */
 /* ADD TOKEN */
 /* ============================= */
