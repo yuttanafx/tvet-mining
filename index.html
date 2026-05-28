@@ -1159,7 +1159,11 @@ active.style.color =
 miningInterval =
 setInterval(()=>{
 
-balance += miningRate;
+balance += mininbalance = Number(
+(
+balance + miningRate
+).toFixed(4)
+);gRate;
 
 updateBalance();
 
@@ -1244,18 +1248,6 @@ address.substring(38);
 
 async function claimReward() {
 
-    if (!window.ethereum) {
-
-        alert("กรุณาติดตั้ง MetaMask");
-        return;
-    }
-
-    if (!user) {
-
-        alert("กรุณา Login");
-        return;
-    }
-
     if (balance <= 0) {
 
         alert("ไม่มีเหรียญให้เคลม");
@@ -1264,65 +1256,64 @@ async function claimReward() {
 
     try {
 
+        if (!window.ethereum) {
+
+            alert("ไม่พบ MetaMask");
+            return;
+        }
+
         const provider =
         new ethers.BrowserProvider(
             window.ethereum
         );
 
-        await provider.send(
-            "eth_requestAccounts",
-            []
-        );
-
         const signer =
         await provider.getSigner();
 
-        const walletAddress =
+        const userAddress =
         await signer.getAddress();
 
         const network =
         await provider.getNetwork();
 
-        if (
-            Number(network.chainId)
-            !== 137
-        ) {
+        if (Number(network.chainId) !== 137) {
 
-            try {
+            alert(
+            "กรุณาเปลี่ยนเป็น Polygon Mainnet"
+            );
 
-                await window.ethereum.request({
-
-                    method:
-                    "wallet_switchEthereumChain",
-
-                    params:[
-                        {
-                            chainId:"0x89"
-                        }
-                    ]
-                });
-
-            } catch(err){
-
-                alert(
-                "กรุณาเปิด Polygon Mainnet"
-                );
-
-                return;
-            }
+            return;
         }
 
-        const claimAmount =
+        /* ========================= */
+        /* FIX OVERFLOW */
+        /* ========================= */
+
+        const safeAmount = Math.floor(
+            Number(balance) * 10000
+        ) / 10000;
+
+        if (
+            safeAmount <= 0 ||
+            safeAmount > 1000000
+        ) {
+
+            alert("ยอดเคลมผิดปกติ");
+            return;
+        }
+
+        const amountToClaim =
         ethers.parseUnits(
-
-            Number(balance)
-            .toFixed(4),
-
+            safeAmount.toString(),
             18
         );
 
+        /* ========================= */
+        /* GET SIGNATURE */
+        /* ========================= */
+
         alert(
-        "กำลังตรวจสอบ Signature..."
+        "กำลังสร้างลายเซ็น..."
         );
 
         const response =
@@ -1341,11 +1332,10 @@ async function claimReward() {
 
             body:JSON.stringify({
 
-                userAddress:
-                walletAddress,
+                userAddress,
 
                 amount:
-                claimAmount.toString()
+                amountToClaim.toString()
             })
         });
 
@@ -1354,12 +1344,14 @@ async function claimReward() {
 
         if(!data.signature){
 
-            alert(
-            "ไม่ได้รับ Signature"
+            throw new Error(
+            "ไม่ได้ Signature"
             );
-
-            return;
         }
+
+        /* ========================= */
+        /* CONTRACT */
+        /* ========================= */
 
         const contract =
         new ethers.Contract(
@@ -1380,20 +1372,24 @@ async function claimReward() {
         const tx =
         await contract.claimTokens(
 
-            claimAmount,
+            amountToClaim,
 
             data.signature
         );
 
         alert(
-        "กำลังรอ Blockchain..."
+        "กำลังรอ Blockchain Confirm..."
         );
 
         await tx.wait();
 
         alert(
-        "รับเหรียญ TVE สำเร็จ"
+        "โอนเหรียญสำเร็จ"
         );
+
+        /* ========================= */
+        /* RESET BALANCE */
+        /* ========================= */
 
         balance = 0;
 
@@ -1411,17 +1407,12 @@ async function claimReward() {
         console.error(err);
 
         alert(
-
-        "Claim Error:\n\n"
-
-        +
-
+        "Claim Error:\n\n" +
         (
-        err.reason ||
-        err.message ||
-        "Unknown Error"
+            err.reason ||
+            err.message ||
+            "Unknown Error"
         )
-
         );
     }
 }
