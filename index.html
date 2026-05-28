@@ -1241,24 +1241,9 @@ async function claimReward() {
         /* FIX OVERFLOW */
         /* ========================= */
 
-        const safeAmount = Math.floor(
-            Number(balance) * 10000
-        ) / 10000;
-
-        if (
-            safeAmount <= 0 ||
-            safeAmount > 1000000
-        ) {
-
-            alert("ยอดเคลมผิดปกติ");
-            return;
-        }
-
-        const amountToClaim =
-        ethers.parseUnits(
-            safeAmount.toString(),
-            18
-        );
+        // แก้ไขจากของเดิมเป็นบรรทัดนี้:
+const safeAmount = Math.floor(Number(balance) * 10000) / 10000;
+const amountToClaim = ethers.parseUnits(safeAmount.toFixed(4), 18);
 
         /* ========================= */
         /* GET SIGNATURE */
