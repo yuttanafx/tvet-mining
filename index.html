@@ -2,13 +2,15 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport"
-content="width=device-width,
+content="
+width=device-width,
 initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>TVET NODE-07</title>
+<title>TVET FUTURE MINING</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 
@@ -25,7 +27,11 @@ html,body{
 width:100%;
 height:100%;
 overflow:hidden;
-font-family:'Segoe UI',sans-serif;
+
+font-family:
+'Segoe UI',
+sans-serif;
+
 background:#020611;
 color:#fff;
 }
@@ -43,40 +49,51 @@ inset:0;
 
 background:
 
-radial-gradient(circle at top,
-rgba(0,183,255,.18),
-transparent 45%),
+radial-gradient(
+circle at top,
+rgba(0,183,255,.15),
+transparent 40%
+),
 
-radial-gradient(circle at bottom,
+radial-gradient(
+circle at bottom,
 rgba(255,170,0,.12),
-transparent 40%),
+transparent 40%
+),
 
-linear-gradient(180deg,
+linear-gradient(
+180deg,
 #020611 0%,
-#031326 100%);
+#071320 100%
+);
 
-z-index:-3;
+z-index:-5;
 }
 
+/* ========================= */
 /* PARTICLES */
+/* ========================= */
 
 .stars{
 
 position:fixed;
 inset:0;
 overflow:hidden;
-z-index:-2;
+z-index:-3;
 }
 
 .stars span{
 
 position:absolute;
+
 width:2px;
 height:2px;
+
 background:#ffc400;
+
 border-radius:50%;
-animation:float 10s linear infinite;
-opacity:.8;
+
+animation:float 12s linear infinite;
 }
 
 @keyframes float{
@@ -91,9 +108,10 @@ opacity:1;
 }
 
 100%{
-transform:translateY(-100px);
+transform:translateY(-120px);
 opacity:0;
 }
+
 }
 
 /* ========================= */
@@ -118,20 +136,23 @@ width:100%;
 max-width:390px;
 height:100%;
 
-border-radius:28px;
+border-radius:30px;
 
 padding:14px;
 
 background:
-linear-gradient(180deg,
-rgba(3,10,24,.95),
-rgba(1,6,15,.96));
+linear-gradient(
+180deg,
+rgba(3,10,24,.96),
+rgba(1,6,15,.98)
+);
 
-border:1px solid rgba(0,255,255,.15);
+border:
+1px solid rgba(0,255,255,.12);
 
 box-shadow:
 0 0 30px rgba(0,0,0,.8),
-0 0 60px rgba(0,140,255,.12);
+0 0 80px rgba(0,140,255,.1);
 
 display:flex;
 flex-direction:column;
@@ -163,9 +184,9 @@ letter-spacing:3px;
 
 .online{
 
-color:#00ff99;
 font-size:12px;
 font-weight:700;
+color:#00ff99;
 }
 
 /* ========================= */
@@ -175,15 +196,14 @@ font-weight:700;
 .center{
 
 text-align:center;
-position:relative;
 }
 
 .coin-ring{
 
-width:110px;
-height:110px;
+width:115px;
+height:115px;
 
-margin:0 auto;
+margin:auto;
 
 border-radius:50%;
 
@@ -192,15 +212,17 @@ justify-content:center;
 align-items:center;
 
 background:
-radial-gradient(circle,
+radial-gradient(
+circle,
 rgba(255,187,0,.25),
-transparent 70%);
+transparent 70%
+);
 
 box-shadow:
 0 0 30px rgba(255,191,0,.6),
-0 0 70px rgba(255,191,0,.2);
+0 0 80px rgba(255,191,0,.2);
 
-animation:ring 4s linear infinite;
+animation:ring 5s linear infinite;
 }
 
 @keyframes ring{
@@ -212,45 +234,50 @@ transform:rotate(0deg);
 100%{
 transform:rotate(360deg);
 }
+
 }
 
 .coin-ring img{
 
-width:70px;
-height:70px;
+width:72px;
+height:72px;
 object-fit:contain;
 }
 
 .balance-title{
 
-margin-top:8px;
+margin-top:10px;
+
 font-size:11px;
 letter-spacing:2px;
-color:#bbb;
+
+color:#9ca3af;
 }
 
 .balance{
 
-font-size:58px;
+font-size:56px;
 font-weight:900;
-color:#ffcc33;
+
 font-family:monospace;
 
+color:#ffcc33;
+
 text-shadow:
-0 0 10px rgba(255,204,0,.8),
-0 0 30px rgba(255,204,0,.5);
+0 0 10px rgba(255,204,0,.7),
+0 0 30px rgba(255,204,0,.4);
 }
 
 .balance span{
 
-font-size:26px;
+font-size:24px;
 }
 
 .active-status{
 
-margin-top:5px;
+margin-top:6px;
 
-font-size:18px;
+font-size:17px;
 font-weight:700;
 
 color:#00ff99;
@@ -267,10 +294,11 @@ opacity:1;
 50%{
 opacity:.4;
 }
+
 }
 
 /* ========================= */
-/* CARDS */
+/* GRID */
 /* ========================= */
 
 .grid{
@@ -279,22 +307,26 @@ display:grid;
 grid-template-columns:1fr 1fr;
 gap:8px;
 
-margin-top:10px;
+margin-top:12px;
 }
 
 .card{
 
-background:
-linear-gradient(180deg,
-rgba(0,18,40,.95),
-rgba(0,10,20,.95));
+height:72px;
 
-border:1px solid rgba(0,255,255,.14);
+padding:10px;
 
 border-radius:18px;
 
-padding:10px;
-height:74px;
+background:
+linear-gradient(
+180deg,
+rgba(0,18,40,.95),
+rgba(0,10,20,.95)
+);
+
+border:
+1px solid rgba(0,255,255,.14);
 
 display:flex;
 flex-direction:column;
@@ -321,22 +353,25 @@ color:#ffc400;
 
 .graph-box{
 
-margin-top:10px;
-
 height:120px;
+
+margin-top:10px;
 
 border-radius:20px;
 
-background:
-linear-gradient(180deg,
-rgba(0,0,0,.45),
-rgba(0,10,20,.9));
-
-border:1px solid rgba(255,191,0,.18);
+overflow:hidden;
 
 position:relative;
 
-overflow:hidden;
+background:
+linear-gradient(
+180deg,
+rgba(0,0,0,.45),
+rgba(0,10,20,.9)
+);
+
+border:
+1px solid rgba(255,191,0,.15);
 }
 
 svg{
@@ -349,12 +384,16 @@ height:100%;
 .graph-line{
 
 fill:none;
+
 stroke:#ffcc33;
 stroke-width:4;
+
 stroke-linecap:round;
 stroke-linejoin:round;
 
-filter:drop-shadow(0 0 10px #ffcc33);
+filter:drop-shadow(
+0 0 10px #ffcc33
+);
 
 stroke-dasharray:1000;
 stroke-dashoffset:1000;
@@ -367,6 +406,7 @@ animation:draw 4s linear infinite;
 to{
 stroke-dashoffset:0;
 }
+
 }
 
 /* ========================= */
@@ -407,33 +447,41 @@ transform:scale(.96);
 .stop-btn{
 
 background:
-linear-gradient(135deg,
+linear-gradient(
+135deg,
 #ff4d4d,
-#5f1010);
+#5f1010
+);
 }
 
 .claim-btn{
 
 background:
-linear-gradient(135deg,
+linear-gradient(
+135deg,
 #00ff99,
-#065f46);
+#065f46
+);
 }
 
 .web3-btn{
 
 background:
-linear-gradient(135deg,
+linear-gradient(
+135deg,
 #8b5cf6,
-#4c1d95);
+#4c1d95
+);
 }
 
 .add-btn{
 
 background:
-linear-gradient(135deg,
+linear-gradient(
+135deg,
 #00c3ff,
-#0047ab);
+#0047ab
+);
 }
 
 /* ========================= */
@@ -448,9 +496,11 @@ padding:10px;
 
 border-radius:14px;
 
-border:1px solid rgba(255,255,255,.08);
+background:
+rgba(255,255,255,.03);
 
-background:rgba(255,255,255,.03);
+border:
+1px solid rgba(255,255,255,.08);
 
 font-size:12px;
 
@@ -485,11 +535,14 @@ padding:25px;
 border-radius:24px;
 
 background:
-linear-gradient(180deg,
+linear-gradient(
+180deg,
 rgba(0,10,20,.96),
-rgba(0,0,0,.96));
+rgba(0,0,0,.96)
+);
 
-border:1px solid rgba(255,191,0,.25);
+border:
+1px solid rgba(255,191,0,.2);
 
 text-align:center;
 }
@@ -515,6 +568,7 @@ padding:0 14px;
 border-radius:12px;
 
 background:#07111d;
+
 color:#fff;
 }
 
@@ -526,13 +580,15 @@ height:50px;
 border:none;
 border-radius:14px;
 
-background:
-linear-gradient(135deg,
-#ffcc33,
-#ff9900);
-
-font-weight:800;
 font-size:14px;
+font-weight:800;
+
+background:
+linear-gradient(
+135deg,
+#ffcc33,
+#ff9900
+);
 }
 
 /* ========================= */
@@ -550,7 +606,7 @@ height:100px;
 }
 
 .card{
-height:68px;
+height:66px;
 }
 
 .action-btn{
@@ -564,25 +620,33 @@ height:44px;
 
 <body>
 
+<!-- PARTICLES -->
+
 <div class="stars">
+
 <span style="left:10%;animation-delay:0s"></span>
-<span style="left:20%;animation-delay:2s"></span>
-<span style="left:30%;animation-delay:1s"></span>
-<span style="left:40%;animation-delay:4s"></span>
-<span style="left:50%;animation-delay:3s"></span>
+<span style="left:20%;animation-delay:1s"></span>
+<span style="left:30%;animation-delay:2s"></span>
+<span style="left:40%;animation-delay:3s"></span>
+<span style="left:50%;animation-delay:4s"></span>
 <span style="left:60%;animation-delay:5s"></span>
-<span style="left:70%;animation-delay:2s"></span>
-<span style="left:80%;animation-delay:6s"></span>
-<span style="left:90%;animation-delay:1s"></span>
+<span style="left:70%;animation-delay:6s"></span>
+<span style="left:80%;animation-delay:7s"></span>
+<span style="left:90%;animation-delay:8s"></span>
+
 </div>
 
 <!-- LOGIN -->
 
-<div id="loginSection" class="login">
+<div
+id="loginSection"
+class="login">
 
 <div class="login-box">
 
-<h2>TVET ENERGY MINING</h2>
+<h2>
+TVET ENERGY MINING
+</h2>
 
 <input
 type="text"
@@ -605,7 +669,6 @@ ENTER SYSTEM
 </button>
 
 </div>
-
 </div>
 
 <!-- APP -->
@@ -638,7 +701,8 @@ ONLINE ●
 
 <div class="coin-ring">
 
-<img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png">
+<img
+src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png">
 
 </div>
 
@@ -659,13 +723,13 @@ id="balanceDisplay">
 
 <div class="active-status">
 
-● CARBON CREDIT ACTIVE
+● MINING PAUSED
 
 </div>
 
 </div>
 
-<!-- CARDS -->
+<!-- GRID -->
 
 <div class="grid">
 
@@ -705,7 +769,7 @@ HASH RATE
 
 <div class="card-title">
 
-POWER
+MINING SPEED
 
 </div>
 
@@ -748,15 +812,15 @@ class="graph-line"
 
 d="
 M10 100
-L50 80
-L90 85
-L130 60
-L170 40
+L50 90
+L90 95
+L130 70
+L170 55
 L210 45
 L250 48
-L290 25
-L330 10
-L390 18
+L290 30
+L330 12
+L390 20
 "/>
 
 </svg>
@@ -768,16 +832,16 @@ L390 18
 <div class="bottom-buttons">
 
 <button
-class="action-btn stop-btn"
+class="action-btn claim-btn"
 id="mineBtn"
 onclick="toggleMining()">
 
-STOP MINING
+START MINING
 
 </button>
 
 <button
-class="action-btn claim-btn"
+class="action-btn stop-btn"
 onclick="claimReward()">
 
 CLAIM TVE
@@ -927,7 +991,7 @@ updateBalance();
 }
 
 /* ============================= */
-/* UPDATE UI */
+/* UPDATE BALANCE */
 /* ============================= */
 
 function updateBalance(){
@@ -999,7 +1063,7 @@ btn.innerText =
 "START MINING";
 
 btn.className =
-"action-btn add-btn";
+"action-btn claim-btn";
 
 active.innerHTML =
 "● MINING PAUSED";
@@ -1054,36 +1118,147 @@ address.substring(38);
 }
 
 /* ============================= */
-/* CLAIM */
+/* CLAIM REAL */
 /* ============================= */
 
-async function claimReward(){
+async function claimReward() {
 
-if(balance <= 0){
+    if (balance <= 0) {
 
-alert(
-"No TVE"
-);
+        alert("ไม่มีเหรียญให้เคลม");
 
-return;
-}
+        return;
+    }
 
-alert(
-"Claim Success"
-);
+    try {
 
-balance = 0;
+        if (!window.ethereum) {
 
-updateBalance();
+            alert("ไม่พบ MetaMask");
 
-localStorage.setItem(
+            return;
+        }
 
-"tvet_balance_" + user,
+        const provider =
+        new ethers.BrowserProvider(
+            window.ethereum
+        );
 
-0
+        const signer =
+        await provider.getSigner();
 
-);
+        const userAddress =
+        await signer.getAddress();
 
+        const network =
+        await provider.getNetwork();
+
+        if (Number(network.chainId) !== 137) {
+
+            alert(
+            "กรุณาเปลี่ยนเป็น Polygon Mainnet"
+            );
+
+            return;
+        }
+
+        const amountToClaim =
+        ethers.parseUnits(
+            balance.toFixed(4),
+            18
+        );
+
+        alert(
+        "กำลังสร้างลายเซ็น..."
+        );
+
+        const response =
+        await fetch(
+
+        "https://tvet-mining.vercel.app/api/get-signature",
+
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+                userAddress,
+
+                amount:
+                amountToClaim.toString()
+            })
+        });
+
+        const data =
+        await response.json();
+
+        if(!data.signature){
+
+            throw new Error(
+            "ไม่ได้ Signature"
+            );
+        }
+
+        const contract =
+        new ethers.Contract(
+
+        "0xd77887dB74B319276B27446AB43A161B250EC6B5",
+
+        [
+        "function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"
+        ],
+
+        signer
+        );
+
+        alert(
+        "กรุณากด Confirm ใน MetaMask"
+        );
+
+        const tx =
+        await contract.claimTokens(
+
+            amountToClaim,
+
+            data.signature
+        );
+
+        alert(
+        "กำลังรอ Blockchain Confirm..."
+        );
+
+        await tx.wait();
+
+        alert(
+        "โอนเหรียญสำเร็จ"
+        );
+
+        balance = 0;
+
+        updateBalance();
+
+        localStorage.setItem(
+
+            "tvet_balance_" + user,
+
+            0
+        );
+
+    } catch(err){
+
+        console.error(err);
+
+        alert(
+        "ERROR:\n" +
+        err.message
+        );
+    }
 }
 
 /* ============================= */
