@@ -1,599 +1,1354 @@
-# TVET Futuristic Mining Dashboard (Complete Demo)
-
-```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>TVET NODE-07</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
+/* ============================= */
+/* RESET */
+/* ============================= */
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
 html,body{
-width:100%;
-height:100%;
-overflow-x:hidden;
-font-family:'Segoe UI',sans-serif;
-background:#000;
-color:#fff;
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    font-family:'Segoe UI',sans-serif;
+
+    background:#000;
+
+    color:#fff;
 }
 
+/* ============================= */
+/* BACKGROUND */
+/* ============================= */
+
 body{
-background:
-radial-gradient(circle at top,#07111f 0%,#030712 45%,#000 100%);
+
+    background:
+    radial-gradient(circle at top,
+    #06111f 0%,
+    #020712 50%,
+    #000000 100%);
+
+    position:relative;
 }
 
 body::before{
-content:'';
-position:fixed;
-inset:0;
-background:
-radial-gradient(circle at center,
-rgba(0,255,255,0.08),
-transparent 60%);
-animation:pulseBg 6s infinite;
-z-index:0;
+
+    content:'';
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+    radial-gradient(circle at center,
+    rgba(0,255,255,0.08),
+    transparent 60%);
+
+    animation:bgPulse 5s infinite;
+
+    z-index:0;
 }
 
-@keyframes pulseBg{
-0%{opacity:0.4;transform:scale(1);}
-50%{opacity:0.8;transform:scale(1.1);}
-100%{opacity:0.4;transform:scale(1);}
+@keyframes bgPulse{
+
+    50%{
+        transform:scale(1.08);
+        opacity:0.8;
+    }
 }
 
-body::after{
-content:'';
-position:fixed;
-inset:0;
-background-image:
-linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-background-size:45px 45px;
-animation:gridMove 18s linear infinite;
-z-index:0;
-}
-
-@keyframes gridMove{
-from{transform:translateY(0);}
-to{transform:translateY(45px);}
-}
-
-#bg3d{
-position:fixed;
-inset:0;
-z-index:1;
-pointer-events:none;
-opacity:0.4;
-}
+/* ============================= */
+/* PARTICLES */
+/* ============================= */
 
 .cyber-particle{
-position:fixed;
-width:3px;
-height:3px;
-background:#fbbf24;
-border-radius:50%;
-box-shadow:0 0 10px #fbbf24;
-animation:floatParticle linear infinite;
-z-index:2;
+
+    position:absolute;
+
+    width:2px;
+    height:2px;
+
+    background:#fbbf24;
+
+    border-radius:50%;
+
+    box-shadow:
+    0 0 10px #fbbf24;
+
+    animation:particleFloat linear infinite;
+
+    z-index:1;
 }
 
-@keyframes floatParticle{
-from{transform:translateY(100vh);opacity:0;}
-20%{opacity:1;}
-to{transform:translateY(-100vh);opacity:0;}
+@keyframes particleFloat{
+
+    from{
+        transform:translateY(100vh);
+        opacity:0;
+    }
+
+    20%{
+        opacity:1;
+    }
+
+    to{
+        transform:translateY(-100vh);
+        opacity:0;
+    }
 }
+
+/* ============================= */
+/* APP */
+/* ============================= */
 
 .app-container{
-position:relative;
-z-index:5;
-width:100%;
-max-width:430px;
-margin:auto;
-min-height:100vh;
-padding:16px;
+
+    position:relative;
+
+    z-index:5;
+
+    width:100%;
+    max-width:430px;
+
+    height:100vh;
+
+    margin:auto;
+
+    padding:14px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    overflow:hidden;
 }
 
+/* ============================= */
+/* LOGIN */
+/* ============================= */
+
+.login-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+    rgba(0,0,0,0.92);
+
+    z-index:9999;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+}
+
+.login-box{
+
+    width:100%;
+
+    max-width:340px;
+
+    padding:25px;
+
+    border-radius:25px;
+
+    background:
+    rgba(8,15,25,0.95);
+
+    border:
+    1px solid rgba(251,191,36,0.25);
+
+    box-shadow:
+    0 0 35px rgba(251,191,36,0.15);
+
+    text-align:center;
+}
+
+.login-title{
+
+    font-size:24px;
+
+    font-weight:900;
+
+    letter-spacing:2px;
+
+    color:#fbbf24;
+
+    margin-bottom:18px;
+}
+
+.input-field{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:14px;
+
+    background:
+    rgba(255,255,255,0.06);
+
+    color:#fff;
+
+    margin-bottom:12px;
+
+    font-size:14px;
+}
+
+.btn-login{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:
+    linear-gradient(135deg,#fbbf24,#d97706);
+
+    font-weight:800;
+
+    cursor:pointer;
+}
+
+/* ============================= */
+/* HEADER */
+/* ============================= */
+
 .top-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-top:10px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
 }
 
 .node-title{
-font-size:20px;
-font-weight:900;
-letter-spacing:3px;
+
+    font-size:18px;
+
+    font-weight:900;
+
+    letter-spacing:3px;
 }
 
 .node-sub{
-color:#fbbf24;
-font-size:11px;
-letter-spacing:2px;
-margin-top:4px;
+
+    color:#fbbf24;
+
+    font-size:10px;
+
+    letter-spacing:2px;
+
+    margin-top:4px;
 }
 
 .online-status{
-color:#00ff99;
-font-weight:bold;
-font-size:14px;
+
+    color:#00ff99;
+
+    font-weight:bold;
+
+    font-size:13px;
 }
 
+/* ============================= */
+/* REACTOR */
+/* ============================= */
+
 .reactor-wrap{
-position:relative;
-width:100%;
-height:240px;
-display:flex;
-align-items:center;
-justify-content:center;
-margin-top:20px;
+
+    position:relative;
+
+    width:100%;
+
+    height:170px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 }
 
 .reactor-ring{
-position:absolute;
-width:230px;
-height:230px;
-border-radius:50%;
-border:2px solid rgba(251,191,36,0.7);
-box-shadow:
-0 0 30px rgba(251,191,36,0.5),
-inset 0 0 50px rgba(251,191,36,0.2);
-animation:ringRotate 12s linear infinite;
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    border-radius:50%;
+
+    border:
+    2px solid rgba(251,191,36,0.8);
+
+    box-shadow:
+    0 0 35px rgba(251,191,36,0.5),
+    inset 0 0 25px rgba(251,191,36,0.2);
+
+    animation:ringRotate 12s linear infinite;
 }
 
 .reactor-ring::before{
-content:'';
-position:absolute;
-inset:18px;
-border-radius:50%;
-border:1px solid rgba(0,255,255,0.3);
+
+    content:'';
+
+    position:absolute;
+
+    inset:12px;
+
+    border-radius:50%;
+
+    border:
+    1px solid rgba(0,255,255,0.25);
 }
 
 @keyframes ringRotate{
-from{transform:rotate(0deg);}
-to{transform:rotate(360deg);}
+
+    from{
+        transform:rotate(0deg);
+    }
+
+    to{
+        transform:rotate(360deg);
+    }
 }
 
-.reactor-logo{
-width:120px;
-height:120px;
-border-radius:50%;
-box-shadow:0 0 30px rgba(251,191,36,0.8);
-z-index:3;
+.logo-img{
+
+    width:95px;
+    height:95px;
+
+    z-index:2;
+
+    border-radius:50%;
+
+    box-shadow:
+    0 0 30px rgba(251,191,36,0.6);
 }
+
+/* ============================= */
+/* BALANCE */
+/* ============================= */
 
 .balance-area{
-text-align:center;
-margin-top:10px;
+
+    text-align:center;
 }
 
 .balance-title{
-font-size:13px;
-letter-spacing:2px;
-color:#cbd5e1;
+
+    font-size:11px;
+
+    color:#94a3b8;
+
+    letter-spacing:2px;
 }
 
 .balance-value{
-font-size:70px;
-font-weight:900;
-color:#fbbf24;
-text-shadow:
-0 0 10px #fbbf24,
-0 0 30px #fbbf24,
-0 0 60px rgba(251,191,36,0.5);
-animation:pulseBalance 2s infinite;
-}
 
-@keyframes pulseBalance{
-50%{transform:scale(1.03);}
-}
+    font-size:58px;
 
-.balance-unit{
-font-size:28px;
+    font-weight:900;
+
+    color:#fbbf24;
+
+    text-shadow:
+    0 0 15px #fbbf24,
+    0 0 35px rgba(251,191,36,0.6);
+
+    font-family:monospace;
 }
 
 .active-status{
-color:#00ff99;
-font-size:22px;
-margin-top:6px;
-animation:blink 1s infinite;
+
+    margin-top:6px;
+
+    color:#00ff99;
+
+    font-size:18px;
+
+    animation:blink 1s infinite;
 }
 
 @keyframes blink{
-50%{opacity:0.5;}
+
+    50%{
+        opacity:0.5;
+    }
 }
 
+/* ============================= */
+/* GRID */
+/* ============================= */
+
 .dashboard-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
-margin-top:24px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+    margin-top:10px;
 }
 
 .stat-card{
-background:rgba(7,17,31,0.75);
-border:1px solid rgba(0,255,255,0.15);
-border-radius:20px;
-padding:18px;
-backdrop-filter:blur(12px);
-box-shadow:
-0 0 20px rgba(0,255,255,0.05),
-inset 0 0 20px rgba(255,255,255,0.03);
+
+    background:
+    rgba(5,15,25,0.65);
+
+    border:
+    1px solid rgba(0,255,255,0.12);
+
+    border-radius:18px;
+
+    padding:12px;
+
+    backdrop-filter:blur(10px);
 }
 
 .stat-label{
-font-size:11px;
-letter-spacing:1px;
-color:#94a3b8;
+
+    color:#94a3b8;
+
+    font-size:10px;
 }
 
 .stat-value{
-margin-top:10px;
-font-size:28px;
-font-weight:800;
-color:#fbbf24;
+
+    margin-top:7px;
+
+    font-size:22px;
+
+    font-weight:800;
+
+    color:#fbbf24;
 }
 
-.graph-box,
-.ai-log{
-margin-top:24px;
-background:rgba(0,0,0,0.35);
-border-radius:22px;
-padding:16px;
-border:1px solid rgba(251,191,36,0.15);
+/* ============================= */
+/* GRAPH */
+/* ============================= */
+
+.graph-box{
+
+    margin-top:10px;
+
+    height:140px;
+
+    background:
+    rgba(0,0,0,0.35);
+
+    border-radius:20px;
+
+    border:
+    1px solid rgba(251,191,36,0.15);
+
+    padding:10px;
 }
 
-.ai-title{
-font-size:18px;
-margin-bottom:12px;
-}
-
-.ai-line{
-color:#00ff99;
-font-size:13px;
-margin-bottom:6px;
-}
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
 
 .btn-group{
-display:flex;
-gap:10px;
-margin-top:24px;
+
+    display:flex;
+
+    gap:8px;
+
+    margin-top:10px;
 }
 
 .btn{
-flex:1;
-padding:16px 10px;
-border:none;
-border-radius:18px;
-font-weight:700;
-color:#fff;
-cursor:pointer;
-transition:0.3s;
+
+    flex:1;
+
+    border:none;
+
+    border-radius:16px;
+
+    padding:14px 8px;
+
+    color:#fff;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    cursor:pointer;
 }
 
-.btn:hover{
-transform:translateY(-2px);
+.btn-primary{
+
+    background:
+    linear-gradient(135deg,#00d084,#065f46);
 }
 
-.btn-red{
-background:linear-gradient(135deg,#ff3d3d,#7f1d1d);
+.btn-stop{
+
+    background:
+    linear-gradient(135deg,#ff3d3d,#7f1d1d);
 }
 
-.btn-green{
-background:linear-gradient(135deg,#00d084,#065f46);
+.btn-web3{
+
+    background:
+    linear-gradient(135deg,#9333ea,#4c1d95);
 }
 
-.btn-purple{
-background:linear-gradient(135deg,#9333ea,#4c1d95);
+.btn-claim{
+
+    background:
+    linear-gradient(135deg,#00b7ff,#0044ff);
 }
+
+/* ============================= */
+/* WALLET */
+/* ============================= */
 
 .wallet-box{
-margin-top:20px;
-text-align:center;
-font-size:14px;
-color:#fbbf24;
-word-break:break-all;
+
+    margin-top:10px;
+
+    text-align:center;
+
+    color:#fbbf24;
+
+    font-size:12px;
+
+    word-break:break-all;
 }
 
-@media(max-width:480px){
-.balance-value{font-size:56px;}
-.btn-group{flex-direction:column;}
+.token-box{
+
+    margin-top:8px;
+
+    padding:10px;
+
+    border-radius:14px;
+
+    border:
+    1px solid rgba(251,191,36,0.2);
+
+    background:
+    rgba(255,255,255,0.04);
+
+    font-size:11px;
 }
 
 </style>
 </head>
+
 <body>
 
-<div id="bg3d"></div>
+<!-- LOGIN -->
+
+<div id="loginSection" class="login-overlay">
+
+    <div class="login-box">
+
+        <div class="login-title">
+            TVET ENERGY MINING
+        </div>
+
+        <input
+        type="text"
+        id="userInput"
+        class="input-field"
+        placeholder="Username">
+
+        <input
+        type="password"
+        id="passInput"
+        class="input-field"
+        placeholder="Password">
+
+        <button
+        class="btn-login"
+        onclick="loginAction()">
+
+            ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- APP -->
 
 <div class="app-container">
 
-<div class="top-header">
-<div>
-<div class="node-title">TVET NODE-07</div>
-<div class="node-sub">DEEP TECH MINING SYSTEM</div>
-</div>
-<div class="online-status">ONLINE ●</div>
-</div>
+    <!-- HEADER -->
 
-<div class="reactor-wrap">
-<div class="reactor-ring"></div>
-<img class="reactor-logo" src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png">
-</div>
+    <div class="top-header">
 
-<div class="balance-area">
-<div class="balance-title">LIVE TVE BALANCE</div>
-<div class="balance-value" id="balanceDisplay">
-0.2370 <span class="balance-unit">TVE</span>
-</div>
-<div class="active-status">● CARBON CREDIT ACTIVE</div>
-</div>
+        <div>
 
-<div class="dashboard-grid">
+            <div class="node-title">
+                TVET NODE-07
+            </div>
 
-<div class="stat-card">
-<div class="stat-label">EFFICIENCY</div>
-<div class="stat-value">97.5%</div>
-</div>
+            <div class="node-sub">
+                DEEP TECH MINING SYSTEM
+            </div>
 
-<div class="stat-card">
-<div class="stat-label">HASH RATE</div>
-<div class="stat-value">132 TH/s</div>
-</div>
+        </div>
 
-<div class="stat-card">
-<div class="stat-label">POWER</div>
-<div class="stat-value" id="rateDisplay">0.0100 TVE/s</div>
-</div>
+        <div class="online-status">
+            ONLINE ●
+        </div>
 
-<div class="stat-card">
-<div class="stat-label">DIFFICULTY</div>
-<div class="stat-value">PHASE 1</div>
-</div>
+    </div>
 
-</div>
+    <!-- REACTOR -->
 
-<div class="graph-box">
-<canvas id="miningChart"></canvas>
-</div>
+    <div class="reactor-wrap">
 
-<div class="ai-log">
-<div class="ai-title">AI SYSTEM LOG</div>
-<div class="ai-line">[AI] Block validated</div>
-<div class="ai-line">[NETWORK] Connection stable</div>
-<div class="ai-line">[MINING] Reward +0.0100 TVE</div>
-<div class="ai-line">[WALLET] Ready to claim</div>
-</div>
+        <div class="reactor-ring"></div>
 
-<div class="btn-group">
-<button class="btn btn-red" id="mineBtn" onclick="toggleMining()">STOP MINING</button>
-<button class="btn btn-green" onclick="claimReward()">CLAIM TVE</button>
-<button class="btn btn-purple" onclick="connectWallet()">CONNECT WEB3</button>
-</div>
+        <img
+        src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png"
+        class="logo-img">
 
-<div class="wallet-box" id="walletDisplay">
-Wallet : NOT CONNECTED
-</div>
+    </div>
+
+    <!-- BALANCE -->
+
+    <div class="balance-area">
+
+        <div class="balance-title">
+            LIVE TVE BALANCE
+        </div>
+
+        <div
+        class="balance-value"
+        id="balanceDisplay">
+
+            0.0000
+
+        </div>
+
+        <div
+        class="active-status"
+        id="miningStatus">
+
+            ● CARBON CREDIT ACTIVE
+
+        </div>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="dashboard-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                EFFICIENCY
+            </div>
+
+            <div class="stat-value">
+                97.5%
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                HASH RATE
+            </div>
+
+            <div class="stat-value">
+                132 TH/s
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                POWER
+            </div>
+
+            <div
+            class="stat-value"
+            id="rateDisplay">
+
+                0.0000 TVE/s
+
+            </div>
+
+        </div>
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                DIFFICULTY
+            </div>
+
+            <div
+            class="stat-value"
+            id="diffDisplay">
+
+                PHASE 1
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GRAPH -->
+
+    <div class="graph-box">
+
+        <canvas id="miningChart"></canvas>
+
+    </div>
+
+    <!-- BUTTONS -->
+
+    <div class="btn-group">
+
+        <button
+        class="btn btn-primary"
+        id="mineBtn"
+        onclick="toggleMining()">
+
+            START MINING
+
+        </button>
+
+        <button
+        class="btn btn-web3"
+        onclick="connWallet()">
+
+            CONNECT WEB3
+
+        </button>
+
+        <button
+        class="btn btn-claim"
+        onclick="claimReward()">
+
+            CLAIM TVE
+
+        </button>
+
+    </div>
+
+    <!-- WALLET -->
+
+    <div
+    class="wallet-box"
+    id="walletAddress">
+
+        ยังไม่ได้เชื่อมต่อกระเป๋า
+
+    </div>
+
+    <!-- TOKEN -->
+
+    <div class="token-box">
+
+        CONTRACT:
+        0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7
+
+    </div>
 
 </div>
 
 <script>
 
+/* ============================= */
 /* PARTICLES */
+/* ============================= */
 
-for(let i=0;i<70;i++){
-const p=document.createElement('div');
-p.className='cyber-particle';
-p.style.left=Math.random()*100+'vw';
-p.style.animationDuration=(5+Math.random()*10)+'s';
-p.style.opacity=Math.random();
-document.body.appendChild(p);
+for(let i=0;i<50;i++){
+
+    const p =
+    document.createElement('div');
+
+    p.className =
+    'cyber-particle';
+
+    p.style.left =
+    Math.random()*100 + 'vw';
+
+    p.style.animationDuration =
+    (5 + Math.random()*10) + 's';
+
+    p.style.opacity =
+    Math.random();
+
+    document.body.appendChild(p);
 }
 
-/* THREE JS */
+/* ============================= */
+/* CHART */
+/* ============================= */
 
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-document.getElementById('bg3d').appendChild(renderer.domElement);
+const ctx =
+document.getElementById(
+'miningChart'
+);
 
-const geometry=new THREE.TorusGeometry(5,0.15,16,100);
-const material=new THREE.MeshBasicMaterial({
-color:0xfbbf24,
-wireframe:true
+let graphData = [
+0.10,
+0.22,
+0.18,
+0.40,
+0.25,
+0.55,
+0.48,
+0.82,
+0.74,
+0.96,
+1.05
+];
+
+const chart =
+new Chart(ctx,{
+
+    type:'line',
+
+    data:{
+
+        labels:[
+        '','','','','','','','','','',''
+        ],
+
+        datasets:[{
+
+            data:graphData,
+
+            borderColor:'#fbbf24',
+
+            borderWidth:4,
+
+            tension:0.45,
+
+            fill:true,
+
+            backgroundColor:
+            'rgba(251,191,36,0.08)',
+
+            pointRadius:3,
+
+            pointBackgroundColor:'#fbbf24'
+        }]
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false,
+
+        plugins:{
+            legend:{
+                display:false
+            }
+        },
+
+        scales:{
+
+            y:{
+                display:false
+            },
+
+            x:{
+                display:false
+            }
+        }
+    }
 });
 
-const torus=new THREE.Mesh(geometry,material);
-scene.add(torus);
-
-camera.position.z=12;
-
-function animate(){
-requestAnimationFrame(animate);
-torus.rotation.x+=0.002;
-torus.rotation.y+=0.004;
-renderer.render(scene,camera);
-}
-
-animate();
-
-/* GRAPH */
-
-const ctx=document.getElementById('miningChart');
-
-let graphData=[0.10,0.25,0.22,0.40,0.18,0.52,0.50,0.85,0.78,0.90,1.05,1.18];
-
-const chart=new Chart(ctx,{
-
-type:'line',
-
-data:{
-labels:['','','','','','','','','','','',''],
-datasets:[{
-data:graphData,
-borderColor:'#fbbf24',
-borderWidth:4,
-tension:0.5,
-fill:true,
-backgroundColor:'rgba(251,191,36,0.10)',
-pointRadius:5,
-pointBackgroundColor:'#fbbf24',
-pointBorderColor:'#fff'
-}]
-},
-
-options:{
-responsive:true,
-plugins:{legend:{display:false}},
-scales:{
-y:{display:false},
-x:{display:false}
-}
-}
-});
+/* GRAPH ANIMATION */
 
 setInterval(()=>{
 
-graphData.shift();
+    graphData.shift();
 
-let last=graphData[graphData.length-1];
-let next=last+(Math.random()*0.25-0.05);
+    let last =
+    graphData[
+    graphData.length-1
+    ];
 
-if(next<0.2){next=0.2;}
+    let next =
+    last + (
+    Math.random()*0.18 - 0.03
+    );
 
-graphData.push(next);
-chart.update();
+    if(next < 0.2){
 
-},1500);
+        next = 0.2;
+    }
 
-/* MINING SYSTEM */
+    graphData.push(next);
 
-let mining=true;
-let balance=0.2370;
-let miningRate=0.0100;
+    chart.update();
 
-const balanceDisplay=document.getElementById('balanceDisplay');
-const activeStatus=document.querySelector('.active-status');
-const mineBtn=document.getElementById('mineBtn');
+},1200);
 
-function updateBalance(){
+/* ============================= */
+/* ORIGINAL LOGIC */
+/* ============================= */
 
-balanceDisplay.innerHTML=
+let user = null,
+bR = 0,
+bal = 0,
+intV = null;
 
-balance.toFixed(4)
-+
-' <span class="balance-unit">TVE</span>';
+var DB = {
+
+    "tvetech":{
+        pass:"tve2026",
+        rate:0.0100
+    },
+
+    "tve001":{
+        pass:"power999",
+        rate:0.0020
+    },
+
+    "varunya":{
+        pass:"tve789",
+        rate:0.0050
+    },
+
+    "สมาชิกใหม่1":{
+        pass:"รหัสผ่าน123",
+        rate:0.0010
+    },
+
+    "สมาชิกใหม่2":{
+        pass:"รหัสผ่าน456",
+        rate:0.0030
+    }
+};
+
+function loginAction(){
+
+    let u =
+    document
+    .getElementById(
+    "userInput"
+    )
+    .value
+    .trim()
+    .toLowerCase();
+
+    let p =
+    document
+    .getElementById(
+    "passInput"
+    )
+    .value
+    .trim();
+
+    if(
+    DB[u]
+    &&
+    DB[u].pass === p
+    ){
+
+        user = u;
+
+        bR =
+        DB[u].rate;
+
+        document
+        .getElementById(
+        "loginSection"
+        )
+        .style.display =
+        "none";
+
+        document
+        .getElementById(
+        "rateDisplay"
+        )
+        .innerText =
+
+        bR.toFixed(4)
+
+        +
+
+        " TVE/s";
+
+        loadBal();
+
+        fetchChain();
+
+    }else{
+
+        alert(
+        "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
+        );
+    }
 }
 
-setInterval(()=>{
+function loadBal(){
 
-if(mining){
+    bal = parseFloat(
 
-balance+=miningRate;
-updateBalance();
+    localStorage.getItem(
+    "tvet_user_bal_" + user
+    )
+
+    || 0
+
+    );
+
+    document
+    .getElementById(
+    "balanceDisplay"
+    )
+    .innerText =
+
+    bal.toFixed(4);
 }
-
-},1000);
 
 function toggleMining(){
 
-mining=!mining;
+    const btn =
+    document.getElementById(
+    "mineBtn"
+    );
 
-if(mining){
+    const status =
+    document.getElementById(
+    "miningStatus"
+    );
 
-activeStatus.innerHTML='● CARBON CREDIT ACTIVE';
-activeStatus.style.color='#00ff99';
+    if(intV){
 
-mineBtn.innerText='STOP MINING';
+        clearInterval(intV);
 
-mineBtn.style.background=
-'linear-gradient(135deg,#ff3d3d,#7f1d1d)';
+        intV = null;
 
-}else{
+        btn.innerText =
+        "START MINING";
 
-activeStatus.innerHTML='● MINING PAUSED';
-activeStatus.style.color='#ff5555';
+        btn.className =
+        "btn btn-primary";
 
-mineBtn.innerText='START MINING';
+        status.innerHTML =
+        "● MINING PAUSED";
 
-mineBtn.style.background=
-'linear-gradient(135deg,#00d084,#065f46)';
+        status.style.color =
+        "#ff4444";
+
+    }else{
+
+        intV = setInterval(()=>{
+
+            bal += bR;
+
+            document
+            .getElementById(
+            "balanceDisplay"
+            )
+            .innerText =
+
+            bal.toFixed(4);
+
+            localStorage.setItem(
+            "tvet_user_bal_" + user,
+            bal
+            );
+
+        },1000);
+
+        btn.innerText =
+        "STOP MINING";
+
+        btn.className =
+        "btn btn-stop";
+
+        status.innerHTML =
+        "● CARBON CREDIT ACTIVE";
+
+        status.style.color =
+        "#00ff99";
+    }
 }
+
+async function connWallet(){
+
+    const p =
+    new ethers.BrowserProvider(
+    window.ethereum
+    );
+
+    const s =
+    await p.getSigner();
+
+    const a =
+    await s.getAddress();
+
+    document
+    .getElementById(
+    "walletAddress"
+    )
+    .innerText =
+
+    "Wallet : "
+
+    +
+
+    a.substring(0,6)
+
+    +
+
+    "..."
+
+    +
+
+    a.substring(38);
+
+    const g =
+    await p.getBalance(a);
+
+    console.log(g);
 }
-
-/* WALLET */
-
-async function connectWallet(){
-
-try{
-
-if(!window.ethereum){
-alert('กรุณาติดตั้ง MetaMask');
-return;
-}
-
-const provider=new ethers.BrowserProvider(window.ethereum);
-const signer=await provider.getSigner();
-const address=await signer.getAddress();
-
-window.userWallet=address;
-
-document.getElementById('walletDisplay').innerText=
-'Wallet : '+
-address.substring(0,6)+'...'+address.substring(address.length-4);
-
-}catch(err){
-console.log(err);
-alert('เชื่อมต่อกระเป๋าไม่สำเร็จ');
-}
-}
-
-/* CLAIM DEMO */
 
 async function claimReward(){
 
-if(balance<=0){
-alert('ไม่มี TVE ให้เคลม');
-return;
+    if(bal <= 0){
+
+        alert(
+        "ไม่มีเหรียญให้เคลม"
+        );
+
+        return;
+    }
+
+    const provider =
+    new ethers.BrowserProvider(
+    window.ethereum
+    );
+
+    const signer =
+    await provider.getSigner();
+
+    const userAddress =
+    await signer.getAddress();
+
+    try{
+
+        const amountToClaim =
+
+        ethers.parseUnits(
+        bal.toFixed(18),
+        18
+        );
+
+        alert(
+        "กำลังขอลายเซ็นอนุมัติ..."
+        );
+
+        const response =
+        await fetch(
+
+        "https://tvet-mining.vercel.app/api/get-signature",
+
+        {
+
+            method:"POST",
+
+            headers:{
+                'Content-Type':
+                'application/json'
+            },
+
+            body:JSON.stringify({
+
+                userAddress,
+
+                amount:
+                amountToClaim.toString()
+
+            })
+        });
+
+        const data =
+        await response.json();
+
+        if(!data.signature)
+
+        throw new Error(
+
+        data.error
+        ||
+        "ไม่ได้ลายเซ็น"
+
+        );
+
+        const contract =
+        new ethers.Contract(
+
+        "0xd77887dB74B319276B27446AB43A161B250EC6B5",
+
+        [
+
+        "function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"
+
+        ],
+
+        signer
+
+        );
+
+        alert(
+        "กำลังส่งธุรกรรม..."
+        );
+
+        const tx =
+        await contract.claimTokens(
+
+        amountToClaim,
+
+        data.signature
+
+        );
+
+        await tx.wait();
+
+        alert(
+        "โอนเหรียญสำเร็จ!"
+        );
+
+        bal = 0;
+
+        localStorage.setItem(
+
+        "tvet_user_bal_" + user,
+
+        0
+
+        );
+
+        document
+        .getElementById(
+        "balanceDisplay"
+        )
+        .innerText =
+
+        "0.0000";
+
+    }catch(err){
+
+        console.error(err);
+
+        alert(
+        "โอนล้มเหลว: "
+        +
+        err.message
+        );
+    }
 }
 
-if(!window.userWallet){
-alert('กรุณาเชื่อมต่อกระเป๋าก่อน');
-return;
-}
+async function fetchChain(){
 
-alert(
-'ระบบ DEMO: จำลองการเคลมสำเร็จ จำนวน '+
-balance.toFixed(4)+' TVE'
-);
+    try{
 
-balance=0;
-updateBalance();
+        const p =
+        new ethers.JsonRpcProvider(
+
+        "https://polygon-rpc-mainnet.public.blastapi.io"
+
+        );
+
+        const c =
+        new ethers.Contract(
+
+        "0x6caa0219a0ACb4d6E4eC76764691a3D4c2148648",
+
+        [
+
+        "function tveToken() external view returns (address)"
+
+        ],
+
+        p
+
+        );
+
+        const t =
+        new ethers.Contract(
+
+        await c.tveToken(),
+
+        [
+
+        "function totalSupply() external view returns (uint256)"
+
+        ],
+
+        p
+
+        );
+
+        const s =
+        parseFloat(
+
+        ethers.formatUnits(
+        await t.totalSupply(),
+        18
+        )
+
+        );
+
+        console.log(s);
+
+    }catch(e){}
 }
 
 </script>
 
 </body>
 </html>
-```
-
-หมายเหตุ:
-
-* เวอร์ชันนี้เป็น DEMO UI + Web3 connection
-* ปุ่มขุดทำงานจริงในหน้าเว็บ
-* กราฟเคลื่อนไหว realtime
-* เชื่อม MetaMask ได้
-* ส่วน claim เป็นระบบจำลอง ไม่ได้ mint token จริงบน blockchain
-* ถ้าจะโอน token จริง ต้องมี Smart Contract + Backend Signature API
