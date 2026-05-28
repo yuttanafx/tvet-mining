@@ -1,9 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
 <title>TVET NODE-07</title>
 
@@ -20,32 +21,68 @@
 }
 
 html,body{
+
     width:100%;
     height:100%;
-    overflow:hidden;
+
+    overflow-x:hidden;
+
     font-family:'Segoe UI',sans-serif;
+
     background:
     radial-gradient(circle at top,
-    #13203d 0%,
-    #090d16 40%,
-    #02040a 100%);
-    color:#fff;
+    #07111f 0%,
+    #02050b 45%,
+    #000000 100%);
+
+    color:white;
 }
 
-/* 3D BACKGROUND */
+/* ============================= */
+/* BACKGROUND */
+/* ============================= */
 
-#reactor3d{
+body::before{
+
+    content:'';
+
     position:fixed;
     inset:0;
+
+    background:
+    radial-gradient(circle at center,
+    rgba(0,255,255,0.08),
+    transparent 60%);
+
+    animation:pulseBg 6s infinite;
+
     z-index:0;
-    opacity:0.45;
-    pointer-events:none;
 }
 
-/* CYBER GRID */
+@keyframes pulseBg{
+
+    0%{
+        opacity:0.4;
+        transform:scale(1);
+    }
+
+    50%{
+        opacity:0.8;
+        transform:scale(1.1);
+    }
+
+    100%{
+        opacity:0.4;
+        transform:scale(1);
+    }
+}
+
+/* GRID */
 
 body::after{
+
     content:'';
+
     position:fixed;
     inset:0;
 
@@ -53,11 +90,9 @@ body::after{
     linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
 
-    background-size:50px 50px;
+    background-size:45px 45px;
 
-    animation:gridMove 20s linear infinite;
-
-    pointer-events:none;
+    animation:gridMove 18s linear infinite;
 
     z-index:0;
 }
@@ -65,24 +100,50 @@ body::after{
 @keyframes gridMove{
 
     from{
-        transform:translateY(0px);
+        transform:translateY(0);
     }
 
     to{
-        transform:translateY(50px);
+        transform:translateY(45px);
     }
 }
 
+/* ============================= */
+/* 3D BACKGROUND */
+/* ============================= */
+
+#bg3d{
+
+    position:fixed;
+    inset:0;
+
+    z-index:1;
+
+    opacity:0.5;
+
+    pointer-events:none;
+}
+
+/* ============================= */
 /* PARTICLES */
+/* ============================= */
 
 .cyber-particle{
+
     position:fixed;
-    width:4px;
-    height:4px;
-    border-radius:50%;
+
+    width:3px;
+    height:3px;
+
     background:#fbbf24;
-    box-shadow:0 0 12px #fbbf24;
-    z-index:1;
+
+    border-radius:50%;
+
+    box-shadow:
+    0 0 12px #fbbf24;
+
+    z-index:2;
+
     animation:floatParticle linear infinite;
 }
 
@@ -103,83 +164,123 @@ body::after{
     }
 }
 
+/* ============================= */
 /* MAIN APP */
+/* ============================= */
 
 .app-container{
+
     position:relative;
+
     z-index:5;
 
-    width:95%;
-    max-width:420px;
-    height:95vh;
-
-    margin:10px auto;
-
-    background:rgba(5,10,20,0.75);
-
-    backdrop-filter:blur(20px);
-
-    border:1px solid rgba(251,191,36,0.2);
-
-    border-radius:30px;
-
-    box-shadow:
-    0 0 40px rgba(251,191,36,0.15),
-    inset 0 0 40px rgba(255,255,255,0.03);
-
-    padding:20px;
-
-    overflow:auto;
-}
-
-/* HEADER */
-
-.top-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.node-title{
-    font-size:18px;
-    font-weight:800;
-    letter-spacing:2px;
-}
-
-.online{
-    color:#00ff99;
-    font-size:13px;
-}
-
-/* LOGO */
-
-.logo-wrap{
-    text-align:center;
-    margin-top:20px;
-}
-
-.logo-ring{
-    width:180px;
-    height:180px;
-
-    border-radius:50%;
+    width:100%;
+    max-width:430px;
 
     margin:auto;
 
-    border:3px solid #fbbf24;
+    min-height:100vh;
+
+    padding:16px;
+}
+
+/* ============================= */
+/* HEADER */
+/* ============================= */
+
+.top-header{
 
     display:flex;
+
+    justify-content:space-between;
+
     align-items:center;
+
+    margin-top:10px;
+}
+
+.node-title{
+
+    font-size:20px;
+
+    font-weight:900;
+
+    letter-spacing:3px;
+}
+
+.node-sub{
+
+    color:#fbbf24;
+
+    font-size:11px;
+
+    letter-spacing:2px;
+
+    margin-top:4px;
+}
+
+.online-status{
+
+    color:#00ff99;
+
+    font-weight:bold;
+
+    font-size:14px;
+}
+
+/* ============================= */
+/* REACTOR */
+/* ============================= */
+
+.reactor-wrap{
+
+    position:relative;
+
+    width:100%;
+    height:250px;
+
+    display:flex;
+
+    align-items:center;
+
     justify-content:center;
 
+    margin-top:20px;
+}
+
+.reactor-ring{
+
+    position:absolute;
+
+    width:240px;
+    height:240px;
+
+    border-radius:50%;
+
+    border:2px solid rgba(251,191,36,0.7);
+
     box-shadow:
-    0 0 25px rgba(251,191,36,0.5),
-    0 0 70px rgba(251,191,36,0.2);
+    0 0 30px rgba(251,191,36,0.5),
+    inset 0 0 50px rgba(251,191,36,0.25);
 
     animation:ringRotate 12s linear infinite;
 }
 
+.reactor-ring::before{
+
+    content:'';
+
+    position:absolute;
+
+    inset:18px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(0,255,255,0.3);
+}
+
 @keyframes ringRotate{
+
     from{
         transform:rotate(0deg);
     }
@@ -189,138 +290,219 @@ body::after{
     }
 }
 
-.logo-ring img{
-    width:120px;
-    height:120px;
+.reactor-logo{
+
+    width:125px;
+    height:125px;
+
     border-radius:50%;
+
+    z-index:3;
+
+    box-shadow:
+    0 0 30px rgba(251,191,36,0.8);
 }
 
+/* ============================= */
 /* BALANCE */
+/* ============================= */
+
+.balance-area{
+
+    text-align:center;
+
+    margin-top:10px;
+}
 
 .balance-title{
-    text-align:center;
-    margin-top:20px;
-    color:#aaa;
+
+    color:#cbd5e1;
+
+    font-size:13px;
+
     letter-spacing:2px;
 }
 
 .balance-value{
-    text-align:center;
 
-    font-size:70px;
+    font-size:72px;
+
     font-weight:900;
 
-    margin-top:10px;
-
-    color:#fff;
+    color:#fbbf24;
 
     text-shadow:
     0 0 10px #fbbf24,
     0 0 30px #fbbf24,
-    0 0 60px rgba(251,191,36,0.5);
+    0 0 60px rgba(251,191,36,0.6);
 
-    animation:balancePulse 2s infinite;
+    animation:pulseBalance 2s infinite;
+}
+
+@keyframes pulseBalance{
+
+    50%{
+        transform:scale(1.03);
+    }
 }
 
 .balance-unit{
+
     font-size:28px;
-    color:#fbbf24;
 }
 
-@keyframes balancePulse{
+.active-status{
 
-    0%{
-        transform:scale(1);
-    }
-
-    50%{
-        transform:scale(1.02);
-    }
-
-    100%{
-        transform:scale(1);
-    }
-}
-
-.mining-active{
-    text-align:center;
-    margin-top:8px;
     color:#00ff99;
-    font-size:22px;
+
+    font-size:24px;
+
+    margin-top:5px;
+
     animation:blink 1s infinite;
 }
 
 @keyframes blink{
+
     50%{
         opacity:0.4;
     }
 }
 
+/* ============================= */
 /* CARDS */
+/* ============================= */
 
 .dashboard-grid{
+
     display:grid;
+
     grid-template-columns:1fr 1fr;
+
     gap:14px;
-    margin-top:30px;
-}
 
-.card{
-    background:rgba(10,20,35,0.7);
-
-    border:1px solid rgba(0,255,255,0.15);
-
-    border-radius:18px;
-
-    padding:18px;
-
-    box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.03),
-    0 0 25px rgba(0,255,255,0.05);
-}
-
-.card-label{
-    color:#8ca3af;
-    font-size:11px;
-    margin-bottom:10px;
-}
-
-.card-value{
-    font-size:28px;
-    font-weight:800;
-    color:#fbbf24;
-}
-
-/* GRAPH */
-
-.graph-box{
-    margin-top:30px;
-
-    background:rgba(0,0,0,0.35);
-
-    border-radius:20px;
-
-    padding:15px;
-}
-
-/* BUTTONS */
-
-.btn-group{
     margin-top:25px;
 }
 
-.btn{
-    width:100%;
+.stat-card{
+
+    background:
+    rgba(7,17,31,0.75);
+
+    border:
+    1px solid rgba(0,255,255,0.15);
+
+    border-radius:20px;
+
+    padding:18px;
+
+    backdrop-filter:blur(12px);
+
+    box-shadow:
+    inset 0 0 25px rgba(255,255,255,0.03),
+    0 0 20px rgba(0,255,255,0.05);
+}
+
+.stat-label{
+
+    color:#94a3b8;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+}
+
+.stat-value{
+
+    margin-top:10px;
+
+    font-size:30px;
+
+    font-weight:800;
+
+    color:#fbbf24;
+}
+
+/* ============================= */
+/* GRAPH */
+/* ============================= */
+
+.graph-box{
+
+    margin-top:25px;
+
+    background:
+    rgba(0,0,0,0.35);
+
+    border-radius:25px;
 
     padding:16px;
 
+    border:
+    1px solid rgba(251,191,36,0.15);
+}
+
+/* ============================= */
+/* AI LOG */
+/* ============================= */
+
+.ai-log{
+
+    margin-top:25px;
+
+    background:
+    rgba(0,0,0,0.35);
+
+    border-radius:20px;
+
+    padding:16px;
+
+    border:
+    1px solid rgba(0,255,255,0.1);
+}
+
+.ai-title{
+
+    font-size:18px;
+
     margin-bottom:12px;
+}
+
+.ai-line{
+
+    color:#00ff99;
+
+    margin-bottom:6px;
+
+    font-size:13px;
+}
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
+
+.btn-group{
+
+    margin-top:25px;
+
+    display:flex;
+
+    gap:10px;
+}
+
+.btn{
+
+    flex:1;
+
+    padding:16px 10px;
 
     border:none;
-    border-radius:16px;
 
-    font-size:15px;
+    border-radius:18px;
+
     font-weight:700;
+
+    color:white;
 
     cursor:pointer;
 
@@ -328,143 +510,65 @@ body::after{
 }
 
 .btn:hover{
+
     transform:translateY(-2px);
 }
 
 .btn-red{
-    background:linear-gradient(90deg,#ff3d3d,#aa1111);
-    color:#fff;
+
+    background:
+    linear-gradient(135deg,
+    #ff3d3d,
+    #7f1d1d);
 }
 
 .btn-green{
-    background:linear-gradient(90deg,#00d084,#009966);
-    color:#fff;
+
+    background:
+    linear-gradient(135deg,
+    #00d084,
+    #065f46);
 }
 
 .btn-purple{
-    background:linear-gradient(90deg,#8247e5,#5722aa);
-    color:#fff;
+
+    background:
+    linear-gradient(135deg,
+    #9333ea,
+    #4c1d95);
 }
 
+/* ============================= */
 /* WALLET */
+/* ============================= */
 
 .wallet-box{
-    margin-top:15px;
+
+    margin-top:20px;
 
     text-align:center;
 
-    font-size:13px;
+    color:#fbbf24;
 
-    color:#ccc;
+    font-size:14px;
 }
 
-/* RADAR */
+/* MOBILE */
 
-.radar{
-    position:fixed;
-    bottom:20px;
-    right:20px;
+@media(max-width:480px){
 
-    width:120px;
-    height:120px;
-
-    border-radius:50%;
-
-    border:1px solid rgba(16,185,129,0.3);
-
-    overflow:hidden;
-
-    z-index:2;
-}
-
-.radar::before{
-    content:'';
-
-    position:absolute;
-
-    width:50%;
-    height:2px;
-
-    background:
-    linear-gradient(to right,#10b981,transparent);
-
-    top:50%;
-    left:50%;
-
-    transform-origin:left center;
-
-    animation:radarSpin 2s linear infinite;
-}
-
-@keyframes radarSpin{
-
-    from{
-        transform:rotate(0deg);
+    .balance-value{
+        font-size:58px;
     }
 
-    to{
-        transform:rotate(360deg);
+    .btn-group{
+        flex-direction:column;
     }
-}
 
-/* LOGIN */
-
-.login-overlay{
-    position:fixed;
-    inset:0;
-
-    background:#000;
-
-    z-index:9999;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.login-box{
-    width:90%;
-    max-width:320px;
-
-    background:rgba(5,10,20,0.95);
-
-    border:1px solid #fbbf24;
-
-    border-radius:25px;
-
-    padding:25px;
-}
-
-.input-field{
-    width:100%;
-
-    padding:14px;
-
-    margin-bottom:12px;
-
-    border-radius:12px;
-
-    border:none;
-
-    background:#111827;
-
-    color:#fff;
-}
-
-.login-btn{
-    width:100%;
-
-    padding:14px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#fbbf24;
-
-    font-weight:800;
-
-    cursor:pointer;
+    .reactor-ring{
+        width:210px;
+        height:210px;
+    }
 }
 
 </style>
@@ -472,38 +576,11 @@ body::after{
 
 <body>
 
-<div id="reactor3d"></div>
-
-<div class="radar"></div>
-
-<div id="loginSection" class="login-overlay">
-
-    <div class="login-box">
-
-        <h2 style="text-align:center;margin-bottom:20px;color:#fbbf24;">
-            TVET LOGIN
-        </h2>
-
-        <input type="text" id="userInput"
-        class="input-field"
-        placeholder="Username">
-
-        <input type="password" id="passInput"
-        class="input-field"
-        placeholder="Password">
-
-        <button class="login-btn"
-        onclick="loginAction()">
-
-            ACCESS NODE
-
-        </button>
-
-    </div>
-
-</div>
+<div id="bg3d"></div>
 
 <div class="app-container">
+
+    <!-- HEADER -->
 
     <div class="top-header">
 
@@ -513,96 +590,144 @@ body::after{
                 TVET NODE-07
             </div>
 
-            <div style="color:#fbbf24;font-size:12px;">
+            <div class="node-sub">
                 DEEP TECH MINING SYSTEM
             </div>
 
         </div>
 
-        <div class="online">
+        <div class="online-status">
             ONLINE ●
         </div>
 
     </div>
 
-    <div class="logo-wrap">
+    <!-- REACTOR -->
 
-        <div class="logo-ring">
+    <div class="reactor-wrap">
 
-            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png">
+        <div class="reactor-ring"></div>
 
+        <img
+        class="reactor-logo"
+        src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png">
+
+    </div>
+
+    <!-- BALANCE -->
+
+    <div class="balance-area">
+
+        <div class="balance-title">
+            LIVE TVE BALANCE
+        </div>
+
+        <div class="balance-value"
+        id="balanceDisplay">
+
+            0.2370
+            <span class="balance-unit">TVE</span>
+
+        </div>
+
+        <div class="active-status">
+            ● CARBON CREDIT ACTIVE
         </div>
 
     </div>
 
-    <div class="balance-title">
-        LIVE TVE BALANCE
-    </div>
-
-    <div class="balance-value"
-    id="balanceDisplay">
-
-        0.0000
-        <span class="balance-unit">TVE</span>
-
-    </div>
-
-    <div class="mining-active">
-        ● CARBON CREDIT ACTIVE
-    </div>
+    <!-- CARDS -->
 
     <div class="dashboard-grid">
 
-        <div class="card">
-            <div class="card-label">
+        <div class="stat-card">
+
+            <div class="stat-label">
                 EFFICIENCY
             </div>
 
-            <div class="card-value">
+            <div class="stat-value">
                 97.5%
             </div>
+
         </div>
 
-        <div class="card">
-            <div class="card-label">
+        <div class="stat-card">
+
+            <div class="stat-label">
                 HASH RATE
             </div>
 
-            <div class="card-value">
+            <div class="stat-value">
                 132 TH/s
             </div>
+
         </div>
 
-        <div class="card">
-            <div class="card-label">
+        <div class="stat-card">
+
+            <div class="stat-label">
                 POWER
             </div>
 
-            <div class="card-value"
+            <div class="stat-value"
             id="rateDisplay">
 
                 0.0100 TVE/s
 
             </div>
+
         </div>
 
-        <div class="card">
-            <div class="card-label">
+        <div class="stat-card">
+
+            <div class="stat-label">
                 DIFFICULTY
             </div>
 
-            <div class="card-value">
+            <div class="stat-value">
                 PHASE 1
             </div>
+
         </div>
 
     </div>
+
+    <!-- GRAPH -->
 
     <div class="graph-box">
 
         <canvas id="miningChart"></canvas>
 
     </div>
+
+    <!-- AI LOG -->
+
+    <div class="ai-log">
+
+        <div class="ai-title">
+            AI SYSTEM LOG
+        </div>
+
+        <div class="ai-line">
+            [AI] Block validated
+        </div>
+
+        <div class="ai-line">
+            [NETWORK] Connection stable
+        </div>
+
+        <div class="ai-line">
+            [MINING] Reward +0.0100 TVE
+        </div>
+
+        <div class="ai-line">
+            [WALLET] Ready to claim
+        </div>
+
+    </div>
+
+    <!-- BUTTONS -->
 
     <div class="btn-group">
 
@@ -629,10 +754,12 @@ body::after{
 
     </div>
 
+    <!-- WALLET -->
+
     <div class="wallet-box"
     id="walletDisplay">
 
-        Wallet : Not Connected
+        Wallet : 0x71C6...8F43
 
     </div>
 
@@ -640,19 +767,23 @@ body::after{
 
 <script>
 
-/* PARTICLES */
+/* ============================= */
+/* FLOATING PARTICLES */
+/* ============================= */
 
-for(let i=0;i<60;i++){
+for(let i=0;i<70;i++){
 
-    const p = document.createElement('div');
+    const p =
+    document.createElement('div');
 
-    p.className = 'cyber-particle';
+    p.className =
+    'cyber-particle';
 
     p.style.left =
     Math.random()*100 + 'vw';
 
     p.style.animationDuration =
-    5 + Math.random()*8 + 's';
+    (5 + Math.random()*10) + 's';
 
     p.style.opacity =
     Math.random();
@@ -660,41 +791,54 @@ for(let i=0;i<60;i++){
     document.body.appendChild(p);
 }
 
-/* THREE JS */
+/* ============================= */
+/* 3D TORUS */
+/* ============================= */
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth/window.innerHeight,
-    0.1,
-    1000
+const camera =
+new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
 );
 
-const renderer = new THREE.WebGLRenderer({
-    alpha:true,
-    antialias:true
+const renderer =
+new THREE.WebGLRenderer({
+alpha:true,
+antialias:true
 });
 
 renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+window.innerWidth,
+window.innerHeight
 );
 
-document.getElementById('reactor3d')
+document.getElementById('bg3d')
 .appendChild(renderer.domElement);
 
 const geometry =
-new THREE.TorusGeometry(5,0.15,16,100);
+new THREE.TorusGeometry(
+5,
+0.15,
+16,
+100
+);
 
 const material =
 new THREE.MeshBasicMaterial({
-    color:0xfbbf24,
-    wireframe:true
+color:0xfbbf24,
+wireframe:true
 });
 
 const torus =
-new THREE.Mesh(geometry,material);
+new THREE.Mesh(
+geometry,
+material
+);
 
 scene.add(torus);
 
@@ -702,54 +846,82 @@ camera.position.z = 12;
 
 function animate(){
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(
+    animate
+    );
 
-    torus.rotation.x += 0.003;
-    torus.rotation.y += 0.005;
+    torus.rotation.x += 0.002;
+    torus.rotation.y += 0.004;
 
-    renderer.render(scene,camera);
+    renderer.render(
+    scene,
+    camera
+    );
 }
 
 animate();
 
-/* CHART */
+/* ============================= */
+/* CURVE GRAPH */
+/* ============================= */
 
 const ctx =
 document.getElementById('miningChart');
 
+let graphData = [
+0.10,
+0.25,
+0.22,
+0.40,
+0.18,
+0.52,
+0.50,
+0.85,
+0.78,
+0.90,
+1.05,
+1.18
+];
+
+const chart =
 new Chart(ctx,{
 
     type:'line',
 
     data:{
+
         labels:[
-            '','','','','','',''
+        '','','','','','','','','','','',''
         ],
 
         datasets:[{
 
-            data:[
-                0.1,
-                0.4,
-                0.2,
-                0.7,
-                0.5,
-                0.9,
-                1.2
-            ],
+            data:graphData,
 
             borderColor:'#fbbf24',
+
+            borderWidth:4,
 
             tension:0.5,
 
             fill:true,
 
             backgroundColor:
-            'rgba(251,191,36,0.1)'
+            'rgba(251,191,36,0.10)',
+
+            pointRadius:5,
+
+            pointHoverRadius:7,
+
+            pointBackgroundColor:'#fbbf24',
+
+            pointBorderColor:'#fff'
         }]
     },
 
     options:{
+
+        responsive:true,
 
         plugins:{
             legend:{
@@ -769,119 +941,41 @@ new Chart(ctx,{
     }
 });
 
-/* LOGIN */
-
-let user = null;
-let miningRate = 0.01;
-let balance = 0;
-let mining = true;
-
-const DB = {
-
-    "tvetech":{
-        pass:"tve2026",
-        rate:0.01
-    },
-
-    "tve001":{
-        pass:"power999",
-        rate:0.002
-    }
-};
-
-function loginAction(){
-
-    const u =
-    document.getElementById('userInput')
-    .value
-    .trim()
-    .toLowerCase();
-
-    const p =
-    document.getElementById('passInput')
-    .value
-    .trim();
-
-    if(DB[u] && DB[u].pass === p){
-
-        user = u;
-
-        miningRate = DB[u].rate;
-
-        document.getElementById(
-        'loginSection'
-        ).style.display = 'none';
-
-        document.getElementById(
-        'rateDisplay'
-        ).innerText =
-        miningRate.toFixed(4)
-        + ' TVE/s';
-
-        loadBalance();
-
-    }else{
-
-        alert('INVALID ACCESS');
-    }
-}
-
-/* BALANCE */
-
-function loadBalance(){
-
-    balance = parseFloat(
-
-        localStorage.getItem(
-        'tvet_balance_' + user
-        ) || 0
-
-    );
-
-    updateBalance();
-}
-
-function updateBalance(){
-
-    document.getElementById(
-    'balanceDisplay'
-    ).innerHTML =
-
-    balance.toFixed(4) +
-
-    ' <span class="balance-unit">TVE</span>';
-}
+/* GRAPH ANIMATION */
 
 setInterval(()=>{
 
-    if(mining){
+    graphData.shift();
 
-        balance += miningRate;
+    let last =
+    graphData[graphData.length-1];
 
-        localStorage.setItem(
-            'tvet_balance_' + user,
-            balance
-        );
+    let next =
+    last + (Math.random()*0.25 - 0.05);
 
-        updateBalance();
+    if(next < 0.2){
+        next = 0.2;
     }
 
-},1000);
+    graphData.push(next);
 
+    chart.update();
+
+},1500);
+
+/* ============================= */
 /* BUTTONS */
+/* ============================= */
 
 function toggleMining(){
 
-    mining = !mining;
-
-    alert(
-        mining
-        ? 'MINING STARTED'
-        : 'MINING STOPPED'
-    );
+    alert('MINING STOPPED');
 }
 
-/* WEB3 */
+function claimReward(){
+
+    alert('CLAIM SYSTEM READY');
+}
 
 async function connectWallet(){
 
@@ -889,7 +983,7 @@ async function connectWallet(){
 
         const provider =
         new ethers.BrowserProvider(
-            window.ethereum
+        window.ethereum
         );
 
         const signer =
@@ -916,17 +1010,7 @@ async function connectWallet(){
     }
 }
 
-/* CLAIM */
-
-async function claimReward(){
-
-    alert(
-        'CLAIM SYSTEM READY'
-    );
-}
-
 </script>
 
 </body>
 </html>
-```
