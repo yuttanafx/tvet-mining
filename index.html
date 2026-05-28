@@ -3,102 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TVET FUTURE MINING</title>
+    <title>TVET Telegram Private Mining</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* [สไตล์คงเดิมของคุณ + ปรับความสวยงามของ Dashboard] */
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        html, body { width:100%; height:100%; overflow:hidden; font-family: 'Segoe UI', sans-serif; background:#020611; color:#fff; }
-        .app-container { width:100%; max-width:390px; height:100vh; margin:0 auto; padding:14px; background:linear-gradient(180deg, rgba(3,10,24,.96), rgba(1,6,15,.98)); border:1px solid rgba(0,255,255,.12); display:flex; flex-direction:column; justify-content:space-between; position:relative; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
-        .stat-card { background: linear-gradient(180deg, rgba(0,18,40,.95), rgba(0,10,20,.95)); border: 1px solid rgba(0,255,255,.12); border-radius: 16px; padding: 10px; text-align: center; }
-        .stat-label { font-size: 8px; color: #999; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-value { font-size: 13px; font-weight: 800; color: #ffc400; }
-        .balance { font-size: 40px; font-weight: 900; font-family: monospace; color: #ffcc33; text-align: center; margin: 10px 0; }
-        .action-btn { width: 100%; height: 46px; border: none; border-radius: 14px; font-size: 12px; font-weight: 800; color: #fff; cursor: pointer; margin-bottom: 8px; }
-        .stop-btn { background: linear-gradient(135deg, #ff4d4d, #5f1010); }
-        .claim-btn { background: linear-gradient(135deg, #00ff99, #065f46); }
-        .web3-btn { background: linear-gradient(135deg, #8b5cf6, #4c1d95); }
-        .add-btn { background: linear-gradient(135deg, #00c3ff, #0047ab); }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #090d16; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #090d16 0%, #111827 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
+        .app-container { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 25px; padding: 15px 20px; width: 100%; max-width: 340px; height: 95vh; max-height: 580px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .logo-img { width: 85px; height: 85px; border-radius: 50%; box-shadow: 0 0 25px rgba(27, 169, 233, 0.6); margin: 0 auto 5px auto; display: block; object-fit: contain; }
+        .mining-status { font-size: 11px; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-bottom: 5px; font-weight: 500; width: 100%; box-sizing: border-box; }
+        .balance-title { font-size: 11px; color: #9ca3af; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-value { font-size: 34px; font-weight: 800; color: #ffffff; margin: 5px 0; font-family: monospace; letter-spacing: 1px; }
+        .difficulty-card { background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 10px; margin-bottom: 8px; text-align: left; font-size: 11px; line-height: 1.6; }
+        .difficulty-card span { float: right; font-weight: bold; color: #fbbf24; }
+        .btn { width: 100%; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 6px; box-sizing: border-box; }
+        .btn-primary { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; display: block; }
+        .btn-stop { background: #ef4444; color: #ffffff; display: block; }
+        .btn-web3 { background: rgba(130, 71, 229, 0.15); color: #a78bfa; border: 1px solid rgba(130, 71, 229, 0.4); display: block; }
+        .btn-claim { background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; display: block; font-size: 13px; letter-spacing: 0.5px; }
+        .btn-claim:disabled { background: #374151; color: #9ca3af; box-shadow: none; cursor: not-allowed; }
+        .bottom-area { width: 100%; box-sizing: border-box; text-align: center; }
+        .token-address-badge-bottom { background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 6px 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; width: 100%; }
+        .contract-info-box { overflow: hidden; max-width: 190px; cursor: pointer; }
+        .contract-label { font-weight: bold; color: #fbbf24; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .token-info-text { color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 10px; margin-top: 1px; }
+        .btn-add-token-bottom { background: linear-gradient(135deg, #8247e5 0%, #6326c7 100%); color: #ffffff; border: none; padding: 5px 8px; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s; white-space: nowrap; }
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .login-box { background: rgba(17, 24, 39, 0.95); border: 1px solid #f59e0b; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #ffffff; font-size: 14px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-login { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); color: #000000; font-weight: bold; width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="app-container">
-    <div class="topbar"><div class="logo-title">TVET NODE-07</div><div class="online">ONLINE ●</div></div>
-    
-    <div class="center">
-        <div class="balance" id="balanceDisplay">0.0000 <span>TVE</span></div>
+    <div id="loginSection" class="login-overlay">
+        <div class="login-box">
+            <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
+            <input type="text" id="userInput" class="input-field" placeholder="Username">
+            <input type="password" id="passInput" class="input-field" placeholder="Password">
+            <button class="btn-login" onclick="loginAction()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
+        </div>
     </div>
-
-    <div class="dashboard-grid">
-        <div class="stat-card"><div class="stat-label">EFFICIENCY</div><div class="stat-value">98.5%</div></div>
-        <div class="stat-card"><div class="stat-label">CARBON OFFSET</div><div class="stat-value">0.34 tCO2</div></div>
+    <div class="app-container">
+        <div>
+            <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
+            <div class="mining-status" id="miningStatus">⛏️ สมาชิก: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (ออนไลน์)</div>
+            <p class="balance-title">ยอดขุดที่ปั๊มสะสมได้ (TVE)</p>
+            <div class="balance-value" id="balanceDisplay">0.0000</div>
+        </div>
+        <div>
+            <div class="difficulty-card">
+                <div>📊 เหรียญในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
+                <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
+                <div>🔥 ระดับความยาก: <span id="diffDisplay">เฟส 1</span></div>
+                <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
+            </div>
+            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มขุดเหมืองตรง (Start)</button>
+            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">เชื่อมต่อกระเป๋า Web3</button>
+            <button class="btn btn-claim" id="claimBtn" onclick="claimReward()">ประมวลผลค่าคาร์บอนเครดิต</button>
+        </div>
+        <div class="bottom-area">
+            <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
+            <div class="token-address-badge-bottom">
+                <div class="contract-info-box" onclick="cpContract()">
+                    <div class="contract-label">📋 CONTRACT:</div>
+                    <div class="token-info-text">0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7</div>
+                </div>
+                <button class="btn-add-token-bottom" onclick="addTokenManual()">+ เพิ่มเหรียญ TVE</button>
+            </div>
+        </div>
     </div>
-
-    <canvas id="miningChart" style="height: 100px; width: 100%; margin: 10px 0;"></canvas>
-
-    <div class="bottom-buttons">
-        <button class="action-btn claim-btn" id="mineBtn" onclick="toggleMining()">START MINING</button>
-        <button class="action-btn stop-btn" onclick="claimReward()">CLAIM TVE</button>
-        <button class="action-btn web3-btn" onclick="connWallet()">CONNECT WEB3</button>
-        <button class="action-btn add-btn" onclick="addTokenManual()">+ ADD TVE</button>
-    </div>
-</div>
-
-<script>
-    let balance = 0, miningRate = 0.002, mining = false, miningInterval = null;
-
-    function toggleMining(){
-        mining = !mining;
-        const btn = document.getElementById("mineBtn");
-        if(mining){
-            btn.innerText = "STOP MINING";
-            miningInterval = setInterval(()=>{
-                balance = Number((balance + miningRate).toFixed(4));
-                document.getElementById("balanceDisplay").innerHTML = balance.toFixed(4) + ' <span>TVE</span>';
-            }, 1000);
-        } else {
-            btn.innerText = "START MINING";
-            clearInterval(miningInterval);
+    <script>
+        let user = null, bR = 0, bal = 0, intV = null;
+        var DB = {
+            "tvetech": { pass: "tve2026", rate: 0.0100 },
+            "tve001":  { pass: "power999", rate: 0.0020 },
+            "varunya": { pass: "tve789", rate: 0.0050 },
+            "สมาชิกใหม่1": { pass: "รหัสผ่าน123", rate: 0.0010 },
+            "สมาชิกใหม่2": { pass: "รหัสผ่าน456", rate: 0.0030 }
+        };
+        function loginAction() {
+            let u = document.getElementById("userInput").value.trim().toLowerCase(), p = document.getElementById("passInput").value.trim();
+            if(DB[u] && DB[u].pass === p) { user = u; bR = DB[u].rate; document.getElementById("loginSection").style.display = "none"; document.getElementById("currentLoggedUser").innerText = u; document.getElementById("rateDisplay").innerText = bR.toFixed(4) + " TVE / วินาที"; loadBal(); fetchChain(); }
+            else { alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"); }
         }
-    }
-
-    async function claimReward() {
-        if (balance < 1) { alert("ต้องสะสมให้ครบ 1 TVE ก่อน"); return; }
-        try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            const userAddress = await signer.getAddress();
-            
-            // แก้ไขปัญหา Overflow โดยส่งค่าจำนวนเต็มเท่านั้น
-            const amountStr = Math.floor(balance).toString();
-            const amountToClaim = ethers.parseUnits(amountStr, 18);
-
-            alert("กำลังขอสิทธิ์จากระบบ...");
-            const response = await fetch("https://tvet-mining.vercel.app/api/get-signature", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userAddress, amount: amountToClaim.toString() })
-            });
-            const data = await response.json();
-            
-            const contract = new ethers.Contract("0xd77887dB74B319276B27446AB43A161B250EC6B5", ["function claimTokens(uint256, bytes) external"], signer);
-            const tx = await contract.claimTokens(amountToClaim, data.signature);
-            await tx.wait();
-            alert("โอนสำเร็จ!");
-            balance = 0;
-            document.getElementById("balanceDisplay").innerHTML = "0.0000 <span>TVE</span>";
-        } catch(err) {
-            console.error(err);
-            alert("Error: " + (err.reason || err.message));
+        function loadBal(){ bal = parseFloat(localStorage.getItem("tvet_user_bal_" + user) || 0); document.getElementById("balanceDisplay").innerText = bal.toFixed(4); }
+        function toggleMining() {
+            const btn = document.getElementById("mineBtn");
+            if(intV) { clearInterval(intV); intV = null; btn.innerText = "เริ่มขุดเหมืองตรง (Start)"; btn.className = "btn btn-primary"; }
+            else { intV = setInterval(()=>{ bal += bR; document.getElementById("balanceDisplay").innerText = bal.toFixed(4); localStorage.setItem("tvet_user_bal_" + user, bal); }, 1000); btn.innerText = "หยุดการขุด (Stop)"; btn.className = "btn btn-stop"; }
         }
-    }
-
-    // Initialize Chart
-    const ctx = document.getElementById('miningChart').getContext('2d');
-    new Chart(ctx, { type: 'line', data: { labels: [1,2,3,4,5], datasets: [{ data: [0.1, 0.4, 0.2, 0.6, 0.3, 0.5], borderColor: '#ffcc33', tension: 0.4, fill: true, backgroundColor: 'rgba(255,204,51,0.1)' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } } });
-</script>
+        async function connWallet(){ const p = new ethers.BrowserProvider(window.ethereum); const s = await p.getSigner(); const a = await s.getAddress(); document.getElementById("walletAddress").innerText = "Grapea: " + a.substring(0,6) + "..." + a.substring(38); const g = await p.getBalance(a); document.getElementById("gasDisplay").innerText = ethers.formatUnits(g, 18).substring(0,6) + " POL"; }
+        async function claimReward() {
+            if (bal <= 0) { alert("ไม่มีเหรียญให้เคลม"); return; }
+            const provider = new ethers.BrowserProvider(window.ethereum); const signer = await provider.getSigner(); const userAddress = await signer.getAddress();
+            try {
+                const amountToClaim = ethers.parseUnits(bal.toFixed(18), 18);
+                alert("กำลังขอลายเซ็นอนุมัติ...");
+                const response = await fetch("https://tvet-mining.vercel.app/api/get-signature", { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userAddress, amount: amountToClaim.toString() }) });
+                const data = await response.json();
+                if (!data.signature) throw new Error(data.error || "ไม่ได้ลายเซ็น");
+                const contract = new ethers.Contract("0xd77887dB74B319276B27446AB43A161B250EC6B5", ["function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"], signer);
+                alert("กำลังส่งธุรกรรม... โปรดกด Confirm ใน MetaMask");
+                const tx = await contract.claimTokens(amountToClaim, data.signature); await tx.wait();
+                alert("โอนเหรียญสำเร็จ!"); bal = 0; localStorage.setItem("tvet_user_bal_" + user, 0); document.getElementById("balanceDisplay").innerText = "0.0000";
+            } catch (err) { console.error(err); alert("โอนล้มเหลว: " + err.message); }
+        }
+        function cpContract(){ navigator.clipboard.writeText("0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7"); alert("Copied!"); }
+        async function addTokenManual() {
+            try { await window.ethereum.request({ method: 'wallet_watchAsset', params: { type: 'ERC20', options: { address: '0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7', symbol: 'TVE', decimals: 18 } } }); }
+            catch (error) { console.error(error); }
+        }
+        async function fetchChain(){ try { const p = new ethers.JsonRpcProvider("https://polygon-rpc-mainnet.public.blastapi.io"); const c = new ethers.Contract("0x6caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], p); const t = new ethers.Contract(await c.tveToken(), ["function totalSupply() external view returns (uint256)"], p); const s = parseFloat(ethers.formatUnits(await t.totalSupply(), 18)); document.getElementById("totalSupplyDisplay").innerText = (s > 240000 ? s : 240000).toLocaleString() + " TVE"; } catch(e) {} }
+    </script>
 </body>
 </html>
