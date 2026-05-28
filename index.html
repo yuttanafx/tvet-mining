@@ -119,7 +119,8 @@ async function claimReward() {
         if (!data.signature) throw new Error(data.error || "ไม่ได้ลายเซ็น");
         
         // **สำคัญ:** อย่าลืมเปลี่ยน Address สัญญาให้เป็น Address ใหม่ที่เพิ่ง Deploy
-        const contract = new ethers.Contract("YOUR_NEW_CONTRACT_ADDRESS", ["function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"], signer);
+        // เปลี่ยนจากของเดิมที่เคยเป็น 0xd7... เป็นตัวนี้แทน
+const contract = new ethers.Contract("0x170C62cAF21EE43A8527e0D858eB1ca76b79b342", ["function claimTokens(uint256 totalCumulativeAmount, bytes signature) external"], signer);
         
         alert("กำลังส่งธุรกรรม...");
         const tx = await contract.claimTokens(amountToClaim, data.signature);
