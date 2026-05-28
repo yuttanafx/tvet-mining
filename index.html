@@ -1,28 +1,41 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
 
-<meta name="viewport"
+<meta
+name="viewport"
 content="
 width=device-width,
 initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>TVET FUTURE MINING</title>
+<title>
+TVET FUTURE MINING
+</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<script src="
+https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js
+"></script>
 
 <style>
+
+/* ===================================== */
+/* RESET */
+/* ===================================== */
 
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
 }
 
-html,body{
+html,
+body{
 
 width:100%;
 height:100%;
@@ -36,9 +49,9 @@ background:#020611;
 color:#fff;
 }
 
-/* ========================= */
+/* ===================================== */
 /* BACKGROUND */
-/* ========================= */
+/* ===================================== */
 
 body::before{
 
@@ -51,13 +64,13 @@ background:
 
 radial-gradient(
 circle at top,
-rgba(0,183,255,.15),
+rgba(0,183,255,.18),
 transparent 40%
 ),
 
 radial-gradient(
 circle at bottom,
-rgba(255,170,0,.12),
+rgba(255,170,0,.10),
 transparent 40%
 ),
 
@@ -70,9 +83,9 @@ linear-gradient(
 z-index:-5;
 }
 
-/* ========================= */
+/* ===================================== */
 /* PARTICLES */
-/* ========================= */
+/* ===================================== */
 
 .stars{
 
@@ -114,9 +127,9 @@ opacity:0;
 
 }
 
-/* ========================= */
+/* ===================================== */
 /* APP */
-/* ========================= */
+/* ===================================== */
 
 .app{
 
@@ -127,7 +140,7 @@ display:flex;
 justify-content:center;
 align-items:center;
 
-padding:8px;
+padding:6px;
 }
 
 .container{
@@ -152,7 +165,7 @@ border:
 
 box-shadow:
 0 0 30px rgba(0,0,0,.8),
-0 0 80px rgba(0,140,255,.1);
+0 0 80px rgba(0,140,255,.08);
 
 display:flex;
 flex-direction:column;
@@ -162,9 +175,9 @@ overflow:hidden;
 position:relative;
 }
 
-/* ========================= */
-/* HEADER */
-/* ========================= */
+/* ===================================== */
+/* TOPBAR */
+/* ===================================== */
 
 .topbar{
 
@@ -172,7 +185,7 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 
-margin-bottom:6px;
+margin-bottom:5px;
 }
 
 .logo-title{
@@ -189,9 +202,9 @@ font-weight:700;
 color:#00ff99;
 }
 
-/* ========================= */
+/* ===================================== */
 /* CENTER */
-/* ========================= */
+/* ===================================== */
 
 .center{
 
@@ -200,8 +213,8 @@ text-align:center;
 
 .coin-ring{
 
-width:115px;
-height:115px;
+width:105px;
+height:105px;
 
 margin:auto;
 
@@ -214,15 +227,15 @@ align-items:center;
 background:
 radial-gradient(
 circle,
-rgba(255,187,0,.25),
+rgba(255,187,0,.22),
 transparent 70%
 );
 
 box-shadow:
-0 0 30px rgba(255,191,0,.6),
-0 0 80px rgba(255,191,0,.2);
+0 0 30px rgba(255,191,0,.5),
+0 0 80px rgba(255,191,0,.15);
 
-animation:ring 5s linear infinite;
+animation:ring 6s linear infinite;
 }
 
 @keyframes ring{
@@ -256,7 +269,7 @@ color:#9ca3af;
 
 .balance{
 
-font-size:56px;
+font-size:50px;
 font-weight:900;
 
 font-family:monospace;
@@ -265,19 +278,19 @@ color:#ffcc33;
 
 text-shadow:
 0 0 10px rgba(255,204,0,.7),
-0 0 30px rgba(255,204,0,.4);
+0 0 30px rgba(255,204,0,.3);
 }
 
 .balance span{
 
-font-size:24px;
+font-size:20px;
 }
 
 .active-status{
 
-margin-top:6px;
+margin-top:4px;
 
-font-size:17px;
+font-size:15px;
 font-weight:700;
 
 color:#00ff99;
@@ -297,26 +310,26 @@ opacity:.4;
 
 }
 
-/* ========================= */
+/* ===================================== */
 /* GRID */
-/* ========================= */
+/* ===================================== */
 
 .grid{
 
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:8px;
+gap:7px;
 
-margin-top:12px;
+margin-top:10px;
 }
 
 .card{
 
-height:72px;
+height:66px;
 
 padding:10px;
 
-border-radius:18px;
+border-radius:16px;
 
 background:
 linear-gradient(
@@ -326,7 +339,7 @@ rgba(0,10,20,.95)
 );
 
 border:
-1px solid rgba(0,255,255,.14);
+1px solid rgba(0,255,255,.12);
 
 display:flex;
 flex-direction:column;
@@ -337,27 +350,27 @@ justify-content:center;
 
 font-size:10px;
 color:#999;
-margin-bottom:6px;
+margin-bottom:4px;
 }
 
 .card-value{
 
-font-size:15px;
+font-size:14px;
 font-weight:800;
 color:#ffc400;
 }
 
-/* ========================= */
+/* ===================================== */
 /* GRAPH */
-/* ========================= */
+/* ===================================== */
 
 .graph-box{
 
-height:120px;
+height:110px;
 
 margin-top:10px;
 
-border-radius:20px;
+border-radius:18px;
 
 overflow:hidden;
 
@@ -385,33 +398,19 @@ height:100%;
 
 fill:none;
 
-stroke:#ffcc33;
 stroke-width:4;
 
 stroke-linecap:round;
 stroke-linejoin:round;
 
-filter:drop-shadow(
-0 0 10px #ffcc33
-);
-
-stroke-dasharray:1000;
-stroke-dashoffset:1000;
-
-animation:draw 4s linear infinite;
-}
-
-@keyframes draw{
-
-to{
-stroke-dashoffset:0;
-}
+filter:
+drop-shadow(0 0 12px #ffcc33);
 
 }
 
-/* ========================= */
+/* ===================================== */
 /* BUTTONS */
-/* ========================= */
+/* ===================================== */
 
 .bottom-buttons{
 
@@ -424,7 +423,7 @@ margin-top:10px;
 
 .action-btn{
 
-height:48px;
+height:46px;
 
 border:none;
 border-radius:14px;
@@ -484,9 +483,9 @@ linear-gradient(
 );
 }
 
-/* ========================= */
+/* ===================================== */
 /* WALLET */
-/* ========================= */
+/* ===================================== */
 
 .wallet-box{
 
@@ -507,9 +506,9 @@ font-size:12px;
 text-align:center;
 }
 
-/* ========================= */
+/* ===================================== */
 /* LOGIN */
-/* ========================= */
+/* ===================================== */
 
 .login{
 
@@ -591,26 +590,22 @@ linear-gradient(
 );
 }
 
-/* ========================= */
-/* MOBILE */
-/* ========================= */
-
 @media(max-height:760px){
 
 .balance{
-font-size:48px;
+font-size:44px;
 }
 
 .graph-box{
-height:100px;
+height:90px;
 }
 
 .card{
-height:66px;
+height:62px;
 }
 
 .action-btn{
-height:44px;
+height:42px;
 }
 
 }
@@ -807,21 +802,142 @@ PHASE 1
 
 <svg viewBox="0 0 400 120">
 
+<defs>
+
+<linearGradient
+id="lineGlow"
+x1="0%"
+y1="0%"
+x2="100%"
+y2="0%">
+
+<stop
+offset="0%"
+stop-color="#ffcc33"/>
+
+<stop
+offset="100%"
+stop-color="#00d4ff"/>
+
+</linearGradient>
+
+</defs>
+
+<path
+
+d="
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+L400 120
+L0 120
+Z
+"
+
+fill="rgba(255,204,51,.08)"
+
+>
+
+<animate
+attributeName="d"
+dur="6s"
+repeatCount="indefinite"
+
+values="
+
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+L400 120
+L0 120
+Z;
+
+M0 112
+C40 108 70 90 100 80
+C140 65 170 60 200 52
+C240 42 270 32 310 26
+C350 20 370 14 400 6
+L400 120
+L0 120
+Z;
+
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+L400 120
+L0 120
+Z
+
+"/>
+
+</path>
+
 <path
 class="graph-line"
 
 d="
-M10 100
-L50 90
-L90 95
-L130 70
-L170 55
-L210 45
-L250 48
-L290 30
-L330 12
-L390 20
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+"
+
+stroke="url(#lineGlow)"
+
+>
+
+<animate
+attributeName="d"
+dur="6s"
+repeatCount="indefinite"
+
+values="
+
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8;
+
+M0 112
+C40 108 70 90 100 80
+C140 65 170 60 200 52
+C240 42 270 32 310 26
+C350 20 370 14 400 6;
+
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+
 "/>
+
+</path>
+
+<circle r="5" fill="#ffcc33">
+
+<animateMotion
+dur="6s"
+repeatCount="indefinite"
+
+path="
+M0 110
+C40 100 60 95 90 85
+C120 75 150 70 180 60
+C210 50 250 40 280 38
+C320 35 350 20 400 8
+"
+/>
+
+</circle>
 
 </svg>
 
@@ -882,9 +998,9 @@ Wallet Not Connected
 
 <script>
 
-/* ============================= */
+/* ===================================== */
 /* DATABASE */
-/* ============================= */
+/* ===================================== */
 
 let user = null;
 
@@ -921,9 +1037,9 @@ rate:0.0050
 
 };
 
-/* ============================= */
+/* ===================================== */
 /* LOGIN */
-/* ============================= */
+/* ===================================== */
 
 function loginAction(){
 
@@ -969,9 +1085,9 @@ alert(
 
 }
 
-/* ============================= */
+/* ===================================== */
 /* LOAD BALANCE */
-/* ============================= */
+/* ===================================== */
 
 function loadBalance(){
 
@@ -990,9 +1106,9 @@ updateBalance();
 
 }
 
-/* ============================= */
+/* ===================================== */
 /* UPDATE BALANCE */
-/* ============================= */
+/* ===================================== */
 
 function updateBalance(){
 
@@ -1008,9 +1124,9 @@ balance.toFixed(4)
 
 }
 
-/* ============================= */
+/* ===================================== */
 /* MINING */
-/* ============================= */
+/* ===================================== */
 
 function toggleMining(){
 
@@ -1079,9 +1195,9 @@ miningInterval
 
 }
 
-/* ============================= */
+/* ===================================== */
 /* CONNECT WALLET */
-/* ============================= */
+/* ===================================== */
 
 async function connWallet(){
 
@@ -1097,6 +1213,11 @@ return;
 const provider =
 new ethers.BrowserProvider(
 window.ethereum
+);
+
+await provider.send(
+"eth_requestAccounts",
+[]
 );
 
 const signer =
@@ -1117,17 +1238,23 @@ address.substring(38);
 
 }
 
-/* ============================= */
-/* CLAIM REAL */
-/* ============================= */
-
-<script>
-
-/* ============================= */
-/* CLAIM REAL FIXED */
-/* ============================= */
+/* ===================================== */
+/* CLAIM */
+/* ===================================== */
 
 async function claimReward() {
+
+    if (!window.ethereum) {
+
+        alert("กรุณาติดตั้ง MetaMask");
+        return;
+    }
+
+    if (!user) {
+
+        alert("กรุณา Login");
+        return;
+    }
 
     if (balance <= 0) {
 
@@ -1137,29 +1264,29 @@ async function claimReward() {
 
     try {
 
-        if (!window.ethereum) {
-
-            alert("ไม่พบ MetaMask");
-            return;
-        }
-
         const provider =
         new ethers.BrowserProvider(
             window.ethereum
         );
 
+        await provider.send(
+            "eth_requestAccounts",
+            []
+        );
+
         const signer =
         await provider.getSigner();
 
-        const userAddress =
+        const walletAddress =
         await signer.getAddress();
 
         const network =
         await provider.getNetwork();
 
-        /* FORCE POLYGON */
-
-        if (Number(network.chainId) !== 137) {
+        if (
+            Number(network.chainId)
+            !== 137
+        ) {
 
             try {
 
@@ -1168,12 +1295,11 @@ async function claimReward() {
                     method:
                     "wallet_switchEthereumChain",
 
-                    params: [
+                    params:[
                         {
-                            chainId: "0x89"
+                            chainId:"0x89"
                         }
                     ]
-
                 });
 
             } catch(err){
@@ -1186,25 +1312,18 @@ async function claimReward() {
             }
         }
 
-        /* FIX OVERFLOW */
-
-        const safeBalance =
-
-        Number(balance)
-        .toFixed(4);
-
-        const amountToClaim =
-
+        const claimAmount =
         ethers.parseUnits(
-            safeBalance,
+
+            Number(balance)
+            .toFixed(4),
+
             18
         );
 
         alert(
-        "กำลังสร้าง Signature..."
+        "กำลังตรวจสอบ Signature..."
         );
-
-        /* GET SIGNATURE */
 
         const response =
         await fetch(
@@ -1223,10 +1342,10 @@ async function claimReward() {
             body:JSON.stringify({
 
                 userAddress:
-                userAddress,
+                walletAddress,
 
                 amount:
-                amountToClaim.toString()
+                claimAmount.toString()
             })
         });
 
@@ -1235,13 +1354,12 @@ async function claimReward() {
 
         if(!data.signature){
 
-            throw new Error(
-            data.error ||
-            "Signature Error"
+            alert(
+            "ไม่ได้รับ Signature"
             );
-        }
 
-        /* CONTRACT */
+            return;
+        }
 
         const contract =
         new ethers.Contract(
@@ -1259,27 +1377,23 @@ async function claimReward() {
         "กรุณากด Confirm ใน MetaMask"
         );
 
-        /* SEND TX */
-
         const tx =
         await contract.claimTokens(
 
-            amountToClaim,
+            claimAmount,
 
             data.signature
         );
 
         alert(
-        "กำลังรอ Blockchain Confirm..."
+        "กำลังรอ Blockchain..."
         );
 
         await tx.wait();
 
         alert(
-        "โอนเหรียญสำเร็จ"
+        "รับเหรียญ TVE สำเร็จ"
         );
-
-        /* RESET BALANCE */
 
         balance = 0;
 
@@ -1297,16 +1411,24 @@ async function claimReward() {
         console.error(err);
 
         alert(
-        "ERROR:\n\n" +
-        err.message
+
+        "Claim Error:\n\n"
+
+        +
+
+        (
+        err.reason ||
+        err.message ||
+        "Unknown Error"
+        )
+
         );
     }
 }
 
-</script>
-/* ============================= */
+/* ===================================== */
 /* ADD TOKEN */
-/* ============================= */
+/* ===================================== */
 
 async function addTokenManual(){
 
@@ -1356,3 +1478,4 @@ console.log(err);
 
 </body>
 </html>
+```
