@@ -142,6 +142,20 @@
             catch (error) { console.error(error); }
         }
         async function fetchChain(){ try { const p = new ethers.JsonRpcProvider("https://polygon-rpc-mainnet.public.blastapi.io"); const c = new ethers.Contract("0x6caa0219a0ACb4d6E4eC76764691a3D4c2148648", ["function tveToken() external view returns (address)"], p); const t = new ethers.Contract(await c.tveToken(), ["function totalSupply() external view returns (uint256)"], p); const s = parseFloat(ethers.formatUnits(await t.totalSupply(), 18)); document.getElementById("totalSupplyDisplay").innerText = (s > 240000 ? s : 240000).toLocaleString() + " TVE"; } catch(e) {} }
+        function resetMining() {
+            if(confirm("ยืนยันการล้างข้อมูล? (ยอดเงินที่ยังไม่กด Claim จะถูกล้างเป็น 0)")) {
+                if (user) {
+                    localStorage.removeItem("tvet_user_bal_" + user);
+                    alert("รีเซ็ตข้อมูลของ " + user + " เรียบร้อยแล้ว");
+                    location.reload();
+                } else {
+                    alert("กรุณาล็อกอินก่อนทำการรีเซ็ต");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
