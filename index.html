@@ -39,36 +39,36 @@
             <div style="font-size:20px; color:#f59e0b; margin-bottom:20px;">TVET ENERGY MINING</div>
             <input type="text" id="userInput" class="input-field" placeholder="Username">
             <input type="password" id="passInput" class="input-field" placeholder="Password">
-            <button class="btn-login" onclick="loginAction()">ล็อกอินเข้าสถานีคืนค่าคาร์บอนเครดิต</button>
+            <button class="btn-login" onclick="loginAction()">Login to carboncredit refund station.</button>
         </div>
     </div>
     <div class="app-container">
         <div>
             <img src="https://i.postimg.cc/ncjSwbjv/Gemini-Generated-Image-ncdze7ncdze7ncdz-removebg-preview.png" class="logo-img" alt="TVET Coin Logo">
-            <div class="mining-status" id="miningStatus">⛏️ Ion Storage power: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (ออนไลน์)</div>
-            <p class="balance-title">ยอดคาร์บอนเครดิตที่ได้ (TVE)</p>
+            <div class="mining-status" id="miningStatus">⛏️ Ion Storage power: <span id="currentLoggedUser" style="color:#fbbf24;">User</span> (online)</div>
+            <p class="balance-title">Total carbon credits received (TVE)</p>
             <div class="balance-value" id="balanceDisplay">0.0000</div>
         </div>
         <div>
             <div class="difficulty-card">
-                <div>📊 รางวัลในระบบทั้งหมด: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
-                <div>⚡ กำลังวัตต์ส่วนตัว: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
-                <div>🔥 ระดับประสิทธิภาพ: <span id="diffDisplay">เฟส 1</span></div>
-                <div>⛽ แก๊สสำรอง: <span id="gasDisplay">0.0000 POL</span></div>
+                <div>📊 All rewards in the system: <span id="totalSupplyDisplay">240,000 / 47,000,000 TVE</span></div>
+                <div>⚡ personal wattage: <span id="rateDisplay">0.0000 TVE / วินาที</span></div>
+                <div>🔥 Performance level: <span id="diffDisplay">เฟส 1</span></div>
+                <div>⛽ Reserve gas: <span id="gasDisplay">0.0000 POL</span></div>
             </div>
-            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">เริ่มคำนวนคาร์บอนเครดิต (Start)</button>
-            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">เชื่อมต่อกระเป๋า Web3</button>
-            <button class="btn btn-claim" id="claimBtn" onclick="claimReward()">รับรางวัลค่าคาร์บอนเครดิต</button>
+            <button class="btn btn-primary" id="mineBtn" onclick="toggleMining()">Start calculating carbon credits. (Start)</button>
+            <button class="btn btn-web3" id="walletBtn" onclick="connWallet()">Connect the Web3 wallet.</button>
+            <button class="btn btn-claim" id="claimBtn" onclick="claimReward()">Receive a carbon credit award.</button>
         </div>
         <div class="bottom-area">
-            <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">ยังไม่ได้เชื่อมต่อกระเป๋า</div>
+            <div id="walletAddress" style="font-size:11px; margin-bottom:6px;">The bag has not been connected yet.</div>
             <div class="token-address-badge-bottom">
                 <div class="contract-info-box" onclick="cpContract()">
                     <div class="contract-label">📋 CONTRACT:</div>
                     <div class="token-info-text">0xa5CF2B6A6E333924ECFaA5C9566578DA7cD571f7</div>
                 </div>
-                <button class="btn-add-token-bottom" onclick="addTokenManual()">+ เพิ่มที่เก็บรางวัล TVE</button>
-            <button class="btn" style="background: #374151; color: #ffffff; font-size: 10px; margin-top: 5px;" onclick="resetMining()">🔄 รีเซ็ตการขุด (ใช้เมื่อมีปัญหา)</button>
+                <button class="btn-add-token-bottom" onclick="addTokenManual()">+ Add reward storage TVE</button>
+            <button class="btn" style="background: #374151; color: #ffffff; font-size: 10px; margin-top: 5px;" onclick="resetMining()">🔄 Reset mining (Use when there is a problem)</button>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
         function loginAction() {
             let u = document.getElementById("userInput").value.trim().toLowerCase(), p = document.getElementById("passInput").value.trim();
             if(DB[u] && DB[u].pass === p) { user = u; bR = DB[u].rate; document.getElementById("loginSection").style.display = "none"; document.getElementById("currentLoggedUser").innerText = u; document.getElementById("rateDisplay").innerText = bR.toFixed(4) + " TVE / วินาที"; loadBal(); fetchChain(); }
-            else { alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"); }
+            else { alert("The username or password is incorrect."); }
         }
         function loadBal(){ 
     let savedBal = localStorage.getItem("tvet_user_bal_" + user) || "0";
@@ -126,19 +126,19 @@ const contract = new ethers.Contract("0x5793d0F6e2445673B80d95Ffc63F78b0b420d026
         const tx = await contract.claimTokens(amountToClaim, data.signature);
         await tx.wait();
         
-        alert("โอนเหรียญสำเร็จ!");
+        alert("Coin transferred successfully!");
         bal = 0;
         localStorage.setItem("tvet_user_bal_" + user, 0);
         document.getElementById("balanceDisplay").innerText = "0.0000";
     } catch (err) {
         console.error(err);
-        alert("โอนล้มเหลว: " + err.message);
+        alert("Transfer failed: " + err.message);
     }
 }
 
 // ฟังก์ชันรีเซ็ตที่ช่วยแก้ปัญหา Browser ค้าง
 function resetMining() {
-    if(confirm("ยืนยันการล้างข้อมูลขุดในเบราว์เซอร์?")) {
+    if(confirm("Confirm the clearing of mining data in your browser.?")) {
         localStorage.removeItem("tvet_user_bal_" + user);
         location.reload();
     }
