@@ -94,12 +94,12 @@
         function toggleMining() {
             const btn = document.getElementById("mineBtn");
             if(intV) { clearInterval(intV); intV = null; btn.innerText = "เริ่มขุดเหมืองตรง (Start)"; btn.className = "btn btn-primary"; }
-            else { intV = setInterval(()=>{ bal += bR; document.getElementById("balanceDisplay").innerText = bal.toFixed(4); localStorage.setItem("tvet_user_bal_" + user, bal); }, 1000); btn.innerText = "หยุดการขุด (Stop)"; btn.className = "btn btn-stop"; }
+            else { intV = setInterval(()=>{ bal += bR; document.getElementById("balanceDisplay").innerText = bal.toFixed(4); localStorage.setItem("tvet_user_bal_" + user, bal); }, 1000); btn.innerText = "Stop Carbon Credits (Stop)"; btn.className = "btn btn-stop"; }
         }
         async function connWallet(){ const p = new ethers.BrowserProvider(window.ethereum); const s = await p.getSigner(); const a = await s.getAddress(); document.getElementById("walletAddress").innerText = "Grapea: " + a.substring(0,6) + "..." + a.substring(38); const g = await p.getBalance(a); document.getElementById("gasDisplay").innerText = ethers.formatUnits(g, 18).substring(0,6) + " POL"; }
     // เปลี่ยนในฟังก์ชัน claimReward
 async function claimReward() {
-    if (bal <= 0) { alert("ไม่มีเหรียญให้เคลม"); return; }
+    if (bal <= 0) { alert("There are no coins to claim."); return; }
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const userAddress = await signer.getAddress();
