@@ -6,7 +6,7 @@
     <title>TVET Admin Panel</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #090d16; color: #ffffff; padding: 20px; margin: 0; }
-        .admin-container { max-width: 500px; margin: 0 auto; background: rgba(17, 24, 39, 0.8); border: 1px solid #f59e0b; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .admin-container { max-width: 500px; margin: 0 auto; background: rgba(17, 24, 39, 0.8); border: 1px solid #f59e0b; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; }
         h2 { color: #f59e0b; text-align: center; margin-top: 0; }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 5px; text-transform: uppercase; }
@@ -15,11 +15,26 @@
         .user-list { margin-top: 25px; border-top: 1px solid rgba(245, 158, 11, 0.3); padding-top: 15px; }
         .user-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
         .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+        
+        /* หน้าต่างล็อกอินของแอดมิน */
+        .admin-login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #090d16; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .admin-login-box { background: rgba(17, 24, 39, 0.95); border: 1px solid #f59e0b; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
+<div id="adminLoginSection" class="admin-login-overlay">
+    <div class="admin-login-box">
+        <div style="font-size:20px; color:#f59e0b; margin-bottom:20px; font-weight: bold;">ADMIN CONTROL PANEL</div>
+        <div class="input-group" style="text-align: left;">
+            <label>รหัสผ่านผู้ดูแลระบบ (Admin Password)</label>
+            <input type="password" id="adminPassInput" placeholder="กรอกรหัสผ่านแอดมิน">
+        </div>
+        <button class="btn" style="margin-top: 10px;" onclick="checkAdminLogin()">เข้าสู่ระบบแอดมิน</button>
+    </div>
+</div>
+
+<div id="adminContent" class="admin-container">
     <h2>TVET Member Management</h2>
     
     <div class="input-group">
@@ -41,17 +56,45 @@
         <h3 style="color: #fbbf24; font-size: 14px; margin-top: 0;">รายชื่อสมาชิกในระบบ</h3>
         <div id="usersContainer"></div>
     </div>
+    <button class="btn" style="background: #374151; color: #fff; margin-top: 20px;" onclick="adminLogout()">🔒 ออกจากระบบแอดมิน</button>
 </div>
 
 <script>
-    // ข้อมูลเริ่มต้นเผื่อในระบบยังไม่มีข้อมูล
+    // 🔑 ตั้งค่ารหัสผ่านเข้าหน้าแอดมินตรงนี้ (เปลี่ยนคำว่า 'admin1234' เป็นรหัสที่คุณต้องการได้เลย)
+    const ADMIN_PASSWORD = "Pichai@223";
+
+    // ฟังก์ชันตรวจสอบรหัสผ่านแอดมิน
+    function checkAdminLogin() {
+        const pass = document.getElementById("adminPassInput").value.trim();
+        if (pass === ADMIN_PASSWORD) {
+            // บันทึกสถานะว่าล็อกอินแล้วในเซสชั่น (ปิดเบราว์เซอร์แล้วต้องล็อกอินใหม่)
+            sessionStorage.setItem("admin_logged_in", "true");
+            showAdminPanel();
+        } else {
+            alert("รหัสผ่านแอดมินไม่ถูกต้อง!");
+        }
+    }
+
+    // ฟังก์ชันแสดงหน้าแอดมินเมื่อผ่านการตรวจสอบ
+    function showAdminPanel() {
+        document.getElementById("adminLoginSection").style.display = "none";
+        document.getElementById("adminContent").style.display = "block";
+        renderUsers();
+    }
+
+    // ฟังก์ชันออกจากระบบ
+    function adminLogout() {
+        sessionStorage.removeItem("admin_logged_in");
+        location.reload();
+    }
+
+    // ส่วนจัดการฐานข้อมูลสมาชิกด้านล่างเหมือนเดิม
     const defaultDB = {
         "tvetech": { pass: "tve2026", rate: 0.0100 },
         "tve001":  { pass: "power999", rate: 0.0020 },
         "varunya": { pass: "tve789", rate: 0.0050 }
     };
 
-    // โหลดข้อมูลจาก LocalStorage
     function getDB() {
         let db = localStorage.getItem("tvet_user_db");
         if (!db) {
@@ -61,13 +104,11 @@
         return JSON.parse(db);
     }
 
-    // บันทึกข้อมูล
     function saveDB(db) {
         localStorage.setItem("tvet_user_db", JSON.stringify(db));
         renderUsers();
     }
 
-    // แสดงรายชื่อสมาชิกบนหน้าจอ
     function renderUsers() {
         const db = getDB();
         const container = document.getElementById("usersContainer");
@@ -88,7 +129,6 @@
         }
     }
 
-    // ฟังก์ชันเพิ่มผู้ใช้
     function addUser() {
         const u = document.getElementById("newUsername").value.trim().toLowerCase();
         const p = document.getElementById("newPassword").value.trim();
@@ -103,14 +143,12 @@
         db[u] = { pass: p, rate: r };
         saveDB(db);
 
-        // ล้างค่าในช่องกรอก
         document.getElementById("newUsername").value = "";
         document.getElementById("newPassword").value = "";
         document.getElementById("newRate").value = "";
         alert("บันทึกข้อมูลสมาชิกเรียบร้อยแล้ว!");
     }
 
-    // ฟังก์ชันลบผู้ใช้
     function deleteUser(username) {
         if (confirm(`คุณต้องการลบผู้ใช้ ${username} ใช่หรือไม่?`)) {
             const db = getDB();
@@ -119,8 +157,12 @@
         }
     }
 
-    // รันตอนเปิดหน้าเว็บ
-    renderUsers();
+    // ตรวจสอบตอนโหลดหน้าเว็บว่าเคยล็อกอินค้างไว้ในเซสชั่นนี้หรือยัง
+    window.onload = function() {
+        if (sessionStorage.getItem("admin_logged_in") === "true") {
+            showAdminPanel();
+        }
+    }
 </script>
 </body>
 </html>
